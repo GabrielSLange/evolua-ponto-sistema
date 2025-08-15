@@ -1,4 +1,7 @@
+using Npgsql;
+
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -35,6 +38,21 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
+// Endpoint para testar a conexão com o banco de dados
+app.MapGet("/test-db", (IConfiguration config) => {
+    try
+    {
+        var connectionString = config.GetConnectionString("DefaultConnection");
+        using var conn = new NpgsqlConnection(connectionString);
+        conn.Open();
+        conn.Close();
+        return Results.Ok("Conexão com o banco de dados Supabase bem-sucedida!");
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"Erro ao conectar com o banco: {ex.Message}");
+    }
+});
 
 app.Run();
 

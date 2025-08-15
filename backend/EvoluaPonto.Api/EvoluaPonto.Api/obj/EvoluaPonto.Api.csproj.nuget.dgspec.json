@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj": {}
+    "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj": {
+    "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj",
+        "projectUniqueName": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj",
         "projectName": "EvoluaPonto.Api",
-        "projectPath": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj",
+        "projectPath": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj",
         "packagesPath": "C:\\Users\\NovaContabilidade\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\EvoluaPonto.Api\\EvoluaPonto.Api\\obj\\",
+        "outputPath": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -53,6 +53,10 @@
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[8.0.19, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[8.0.11, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
