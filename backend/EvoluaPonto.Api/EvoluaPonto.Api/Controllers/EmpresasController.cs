@@ -1,5 +1,6 @@
 ﻿using EvoluaPonto.Api.Interfaces;
 using EvoluaPonto.Api.Models;
+using EvoluaPonto.Api.Models.Shared;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EvoluaPonto.Api.Controllers
@@ -20,14 +21,14 @@ namespace EvoluaPonto.Api.Controllers
         {
             try
             {
-                ModelEmpresa? empresa = await _empresaService.GetByIdAsync(Id);
-                if(empresa == null)
+                ServiceResponse<ModelEmpresa> ResponseEmpresa = await _empresaService.GetByIdAsync(Id);
+                if(!ResponseEmpresa.Success)
                 {
-                    return NotFound();
+                    return NotFound(ResponseEmpresa.ErrorMessage);
                 }
                 else
                 {
-                    return Ok(empresa);
+                    return Ok(ResponseEmpresa.Data);
                 }
             }
             catch (Exception ex) 
@@ -46,9 +47,14 @@ namespace EvoluaPonto.Api.Controllers
                     return BadRequest(ModelState);
                 }
 
-                ModelEmpresa empresaCriada = await _empresaService.CreateAsync(NovaEmpresa);
+                ServiceResponse<ModelEmpresa> ResponseEmpresa = await _empresaService.CreateAsync(NovaEmpresa);
 
-                return CreatedAtAction(nameof(GetEmpresaById), new { id = empresaCriada }, empresaCriada);
+                if (!ResponseEmpresa.Success)
+                {
+                    return Conflict(ResponseEmpresa.ErrorMessage);
+                }
+
+                return CreatedAtAction(nameof(GetEmpresaById), new { id = ResponseEmpresa.Data?.Id }, ResponseEmpresa.Data);
             }
             catch(Exception ex)
             {
