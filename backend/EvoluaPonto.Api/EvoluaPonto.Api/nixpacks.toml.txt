@@ -1,0 +1,9 @@
+# Arquivo de configuração para o builder Nixpacks da Railway
+
+# Na fase de setup, instala o SDK do .NET 8
+[phases.setup]
+nixPkgs = ["dotnet-sdk_8"]
+
+# Na fase de início, define o comando para rodar a API
+[start]
+cmd = "dotnet EvoluaPonto.Api.dll"
