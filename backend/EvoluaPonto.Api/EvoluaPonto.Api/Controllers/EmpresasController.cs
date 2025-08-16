@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EvoluaPonto.Api.Controllers
 {
     [ApiController]
-    [Route("api/controller")]
+    [Route("api/[controller]")]
     public class EmpresasController : ControllerBase
     {
         private readonly IEmpresaService _empresaService;
