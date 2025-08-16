@@ -7,5 +7,6 @@ namespace EvoluaPonto.Api.Interfaces
     {
         Task<ServiceResponse<ModelEmpresa>> GetByIdAsync(Guid Id);
         Task<ServiceResponse<ModelEmpresa>> CreateAsync(ModelEmpresa NovaEmpresa);
+        Task<ServiceResponse<ModelEmpresa>> UpdateAsync(ModelEmpresa EmpresaAtualizada);
     }
 }

@@ -61,5 +61,39 @@ namespace EvoluaPonto.Api.Controllers
                 return BadRequest(ex.Message);
             }            
         }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateEmpresa([FromBody] ModelEmpresa EmpresaAtualizada)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                ServiceResponse<ModelEmpresa> ResponseEmpresa = await _empresaService.UpdateAsync(EmpresaAtualizada);
+
+                if (!ResponseEmpresa.Success && ResponseEmpresa.ErrorMessage is not null)
+                {
+                    if (ResponseEmpresa.ErrorMessage.Contains("ID"))
+                    {
+                        return NotFound(ResponseEmpresa.ErrorMessage);
+                    }
+                    else
+                    {
+                        return Conflict(ResponseEmpresa.ErrorMessage);
+                    }
+                    
+                }
+
+                return Ok(ResponseEmpresa.Data);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
+        }
     }
 }

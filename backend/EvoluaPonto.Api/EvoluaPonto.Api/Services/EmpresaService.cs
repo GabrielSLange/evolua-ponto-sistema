@@ -15,6 +15,8 @@ namespace EvoluaPonto.Api.Services
             _context = context;
         }
 
+        public async Task<ServiceResponse<ModelEmpresa>> GetByIdAsync(Guid Id) => new ServiceResponse<ModelEmpresa> { Data = await _context.Empresas.AsNoTracking().FirstOrDefaultAsync(tb => tb.Id == Id) };
+
         public async Task<ServiceResponse<ModelEmpresa>> CreateAsync(ModelEmpresa NovaEmpresa)
         {
             ModelEmpresa? EmpresaBanco = await _context.Empresas.AsNoTracking().FirstOrDefaultAsync(tb => tb.Cnpj == NovaEmpresa.Cnpj);
@@ -40,6 +42,22 @@ namespace EvoluaPonto.Api.Services
             };
         }
 
-        public async Task<ServiceResponse<ModelEmpresa>> GetByIdAsync(Guid Id) => new ServiceResponse<ModelEmpresa> { Data = await _context.Empresas.AsNoTracking().FirstOrDefaultAsync(tb => tb.Id == Id) };
+        public async Task<ServiceResponse<ModelEmpresa>> UpdateAsync(ModelEmpresa EmpresaAtualizada)
+        {
+            ModelEmpresa? EmpresaBanco = await _context.Empresas.FirstOrDefaultAsync(tb => tb.Id == EmpresaAtualizada.Id);
+
+            if (EmpresaBanco is null) { return new ServiceResponse<ModelEmpresa> { Success = false, ErrorMessage = "Não existe uma empresa com esse ID" }; }
+
+            ModelEmpresa? EmpresaCnpjEmUso = await _context.Empresas.AsNoTracking().FirstOrDefaultAsync(tb => /*tb.Cnpj == EmpresaAtualizada.Cnpj &&*/ tb.Id != EmpresaAtualizada.Id);
+
+            if (EmpresaCnpjEmUso is not null) { return new ServiceResponse<ModelEmpresa> { Success = false, ErrorMessage = "Já existe uma empresa cadastrada com esse CNPJ" }; }
+
+            EmpresaBanco.RazaoSocial = EmpresaAtualizada.RazaoSocial;
+
+            _context.Update(EmpresaBanco);
+            await _context.SaveChangesAsync();
+
+           return new ServiceResponse<ModelEmpresa> { Data = EmpresaBanco };
+        }        
     }
 }
