@@ -39,14 +39,21 @@ namespace EvoluaPonto.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateEmpresa([FromBody] ModelEmpresa NovaEmpresa)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                ModelEmpresa empresaCriada = await _empresaService.CreateAsync(NovaEmpresa);
+
+                return CreatedAtAction(nameof(GetEmpresaById), new { id = empresaCriada }, empresaCriada);
             }
-
-            ModelEmpresa empresaCriada = await _empresaService.CreateAsync(NovaEmpresa);
-
-            return CreatedAtAction(nameof(GetEmpresaById), new { id = empresaCriada }, empresaCriada);
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }            
         }
     }
 }
