@@ -1,10 +1,9 @@
 {
   "version": 2,
-  "dgSpecHash": "wOcvhXFtT8s=",
+  "dgSpecHash": "MwIQt2wMWLE=",
   "success": true,
   "projectFilePath": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\NovaContabilidade\\.nuget\\packages\\microsoft.aspnetcore.openapi\\8.0.19\\microsoft.aspnetcore.openapi.8.0.19.nupkg.sha512",
     "C:\\Users\\NovaContabilidade\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.11\\microsoft.entityframeworkcore.8.0.11.nupkg.sha512",
     "C:\\Users\\NovaContabilidade\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.11\\microsoft.entityframeworkcore.abstractions.8.0.11.nupkg.sha512",
     "C:\\Users\\NovaContabilidade\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\8.0.11\\microsoft.entityframeworkcore.analyzers.8.0.11.nupkg.sha512",

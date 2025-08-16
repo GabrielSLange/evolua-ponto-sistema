@@ -1,4 +1,4 @@
-@EvoluaPonto.Api_HostAddress = http://localhost:5167
+@EvoluaPonto.Api_HostAddress = http://localhost:5055
 
 GET {{EvoluaPonto.Api_HostAddress}}/weatherforecast/
 Accept: application/json
