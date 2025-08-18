@@ -26,12 +26,6 @@ builder.Services.AddCors(options =>
                       });
 });
 
-Console.WriteLine("--- Verificando Configurações do JWT ---");
-Console.WriteLine($"Issuer lido: '{builder.Configuration["Jwt:Issuer"]}'");
-Console.WriteLine($"Audience lido: '{builder.Configuration["Jwt:Audience"]}'");
-Console.WriteLine($"Secret lido tem conteúdo? {!string.IsNullOrEmpty(builder.Configuration["Jwt:Secret"])}");
-Console.WriteLine("-----------------------------------------");
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -47,26 +41,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Audience"],
 
             ClockSkew = TimeSpan.Zero // Remove a tolerância de tempo na expiração do token
-        };
-
-        options.Events = new JwtBearerEvents
-        {
-            OnAuthenticationFailed = context =>
-            {
-                // Este evento é disparado se a validação falhar por QUALQUER motivo
-                Console.WriteLine("--- FALHA NA AUTENTICAÇÃO ---");
-                Console.WriteLine("Exceção: " + context.Exception.ToString());
-                Console.WriteLine("--- FIM DA FALHA ---");
-                return Task.CompletedTask;
-            },
-            OnTokenValidated = context =>
-            {
-                // Este evento é disparado se a validação for 100% bem-sucedida
-                Console.WriteLine("--- SUCESSO NA VALIDAÇÃO DO TOKEN ---");
-                Console.WriteLine("Token validado para o usuário com ID: " + context.Principal.Identity?.Name);
-                Console.WriteLine("--- FIM DO SUCESSO ---");
-                return Task.CompletedTask;
-            }
         };
     });
 
