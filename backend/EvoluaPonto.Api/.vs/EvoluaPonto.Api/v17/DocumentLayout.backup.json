@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\services\\empresaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\services\\empresaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\controllers\\empresascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\controllers\\empresascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\services\\empresaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\services\\empresaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -38,7 +38,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -109,26 +109,26 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "EmpresasController.cs",
               "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Controllers\\EmpresasController.cs",
               "RelativeDocumentMoniker": "EvoluaPonto.Api\\Controllers\\EmpresasController.cs",
               "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Controllers\\EmpresasController.cs",
               "RelativeToolTip": "EvoluaPonto.Api\\Controllers\\EmpresasController.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAAAAAC8AAAAgAAAAAAAAAA==",
+              "ViewState": "AgIAACcAAAAAAAAAAAAAAIQAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-08-16T01:51:40.483Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "EmpresaService.cs",
               "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\EmpresaService.cs",
               "RelativeDocumentMoniker": "EvoluaPonto.Api\\Services\\EmpresaService.cs",
               "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\EmpresaService.cs",
               "RelativeToolTip": "EvoluaPonto.Api\\Services\\EmpresaService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAABIAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEkAAAA8AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-08-16T01:40:42.299Z",
               "EditorCaption": ""

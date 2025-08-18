@@ -38,8 +38,12 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 6,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 2,
@@ -111,7 +115,7 @@
               "RelativeDocumentMoniker": "EvoluaPonto.Api\\Controllers\\EmpresasController.cs",
               "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Controllers\\EmpresasController.cs",
               "RelativeToolTip": "EvoluaPonto.Api\\Controllers\\EmpresasController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAC4AAAAuAAAAAAAAAA==",
+              "ViewState": "AgIAACcAAAAAAAAAAAAAAIQAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-08-16T01:51:40.483Z",
               "EditorCaption": ""
@@ -124,7 +128,7 @@
               "RelativeDocumentMoniker": "EvoluaPonto.Api\\Services\\EmpresaService.cs",
               "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\EmpresaService.cs",
               "RelativeToolTip": "EvoluaPonto.Api\\Services\\EmpresaService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAABIAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEkAAAA8AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-08-16T01:40:42.299Z",
               "EditorCaption": ""

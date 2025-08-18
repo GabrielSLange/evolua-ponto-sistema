@@ -110,5 +110,24 @@ namespace EvoluaPonto.Api.Controllers
             }
             
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteEmpresa(Guid Id)
+        {
+            try
+            {
+                ServiceResponse<bool> responseEmpresa = await _empresaService.DeleteAsync(Id);
+                if (!responseEmpresa.Success)
+                {
+                    return NotFound(responseEmpresa.ErrorMessage);
+                }
+
+                return Ok(responseEmpresa.Success);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
