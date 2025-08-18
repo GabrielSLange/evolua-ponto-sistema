@@ -1,12 +1,11 @@
 ﻿using EvoluaPonto.Api.Data;
-using EvoluaPonto.Api.Interfaces;
 using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace EvoluaPonto.Api.Services
 {
-    public class EmpresaService : IEmpresaService
+    public class EmpresaService
     {
         private readonly AppDbContext _context;
 
@@ -16,6 +15,8 @@ namespace EvoluaPonto.Api.Services
         }
 
         public async Task<ServiceResponse<ModelEmpresa>> GetByIdAsync(Guid Id) => new ServiceResponse<ModelEmpresa> { Data = await _context.Empresas.AsNoTracking().FirstOrDefaultAsync(tb => tb.Id == Id) };
+
+        public async Task<ServiceResponse<List<ModelEmpresa>>> GetAsync() => new ServiceResponse<List<ModelEmpresa>> { Data = await _context.Empresas.AsNoTracking().ToListAsync() };
 
         public async Task<ServiceResponse<ModelEmpresa>> CreateAsync(ModelEmpresa NovaEmpresa)
         {

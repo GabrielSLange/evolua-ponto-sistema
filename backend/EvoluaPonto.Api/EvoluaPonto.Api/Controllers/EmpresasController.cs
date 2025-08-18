@@ -1,6 +1,7 @@
-﻿using EvoluaPonto.Api.Interfaces;
+﻿
 using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Shared;
+using EvoluaPonto.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EvoluaPonto.Api.Controllers
@@ -9,9 +10,9 @@ namespace EvoluaPonto.Api.Controllers
     [Route("api/[controller]")]
     public class EmpresasController : ControllerBase
     {
-        private readonly IEmpresaService _empresaService;
+        private readonly EmpresaService _empresaService;
 
-        public EmpresasController(IEmpresaService empresaService)
+        public EmpresasController(EmpresaService empresaService)
         {
             _empresaService = empresaService;
         }
@@ -35,6 +36,20 @@ namespace EvoluaPonto.Api.Controllers
             {
                 return BadRequest(ex.Message);
             }            
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetEmpresas()
+        {
+            try
+            {
+                ServiceResponse<List<ModelEmpresa>> responseEmpresa = await _empresaService.GetAsync();
+                return Ok(responseEmpresa.Data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]

@@ -1,5 +1,4 @@
 using EvoluaPonto.Api.Data;
-using EvoluaPonto.Api.Interfaces;
 using EvoluaPonto.Api.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +16,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-builder.Services.AddScoped<IEmpresaService, EmpresaService>();
+builder.Services.AddScoped<EmpresaService>();
 
 var app = builder.Build();
 
