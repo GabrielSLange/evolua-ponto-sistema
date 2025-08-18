@@ -2,19 +2,26 @@
 using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Shared;
 using EvoluaPonto.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace EvoluaPonto.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class EmpresasController : ControllerBase
     {
         private readonly EmpresaService _empresaService;
+        private readonly IConfiguration _configuration;
 
-        public EmpresasController(EmpresaService empresaService)
+        public EmpresasController(EmpresaService empresaService, IConfiguration configuration)
         {
             _empresaService = empresaService;
+            _configuration = configuration;
         }
 
         [HttpGet("{Id}")]
@@ -127,6 +134,46 @@ namespace EvoluaPonto.Api.Controllers
             catch(Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("test-auth")]
+        public IActionResult TestAuthentication()
+        {
+            try
+            {
+                // 1. Pega o token do cabeçalho da requisição
+                string? token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+                if (token == null)
+                {
+                    return BadRequest("Token não encontrado no cabeçalho Authorization.");
+                }
+
+                // 2. Recria os mesmos parâmetros de validação que estão no Program.cs
+                var tokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"])), // Injetar IConfiguration no controller
+                    ValidateIssuer = true,
+                    ValidIssuer = _configuration["Jwt:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = _configuration["Jwt:Audience"],
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                // 3. Tenta validar o token manualmente
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken validatedToken);
+
+                // Se chegar aqui, o token é válido!
+                var claims = principal.Claims.Select(c => new { c.Type, c.Value });
+                return Ok(new { Message = "Token é válido!", Claims = claims });
+            }
+            catch (Exception ex)
+            {
+                // Se a validação falhar, esta exceção nos dirá exatamente o porquê.
+                return StatusCode(500, $"Erro na validação manual do token: {ex.ToString()}");
             }
         }
     }
