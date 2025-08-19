@@ -28,8 +28,8 @@ namespace EvoluaPonto.Api.Models
 
         [Required]
         [Column("empresa_id")]
-        public string EmpresaId { get; set; }
+        public Guid EmpresaId { get; set; }
 
-        public ModelEmpresa empresa { get; set; }
+        public ModelEmpresa? empresa { get; set; }
     }
 }

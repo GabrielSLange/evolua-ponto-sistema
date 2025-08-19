@@ -86,6 +86,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<EmpresaService>();
+builder.Services.AddScoped<FuncionarioService>();
 
 var app = builder.Build();
 

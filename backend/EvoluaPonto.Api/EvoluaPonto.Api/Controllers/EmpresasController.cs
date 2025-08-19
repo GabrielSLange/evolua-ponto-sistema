@@ -13,12 +13,10 @@ namespace EvoluaPonto.Api.Controllers
     public class EmpresasController : ControllerBase
     {
         private readonly EmpresaService _empresaService;
-        private readonly IConfiguration _configuration;
 
         public EmpresasController(EmpresaService empresaService, IConfiguration configuration)
         {
             _empresaService = empresaService;
-            _configuration = configuration;
         }
 
         [HttpGet("{Id}")]
