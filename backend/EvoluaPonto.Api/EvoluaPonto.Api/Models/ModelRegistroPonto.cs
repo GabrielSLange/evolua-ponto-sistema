@@ -8,7 +8,8 @@ namespace EvoluaPonto.Api.Models
     {
         [Key]
         [Column("id")]
-        public Guid Id { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
 
         [Required]
         [Column("nsr")]
@@ -20,7 +21,7 @@ namespace EvoluaPonto.Api.Models
 
         [Required]
         [Column("tipo")]
-        public string tipo { get; set; }
+        public string Tipo { get; set; }
 
         [Column("foto_url")]
         public string? FotoUrl { get; set; }

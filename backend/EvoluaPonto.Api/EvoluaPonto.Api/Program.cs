@@ -1,10 +1,11 @@
 using EvoluaPonto.Api.Data;
 using EvoluaPonto.Api.Services;
-using Microsoft.EntityFrameworkCore;
+using EvoluaPonto.Api.Services.External;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,6 +88,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<EmpresaService>();
 builder.Services.AddScoped<FuncionarioService>();
+builder.Services.AddScoped<RegistroPontoService>();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<SupabaseAdminService>();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

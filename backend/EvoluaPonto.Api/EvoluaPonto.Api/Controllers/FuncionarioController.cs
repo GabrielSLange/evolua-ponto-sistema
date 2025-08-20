@@ -1,4 +1,5 @@
-﻿using EvoluaPonto.Api.Models;
+﻿using EvoluaPonto.Api.Dtos;
+using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Shared;
 using EvoluaPonto.Api.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -33,7 +34,7 @@ namespace EvoluaPonto.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateFuncionario([FromBody] ModelFuncionario novoFuncionario)
+        public async Task<IActionResult> CreateFuncionario([FromBody] FuncionarioCreateDto novoFuncionario)
         {
             try
             {
