@@ -91,6 +91,7 @@ builder.Services.AddScoped<FuncionarioService>();
 builder.Services.AddScoped<RegistroPontoService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<SupabaseAdminService>();
+builder.Services.AddScoped<SupabaseStorageService>();
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();

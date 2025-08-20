@@ -2,6 +2,7 @@
 using EvoluaPonto.Api.Dtos;
 using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Shared;
+using EvoluaPonto.Api.Services.External;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
@@ -11,11 +12,13 @@ namespace EvoluaPonto.Api.Services
     {
         private readonly AppDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly SupabaseStorageService _storageService;
 
-        public RegistroPontoService(AppDbContext context, IHttpContextAccessor httpContextAcessor)
+        public RegistroPontoService(AppDbContext context, IHttpContextAccessor httpContextAcessor, SupabaseStorageService storageService)
         {
             _context = context;
             _httpContextAccessor = httpContextAcessor;
+            _storageService = storageService;
         }
 
         public async Task<ServiceResponse<ModelRegistroPonto>> RegistrarPontoAsync(RegistroPontoDto pontoDto, Guid funcionarioId)
@@ -34,7 +37,7 @@ namespace EvoluaPonto.Api.Services
 
             if (pontoDto.Foto != null)
             {
-                fotoUrl = $"https://simulacao.storage.com/{funcionarioId}/{DateTime.UtcNow.Ticks}.jpg";
+                fotoUrl = await _storageService.UploadAsync(pontoDto.Foto, funcionarioId);
             }
 
             DateTime timestamp = DateTime.UtcNow;
