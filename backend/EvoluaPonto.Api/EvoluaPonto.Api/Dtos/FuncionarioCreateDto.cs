@@ -20,7 +20,7 @@ namespace EvoluaPonto.Api.Dtos
         public string? Cargo { get; set; }
 
         [Required] 
-        public Guid EmpresaId { get; set; }
+        public Guid EstabelecimentoId { get; set; }
 
         [Required] 
         public string Role { get; set; } // "admin" ou "normal"

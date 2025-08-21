@@ -25,7 +25,7 @@ namespace EvoluaPonto.Api.Services
             {
                 Data = await _context.Funcionarios
                     .AsNoTracking()
-                    .Where(tb => tb.EmpresaId == IdEmpresa)
+                    .Where(tb => tb.Estabelecimento.EmpresaId == IdEmpresa)
                     .ToListAsync()
             };
 
@@ -44,7 +44,7 @@ namespace EvoluaPonto.Api.Services
                 Nome = funcionarioDto.Nome,
                 Cpf = funcionarioDto.Cpf,
                 Cargo = funcionarioDto.Cargo,
-                EmpresaId = funcionarioDto.EmpresaId,
+                EstabelecimentoId = funcionarioDto.EstabelecimentoId,
                 CreatedAt = DateTime.UtcNow
             };
 

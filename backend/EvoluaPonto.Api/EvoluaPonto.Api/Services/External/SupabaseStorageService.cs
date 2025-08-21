@@ -76,6 +76,48 @@ namespace EvoluaPonto.Api.Services
             }
         }
 
+        public async Task<string?> UploadBytesAsync(byte[] fileBytes, Guid funcionarioId, string fileName, string contentType)
+        {
+            try
+            {
+                string folderName = funcionarioId.ToString("N"); // Guid sem hifens
+                string filePath = $"{folderName}/{fileName}";
+                string bucketName = "comprovante-ponto";
+
+                var requestUrl = $"{_supabaseUrl}/storage/v1/object/{bucketName}/{filePath}";
+
+                var request = new HttpRequestMessage(HttpMethod.Post, requestUrl);
+
+                // Configura os cabeçalhos obrigatórios
+                request.Headers.Add("apikey", _supabaseServiceKey);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _supabaseServiceKey);
+
+                // Configura o conteúdo do arquivo
+                var content = new ByteArrayContent(fileBytes);
+                content.Headers.ContentType = new MediaTypeHeaderValue(contentType ?? "application/octet-stream");
+                request.Content = content;
+
+                var response = await _httpClient.SendAsync(request);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Erro no upload para o Supabase: {error}");
+                    return null;
+                }
+
+                // Monta a URL pública manualmente
+                var publicUrl = $"{_supabaseUrl}/storage/v1/object/public/{bucketName}/{filePath}";
+
+                return publicUrl;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exceção no serviço de storage (UploadBytesAsync): {ex.Message}");
+                return null;
+            }
+        }
+
         // A função de limpeza continua a mesma
         private static string SanitizeFileName(string fileName)
         {

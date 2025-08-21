@@ -2,7 +2,6 @@
 using EvoluaPonto.Api.Dtos;
 using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Shared;
-using EvoluaPonto.Api.Services.External;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
@@ -13,12 +12,14 @@ namespace EvoluaPonto.Api.Services
         private readonly AppDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly SupabaseStorageService _storageService;
+        private readonly ComprovanteService _comprovanteService;
 
-        public RegistroPontoService(AppDbContext context, IHttpContextAccessor httpContextAcessor, SupabaseStorageService storageService)
+        public RegistroPontoService(AppDbContext context, IHttpContextAccessor httpContextAcessor, SupabaseStorageService storageService, ComprovanteService comprovanteService)
         {
             _context = context;
             _httpContextAccessor = httpContextAcessor;
             _storageService = storageService;
+            _comprovanteService = comprovanteService;
         }
 
         public async Task<ServiceResponse<ModelRegistroPonto>> RegistrarPontoAsync(RegistroPontoDto pontoDto, Guid funcionarioId)
@@ -28,7 +29,7 @@ namespace EvoluaPonto.Api.Services
             if (funcionarionBanco is null)
                 return new ServiceResponse<ModelRegistroPonto> { Success = false, ErrorMessage = "Funcionário não encontrado com o ID informado" };
 
-            ModelEmpresa? empresaBanco = await _context.Empresas.AsNoTracking().FirstOrDefaultAsync(tb => tb.Id == funcionarionBanco.EmpresaId);
+            ModelEmpresa? empresaBanco = await _context.Empresas.AsNoTracking().FirstOrDefaultAsync(tb => tb.Id == funcionarionBanco.Estabelecimento.EmpresaId);
 
             if (empresaBanco is null)
                 return new ServiceResponse<ModelRegistroPonto> { Success = false, ErrorMessage = "Empresa associada ao funcionário não encontrada" };
@@ -44,7 +45,7 @@ namespace EvoluaPonto.Api.Services
             string? ipAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
 
             long ultimoNsr = await _context.RegistrosPonto
-                                  .Where(p => p.Funcionario.EmpresaId == funcionarionBanco.EmpresaId)
+                                  .Where(p => p.Funcionario.Estabelecimento.EmpresaId == funcionarionBanco.Estabelecimento.EmpresaId)
                                   .MaxAsync(p => (long?)p.Nsr) ?? 0;
             long novoNsr = ultimoNsr + 1;
 
@@ -62,6 +63,15 @@ namespace EvoluaPonto.Api.Services
                 HashSha256 = hash,
                 CreatedAt = DateTime.UtcNow
             };
+
+            var pdfBytes = _comprovanteService.GerarComprovante(novoRegistro, funcionarionBanco, empresaBanco);
+
+            // 9. Salvar o PDF no Storage
+            var nomeArquivoPdf = $"comprovante_{novoRegistro.Nsr}.pdf";
+            var comprovanteUrl = await _storageService.UploadBytesAsync(pdfBytes, funcionarioId, nomeArquivoPdf, "application/pdf");
+
+            // 10. Atualizar o registro de ponto com a URL do comprovante
+            novoRegistro.ComprovanteUrl = comprovanteUrl;
 
 
             await _context.RegistrosPonto.AddAsync(novoRegistro);

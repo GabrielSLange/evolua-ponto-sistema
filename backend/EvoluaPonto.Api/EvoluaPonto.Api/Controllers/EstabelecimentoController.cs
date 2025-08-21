@@ -1,0 +1,86 @@
+﻿using EvoluaPonto.Api.Models;
+using EvoluaPonto.Api.Models.Shared;
+using EvoluaPonto.Api.Services;
+using Microsoft.AspNetCore.Mvc;
+
+namespace EvoluaPonto.Api.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class EstabelecimentoController : ControllerBase
+    {
+        private readonly EstabelecimentoService _estabelecimentoService;
+
+        public EstabelecimentoController(EstabelecimentoService estabelecimentoService)
+        {
+            _estabelecimentoService = estabelecimentoService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetEstabelecimentosEmpresa(Guid empresaId)
+        {
+            try
+            {
+                return Ok((await _estabelecimentoService.GetEstabelecimentosEmpresa(empresaId)).Data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateEstabelecimento([FromBody] ModelEstabelecimento estabelecimentoNovo)
+        {
+            try
+            {
+                ServiceResponse<ModelEstabelecimento> responseEstabelecimento = await _estabelecimentoService.CreateEsabelecimento(estabelecimentoNovo);
+
+                if (!responseEstabelecimento.Success)
+                    return NotFound(responseEstabelecimento.ErrorMessage);
+
+                return Ok(responseEstabelecimento.Data);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateEstabelecimento([FromBody] ModelEstabelecimento estabelecimentoAtualizado)
+        {
+            try
+            {
+                ServiceResponse<ModelEstabelecimento> responseEstabelecimento = await _estabelecimentoService.UpdateEstabelecimento(estabelecimentoAtualizado);
+
+                if (!responseEstabelecimento.Success)
+                    return NotFound(responseEstabelecimento.ErrorMessage);
+
+                return Ok(responseEstabelecimento.Data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteEstabelecimento(Guid Id)
+        {
+            try
+            {
+                ServiceResponse<bool> responseEstabelecimento = await _estabelecimentoService.DeleteEstabelecimento(Id);
+
+                if (!responseEstabelecimento.Success)
+                    return NotFound(responseEstabelecimento.ErrorMessage);
+
+                return Ok(responseEstabelecimento.Data);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+    }
+}

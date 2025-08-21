@@ -27,9 +27,9 @@ namespace EvoluaPonto.Api.Models
         //Relação com a tabela de empresas
 
         [Required]
-        [Column("empresa_id")]
-        public Guid EmpresaId { get; set; }
+        [Column("estabelecimento_id")]
+        public Guid EstabelecimentoId { get; set; }
 
-        public ModelEmpresa? empresa { get; set; }
+        public ModelEstabelecimento? Estabelecimento { get; set; }
     }
 }

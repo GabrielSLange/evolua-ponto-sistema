@@ -14,5 +14,6 @@ namespace EvoluaPonto.Api.Data
         public DbSet<ModelEmpresa> Empresas { get; set; }
         public DbSet<ModelFuncionario> Funcionarios { get; set; }
         public DbSet<ModelRegistroPonto> RegistrosPonto { get; set; }
+        public DbSet<ModelEstabelecimento> Estabelecimentos { get; set; }
     }
 }
