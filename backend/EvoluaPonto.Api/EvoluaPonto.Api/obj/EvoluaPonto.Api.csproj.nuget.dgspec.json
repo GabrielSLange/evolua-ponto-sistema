@@ -70,6 +70,10 @@
               "target": "Package",
               "version": "[6.6.2, )"
             },
+            "System.Security.Cryptography.Pkcs": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
             "itext": {
               "target": "Package",
               "version": "[8.0.5, )"

@@ -35,45 +35,64 @@ namespace EvoluaPonto.Api.Services
             var sb = new StringBuilder();
 
             // --- REGISTRO TIPO 1: CABEÇALHO ---
-            // Posição 001-009: NSR (sempre 0 no cabeçalho)
-            // Posição 010-010: Tipo de Registro (1)
-            // Posição 011-011: Tipo de Identificador (1 para CNPJ)
-            // Posição 012-025: CNPJ da Empresa
-            // ... e assim por diante, seguindo o layout da portaria.
-            sb.Append("0000000001"); // NSR e Tipo
-            sb.Append("1"); // Tipo de Identificador (1 = CNPJ)
-            sb.Append(estabelecimento.Empresa.Cnpj.PadRight(14));
-            sb.Append("".PadRight(14)); // CEI/CAEPF/CNO (não temos)
-            sb.Append(estabelecimento.Empresa.RazaoSocial.PadRight(150));
-            sb.Append("SEU_NUMERO_INPI_AQUI".PadRight(17)); // Substituir pelo seu nº de registro do software no INPI
-            sb.Append(dataInicio.ToString("ddMMyyyy"));
-            sb.Append(dataFim.ToString("ddMMyyyy"));
-            sb.Append(DateTime.Now.ToString("ddMMyyyyHHmm"));
-            sb.Append("001"); // Versão do Layout do AFD
-            sb.Append("\r\n"); // Quebra de linha padrão do Windows
+            string cabecalho =
+                "000000000" +
+                "1" +
+                "1" +
+                FormatString(estabelecimento.Empresa?.Cnpj, 14) +
+                FormatString("", 14) +
+                FormatString(estabelecimento.Empresa?.RazaoSocial, 150) +
+                FormatString("SEU_NUMERO_INPI_AQUI", 17) +
+                dataInicio.ToString("ddMMyyyy") +
+                dataFim.ToString("ddMMyyyy") +
+                DateTime.Now.ToString("ddMMyyyyHHmm") +
+                "001"; // Versão do Layout do AFD Portaria 671
+            sb.AppendLine(cabecalho);
 
-            // --- REGISTROS TIPO 7: MARCAÇÕES DE PONTO (Específico para REP-P) ---
+            // --- REGISTROS TIPO 7: MARCAÇÕES DE PONTO (REP-P) ---
             foreach (var registro in registrosPonto)
             {
-                sb.Append(registro.Nsr.ToString().PadLeft(9, '0')); // NSR
-                sb.Append("7"); // Tipo de Registro
-                sb.Append(registro.TimestampMarcacao.ToString("ddMMyyyyHHmmss"));
-                sb.Append(registro.Funcionario.Cpf.PadRight(12));
-                // Outros campos específicos do REP-P podem ser adicionados aqui se necessário
-                sb.Append("\r\n");
+                var timestampGravacao = registro.CreatedAt.ToUniversalTime();
+
+                string marcacao =
+                    FormatNumeric(registro.Nsr, 9) +
+                    "7" +
+                    registro.TimestampMarcacao.ToUniversalTime().ToString("ddMMyyyyHHmmss") +
+                    FormatString(registro.Funcionario.Cpf, 12) +
+                    timestampGravacao.ToString("ddMMyyyyHHmmss") +
+                    FormatString("02", 2) + // Identificador do Coletor (ex: 02 = browser)
+                    "0" + // Tipo de Marcação (0 = online)
+                    FormatString(registro.HashSha256, 64); // HASH ADICIONADO CONFORME PORTARIA
+                sb.AppendLine(marcacao);
             }
 
             // --- REGISTRO TIPO 9: TRAILER (RODAPÉ) ---
-            sb.Append("999999999"); // NSR fixo para trailer
-            sb.Append("000000000"); // Qtd. registros tipo 2
-            sb.Append("000000000"); // Qtd. registros tipo 3
-            sb.Append("000000000"); // Qtd. registros tipo 4
-            sb.Append("000000000"); // Qtd. registros tipo 5
-            sb.Append(registrosPonto.Count.ToString().PadLeft(9, '0')); // Qtd. registros tipo 7 (o nosso)
-            sb.Append("9"); // Tipo de Registro
-            sb.Append("\r\n");
+            string trailer =
+                "999999999" +
+                FormatNumeric(0, 9) + // Qtd. Registros Tipo 2
+                FormatNumeric(0, 9) + // Qtd. Registros Tipo 3
+                FormatNumeric(0, 9) + // Qtd. Registros Tipo 4
+                FormatNumeric(0, 9) + // Qtd. Registros Tipo 5
+                FormatNumeric(registrosPonto.Count, 9) + // Qtd. Registros Tipo 7
+                "9";
+            sb.Append(trailer); // Usamos Append na última linha para não criar uma linha em branco no final
 
             return sb.ToString();
+        }
+
+        // --- FUNÇÕES AUXILIARES CORRIGIDAS ---
+
+        private string FormatString(string? value, int length)
+        {
+            value ??= "";
+            // Primeiro, trunca a string se ela for maior que o tamanho permitido.
+            // Depois, preenche com espaços à direita até atingir o tamanho exato.
+            return value.PadRight(length).Substring(0, length);
+        }
+
+        private string FormatNumeric(long value, int length)
+        {
+            return value.ToString().PadLeft(length, '0');
         }
     }
 }

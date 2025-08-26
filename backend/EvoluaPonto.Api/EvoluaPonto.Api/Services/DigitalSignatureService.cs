@@ -1,17 +1,17 @@
-﻿// Usings para as classes corretas do adaptador
-using iText.Bouncycastle.Crypto;
-using iText.Commons.Bouncycastle.Cert; // Namespace correto para IX509Certificate
+﻿using iText.Bouncycastle.Crypto;
+using iText.Bouncycastle.X509;
+using iText.Commons.Bouncycastle.Cert;
 using iText.Kernel.Pdf;
 using iText.Signatures;
-using Org.BouncyCastle.Pkcs; // Para a classe X509Certificate
-using iText.Bouncycastle.X509;
+using Org.BouncyCastle.Pkcs;
 
+using System.Security.Cryptography.Pkcs;
+using System.Security.Cryptography.X509Certificates;
 
 namespace EvoluaPonto.Api.Services
 {
     public class DigitalSignatureService
     {
-
         private readonly byte[] _certificateBytes;
         private readonly string _certificatePassword;
 
@@ -49,20 +49,37 @@ namespace EvoluaPonto.Api.Services
                     pdfSigner.SetFieldName("assinatura_sistema");
                     pdfSigner.GetSignatureAppearance().SetPageRect(new iText.Kernel.Geom.Rectangle(0, 0, 0, 0));
 
-                    // A SOLUÇÃO CORRETA:
-                    // 1. Criamos a assinatura com a chave privada do BouncyCastle.
                     var bouncyCastlePrivateKey = new PrivateKeyBC(privateKey);
                     var externalSignature = new PrivateKeySignature(bouncyCastlePrivateKey, DigestAlgorithms.SHA256);
 
-                    // 2. O iText consegue converter a cadeia de certificados do BouncyCastle diretamente.
                     IX509Certificate[] chain = certificateChain.Select(c => new X509CertificateBC(c)).Cast<IX509Certificate>().ToArray();
 
-                    // 3. Assina o documento com os objetos corretos.
                     pdfSigner.SignDetached(externalSignature, chain, null, null, null, 0, PdfSigner.CryptoStandard.CMS);
 
                     return memoryStream.ToArray();
                 }
             }
+        }
+
+        public byte[] SignBytesCadesDetached(byte[] dataToSign)
+        {
+            // 1. Carrega o certificado em um objeto nativo do .NET
+            var certificate = new X509Certificate2(_certificateBytes, _certificatePassword);
+
+            // 2. Prepara o conteúdo a ser assinado
+            var contentInfo = new ContentInfo(dataToSign);
+
+            // 3. Cria o objeto SignedCms para a assinatura destacada
+            var signedCms = new SignedCms(contentInfo, true); // O 'true' significa "detached"
+
+            // 4. Cria o "assinador" usando nosso certificado
+            var signer = new CmsSigner(certificate);
+
+            // 5. Calcula a assinatura
+            signedCms.ComputeSignature(signer);
+
+            // 6. Codifica a assinatura no formato PKCS#7 (que é o .p7s)
+            return signedCms.Encode();
         }
     }
 }

@@ -95,6 +95,7 @@ builder.Services.AddScoped<SupabaseStorageService>();
 builder.Services.AddScoped<ComprovanteService>();
 builder.Services.AddScoped<EstabelecimentoService>();
 builder.Services.AddScoped<DigitalSignatureService>();
+builder.Services.AddScoped<AfdService>();
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
