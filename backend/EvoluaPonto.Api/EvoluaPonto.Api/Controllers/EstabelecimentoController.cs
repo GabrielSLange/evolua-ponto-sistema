@@ -1,10 +1,12 @@
 ﻿using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Shared;
 using EvoluaPonto.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EvoluaPonto.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class EstabelecimentoController : ControllerBase

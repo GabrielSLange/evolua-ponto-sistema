@@ -12,7 +12,7 @@ namespace EvoluaPonto.Api.Services
             QuestPDF.Settings.License = LicenseType.Community;
         }
 
-        public byte[] GerarComprovante(ModelRegistroPonto registro, ModelFuncionario funcionario, ModelEmpresa empresa)
+        public byte[] GerarComprovante(ModelRegistroPonto registro, ModelFuncionario funcionario, ModelEmpresa empresa, ModelEstabelecimento estabelecimento)
         {
             TimeZoneInfo fusoHorarioBrasilia;
             try
@@ -26,7 +26,8 @@ namespace EvoluaPonto.Api.Services
 
             // 2. Converte o horário da marcação de UTC para o horário de Brasília
             DateTime horarioLocalMarcacao = TimeZoneInfo.ConvertTimeFromUtc(registro.TimestampMarcacao, fusoHorarioBrasilia);
-            
+
+            string enderecoFormatado = $"{estabelecimento.Logradouro}, {estabelecimento.Numero} - {estabelecimento.Bairro}, {estabelecimento.Cidade}/{estabelecimento.Estado}";
 
             var pdfBytes = Document.Create(container =>
             {
@@ -49,7 +50,7 @@ namespace EvoluaPonto.Api.Services
 
                             col.Item().Text(empresa.RazaoSocial).Bold();
                             col.Item().Text($"CNPJ: {empresa.Cnpj}");
-                            col.Item().Text($"Local: [Endereço do Local de Trabalho]");
+                            col.Item().Text($"Local: {enderecoFormatado}");
 
                             col.Item().LineHorizontal(0.5f);
 

@@ -28,7 +28,7 @@ namespace EvoluaPonto.Api.Controllers
                 if (string.IsNullOrEmpty(funcionarioIdString))
                     return Unauthorized("ID do funcionário não encontrado no Token");
 
-                if (!Guid.TryParse(funcionarioIdString, out var funcionarioId))
+                if (!Guid.TryParse(funcionarioIdString, out Guid funcionarioId))
                 {
                     return BadRequest("O ID do funcionário no token é inválido.");
                 }

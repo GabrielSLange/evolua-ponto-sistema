@@ -3,44 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\services\\estabelecimentoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\services\\estabelecimentoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\controllers\\estabelecimentocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\controllers\\estabelecimentocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\models\\modelestabelecimento.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\models\\modelestabelecimento.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\services\\registropontoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\services\\registropontoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\dtos\\funcionariocreatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\dtos\\funcionariocreatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\models\\modelfuncionario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\models\\modelfuncionario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\models\\modelregistroponto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\models\\modelregistroponto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\models\\modelempresa.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\models\\modelempresa.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\services\\funcionarioservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\services\\funcionarioservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\services\\digitalsignatureservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\services\\digitalsignatureservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\services\\afdservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\services\\afdservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\services\\registropontoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\services\\registropontoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -50,136 +30,74 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 5,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "RegistroPontoService.cs",
-              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\RegistroPontoService.cs",
-              "RelativeDocumentMoniker": "EvoluaPonto.Api\\Services\\RegistroPontoService.cs",
-              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\RegistroPontoService.cs",
-              "RelativeToolTip": "EvoluaPonto.Api\\Services\\RegistroPontoService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA==",
+              "Title": "AfdService.cs",
+              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\AfdService.cs",
+              "RelativeDocumentMoniker": "EvoluaPonto.Api\\Services\\AfdService.cs",
+              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\AfdService.cs",
+              "RelativeToolTip": "EvoluaPonto.Api\\Services\\AfdService.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAA8AAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-21T13:08:09.339Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "FuncionarioCreateDto.cs",
-              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Dtos\\FuncionarioCreateDto.cs",
-              "RelativeDocumentMoniker": "EvoluaPonto.Api\\Dtos\\FuncionarioCreateDto.cs",
-              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Dtos\\FuncionarioCreateDto.cs",
-              "RelativeToolTip": "EvoluaPonto.Api\\Dtos\\FuncionarioCreateDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAlAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-21T13:07:28.098Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "FuncionarioService.cs",
-              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\FuncionarioService.cs",
-              "RelativeDocumentMoniker": "EvoluaPonto.Api\\Services\\FuncionarioService.cs",
-              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\FuncionarioService.cs",
-              "RelativeToolTip": "EvoluaPonto.Api\\Services\\FuncionarioService.cs",
-              "ViewState": "AgIAABMAAAAAAAAAAAAwwC4AAABEAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-21T13:06:39.432Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Program.cs",
-              "RelativeDocumentMoniker": "EvoluaPonto.Api\\Program.cs",
-              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Program.cs",
-              "RelativeToolTip": "EvoluaPonto.Api\\Program.cs",
-              "ViewState": "AgIAAEUAAAAAAAAAAAAAAF8AAAA1AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-21T12:53:49.043Z",
+              "WhenOpened": "2025-08-25T20:28:59.701Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "EstabelecimentoController.cs",
-              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Controllers\\EstabelecimentoController.cs",
-              "RelativeDocumentMoniker": "EvoluaPonto.Api\\Controllers\\EstabelecimentoController.cs",
-              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Controllers\\EstabelecimentoController.cs",
-              "RelativeToolTip": "EvoluaPonto.Api\\Controllers\\EstabelecimentoController.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABcAAABkAAAAAAAAAA==",
+              "Title": "DigitalSignatureService.cs",
+              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\DigitalSignatureService.cs",
+              "RelativeDocumentMoniker": "EvoluaPonto.Api\\Services\\DigitalSignatureService.cs",
+              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\DigitalSignatureService.cs",
+              "RelativeToolTip": "EvoluaPonto.Api\\Services\\DigitalSignatureService.cs",
+              "ViewState": "AgIAADMAAAAAAAAAAAAAAB0AAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-21T12:53:31.746Z",
+              "WhenOpened": "2025-08-25T14:24:40.534Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ModelEstabelecimento.cs",
-              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Models\\ModelEstabelecimento.cs",
-              "RelativeDocumentMoniker": "EvoluaPonto.Api\\Models\\ModelEstabelecimento.cs",
-              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Models\\ModelEstabelecimento.cs",
-              "RelativeToolTip": "EvoluaPonto.Api\\Models\\ModelEstabelecimento.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACcAAAAaAAAAAAAAAA==",
+              "DocumentIndex": 4,
+              "Title": "RegistroPontoService.cs",
+              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\RegistroPontoService.cs",
+              "RelativeDocumentMoniker": "EvoluaPonto.Api\\Services\\RegistroPontoService.cs",
+              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\RegistroPontoService.cs",
+              "RelativeToolTip": "EvoluaPonto.Api\\Services\\RegistroPontoService.cs",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAAAF0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-21T12:30:10.307Z",
+              "WhenOpened": "2025-08-24T15:48:42.843Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Program.cs",
+              "RelativeDocumentMoniker": "EvoluaPonto.Api\\Program.cs",
+              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Program.cs",
+              "RelativeToolTip": "EvoluaPonto.Api\\Program.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAGcAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-24T15:30:35.419Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "EstabelecimentoService.cs",
-              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\EstabelecimentoService.cs",
-              "RelativeDocumentMoniker": "EvoluaPonto.Api\\Services\\EstabelecimentoService.cs",
-              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\EstabelecimentoService.cs",
-              "RelativeToolTip": "EvoluaPonto.Api\\Services\\EstabelecimentoService.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAACAAAAARAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-21T12:34:03.326Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "ModelEmpresa.cs",
-              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Models\\ModelEmpresa.cs",
-              "RelativeDocumentMoniker": "EvoluaPonto.Api\\Models\\ModelEmpresa.cs",
-              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Models\\ModelEmpresa.cs",
-              "RelativeToolTip": "EvoluaPonto.Api\\Models\\ModelEmpresa.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-21T12:30:53.629Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "ModelRegistroPonto.cs",
-              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Models\\ModelRegistroPonto.cs",
-              "RelativeDocumentMoniker": "EvoluaPonto.Api\\Models\\ModelRegistroPonto.cs",
-              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Models\\ModelRegistroPonto.cs",
-              "RelativeToolTip": "EvoluaPonto.Api\\Models\\ModelRegistroPonto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAC8AAAAfAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-21T12:30:40.932Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "ModelFuncionario.cs",
-              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Models\\ModelFuncionario.cs",
-              "RelativeDocumentMoniker": "EvoluaPonto.Api\\Models\\ModelFuncionario.cs",
-              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Models\\ModelFuncionario.cs",
-              "RelativeToolTip": "EvoluaPonto.Api\\Models\\ModelFuncionario.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-21T12:29:46.983Z",
+              "Title": "appsettings.Development.json",
+              "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\appsettings.Development.json",
+              "RelativeDocumentMoniker": "EvoluaPonto.Api\\appsettings.Development.json",
+              "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\appsettings.Development.json",
+              "RelativeToolTip": "EvoluaPonto.Api\\appsettings.Development.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAB7LQAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-08-24T15:24:14.333Z",
               "EditorCaption": ""
             }
           ]

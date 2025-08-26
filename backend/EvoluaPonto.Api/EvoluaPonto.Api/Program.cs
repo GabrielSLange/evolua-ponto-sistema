@@ -33,7 +33,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true, // Valida a assinatura do token
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"])), // Usa a chave secreta
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"] ?? throw new ArgumentNullException("Jwt:Secret"))), // Usa a chave secreta
 
             ValidateIssuer = true, // Valida quem emitiu o token
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
@@ -94,6 +94,7 @@ builder.Services.AddScoped<SupabaseAdminService>();
 builder.Services.AddScoped<SupabaseStorageService>();
 builder.Services.AddScoped<ComprovanteService>();
 builder.Services.AddScoped<EstabelecimentoService>();
+builder.Services.AddScoped<DigitalSignatureService>();
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();

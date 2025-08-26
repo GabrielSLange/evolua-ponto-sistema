@@ -30,6 +30,6 @@ namespace EvoluaPonto.Api.Models
         [Column("estabelecimento_id")]
         public Guid EstabelecimentoId { get; set; }
 
-        public ModelEstabelecimento? Estabelecimento { get; set; }
+        public ModelEstabelecimento Estabelecimento { get; set; }
     }
 }

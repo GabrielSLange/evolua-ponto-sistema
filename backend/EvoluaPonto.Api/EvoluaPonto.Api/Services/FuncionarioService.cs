@@ -4,8 +4,6 @@ using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Shared;
 using EvoluaPonto.Api.Services.External;
 using Microsoft.EntityFrameworkCore;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 
 namespace EvoluaPonto.Api.Services
 {
@@ -31,6 +29,9 @@ namespace EvoluaPonto.Api.Services
 
         public async Task<ServiceResponse<ModelFuncionario>> CreateFuncionario(FuncionarioCreateDto funcionarioDto)
         {
+            if (!await _context.Estabelecimentos.AsNoTracking().AnyAsync(tb => tb.Id == funcionarioDto.EstabelecimentoId))
+                return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = "O estabelecimento vinculado ao funcionário não existe" };
+
             (SupabaseUserResponse? supabaseUser, string? error) = await _supabaseAdmin.CreateAuthUserAsync(funcionarioDto.Email, funcionarioDto.Password, funcionarioDto.Role);
 
             if (error != null || supabaseUser is null)
@@ -63,9 +64,13 @@ namespace EvoluaPonto.Api.Services
             if (await _context.Funcionarios.AnyAsync(tb => tb.Cpf == funcionarioAtualizado.Cpf && tb.Id != funcionarioAtualizado.Id))
                 return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = "Já existe um funcionário cadastrado com esse CPF" };
 
+            if (!await _context.Estabelecimentos.AsNoTracking().AnyAsync(tb => tb.Id == funcionarioAtualizado.EstabelecimentoId))
+                return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = "O estabelecimento vinculado ao funcionário não existe" };
+
             funcionarioBanco.Nome = funcionarioAtualizado.Nome;
             funcionarioBanco.Cpf = funcionarioAtualizado.Cpf;
             funcionarioBanco.Cargo = funcionarioAtualizado.Cargo;
+            funcionarioBanco.EstabelecimentoId = funcionarioAtualizado.EstabelecimentoId;
 
             _context.Update(funcionarioBanco);
             await _context.SaveChangesAsync();
