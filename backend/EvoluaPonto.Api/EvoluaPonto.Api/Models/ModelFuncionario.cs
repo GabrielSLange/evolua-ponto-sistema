@@ -21,6 +21,9 @@ namespace EvoluaPonto.Api.Models
         [Column("cargo")]
         public string? Cargo { get; set; }
 
+        [Column("horario_contratual")]
+        public string? HorarioContratual { get; set; }
+
         [Column("created_at")]
         public DateTime? CreatedAt { get; set; }
 
