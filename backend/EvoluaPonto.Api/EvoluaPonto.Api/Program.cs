@@ -5,11 +5,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using QuestPDF.Infrastructure;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services.AddControllers();
 
@@ -96,6 +97,10 @@ builder.Services.AddScoped<ComprovanteService>();
 builder.Services.AddScoped<EstabelecimentoService>();
 builder.Services.AddScoped<DigitalSignatureService>();
 builder.Services.AddScoped<AfdService>();
+builder.Services.AddScoped<JornadaService>();
+builder.Services.AddScoped<EspelhoPontoService>();
+builder.Services.AddHttpClient<FeriadoService>();
+builder.Services.AddScoped<FeriadoPersonalizadoService>();
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();

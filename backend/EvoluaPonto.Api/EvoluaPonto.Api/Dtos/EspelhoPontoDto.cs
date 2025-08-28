@@ -16,6 +16,8 @@ namespace EvoluaPonto.Api.Dtos
         public TimeSpan TotalTrabalhado { get; set; }
         public TimeSpan HorasExtras { get; set; }
         public TimeSpan Atrasos { get; set; }
+
+        public List<string> Observacoes { get; set; } = new List<string>();
     }
 
     // O objeto completo do Espelho de Ponto
@@ -31,5 +33,6 @@ namespace EvoluaPonto.Api.Dtos
         public TimeSpan TotalHorasExtrasMes { get; set; }
         public TimeSpan TotalAtrasosMes { get; set; }
         public TimeSpan SaldoMes { get; set; }
+        
     }
 }

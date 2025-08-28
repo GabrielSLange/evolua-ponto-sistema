@@ -13,11 +13,19 @@ namespace EvoluaPonto.Api.Controllers
     {
         private readonly AfdService _afdService;
         private readonly DigitalSignatureService _signatureService;
+        private readonly JornadaService _jornadaService;
+        private readonly EspelhoPontoService _espelhoPontoService;
 
-        public RelatoriosController(AfdService afdService, DigitalSignatureService signatureService)
+        public RelatoriosController(
+           AfdService afdService,
+           DigitalSignatureService signatureService,
+           JornadaService jornadaService,
+           EspelhoPontoService espelhoPontoService)
         {
             _afdService = afdService;
             _signatureService = signatureService;
+            _jornadaService = jornadaService;
+            _espelhoPontoService = espelhoPontoService;
         }
 
         // GET: api/relatorios/afd?estabelecimentoId=...&dataInicio=...&dataFim=...
@@ -62,6 +70,35 @@ namespace EvoluaPonto.Api.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("espelho-ponto")]
+        public async Task<IActionResult> GerarEspelhoPonto([FromQuery] Guid funcionarioId, [FromQuery] int ano, [FromQuery] int mes)
+        {
+            try
+            {
+                // Etapa 1: Chamar o serviço de cálculo para obter os dados processados.
+                var response = await _jornadaService.CalcularEspelhoPontoAsync(funcionarioId, ano, mes);
+
+                // Etapa 2: Verificar se o cálculo foi bem-sucedido.
+                if (!response.Success || response.Data == null)
+                {
+                    return BadRequest(response.ErrorMessage ?? "Ocorreu um erro ao calcular os dados da jornada.");
+                }
+
+                // Etapa 3: Passar os dados calculados para o serviço de geração de PDF.
+                var pdfBytes = _espelhoPontoService.GerarEspelhoPontoPDF(response.Data);
+
+                // Etapa 4: Retornar o PDF como um arquivo para download.
+                var nomeArquivo = $"EspelhoPonto_{response.Data.Funcionario.Nome.Replace(" ", "_")}_{ano}-{mes:00}.pdf";
+
+                return File(pdfBytes, "application/pdf", nomeArquivo);
+            }
+            catch (Exception ex)
+            {
+                // Captura exceções inesperadas durante o processo.
+                return StatusCode(500, $"Erro interno do servidor: {ex.Message}");
             }
         }
     }
