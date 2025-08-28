@@ -15,17 +15,20 @@ namespace EvoluaPonto.Api.Controllers
         private readonly DigitalSignatureService _signatureService;
         private readonly JornadaService _jornadaService;
         private readonly EspelhoPontoService _espelhoPontoService;
+        private readonly AejService _aejService;
 
         public RelatoriosController(
            AfdService afdService,
            DigitalSignatureService signatureService,
            JornadaService jornadaService,
-           EspelhoPontoService espelhoPontoService)
+           EspelhoPontoService espelhoPontoService,
+           AejService aejService) // Adiciona o novo serviço
         {
             _afdService = afdService;
             _signatureService = signatureService;
             _jornadaService = jornadaService;
             _espelhoPontoService = espelhoPontoService;
+            _aejService = aejService; // Atribui o novo serviço
         }
 
         // GET: api/relatorios/afd?estabelecimentoId=...&dataInicio=...&dataFim=...
@@ -99,6 +102,49 @@ namespace EvoluaPonto.Api.Controllers
             {
                 // Captura exceções inesperadas durante o processo.
                 return StatusCode(500, $"Erro interno do servidor: {ex.Message}");
+            }
+        }
+
+        [HttpGet("aej")]
+        public async Task<IActionResult> GerarAej([FromQuery] Guid estabelecimentoId, [FromQuery] DateTime dataInicio, [FromQuery] DateTime dataFim)
+        {
+            try
+            {
+                // Etapa 1: Gerar o conteúdo do arquivo AEJ (.txt)
+                string aejContent = await _aejService.GerarAejAsync(estabelecimentoId, dataInicio, dataFim);
+                var aejBytes = Encoding.ASCII.GetBytes(aejContent);
+                var baseFileName = $"AEJ_{dataInicio:yyyyMMdd}_{dataFim:yyyyMMdd}";
+
+                // Etapa 2: Assinar os bytes do AEJ para gerar o conteúdo do arquivo .p7s
+                var signatureBytes = _signatureService.SignBytesCadesDetached(aejBytes);
+
+                // Etapa 3: Criar um arquivo .zip em memória
+                using (var memoryStream = new MemoryStream())
+                {
+                    using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                    {
+                        // Adiciona o arquivo AEJ.txt ao zip
+                        var aejEntry = archive.CreateEntry($"{baseFileName}.txt", CompressionLevel.Fastest);
+                        using (var entryStream = aejEntry.Open())
+                        {
+                            await entryStream.WriteAsync(aejBytes, 0, aejBytes.Length);
+                        }
+
+                        // Adiciona o arquivo de assinatura AEJ.p7s ao zip
+                        var sigEntry = archive.CreateEntry($"{baseFileName}.p7s", CompressionLevel.Fastest);
+                        using (var entryStream = sigEntry.Open())
+                        {
+                            await entryStream.WriteAsync(signatureBytes, 0, signatureBytes.Length);
+                        }
+                    }
+
+                    // Etapa 4: Retorna o arquivo .zip completo para download
+                    return File(memoryStream.ToArray(), "application/zip", $"{baseFileName}.zip");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
     }
