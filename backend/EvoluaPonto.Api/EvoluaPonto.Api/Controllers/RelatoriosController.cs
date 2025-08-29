@@ -93,10 +93,12 @@ namespace EvoluaPonto.Api.Controllers
                 // Etapa 3: Passar os dados calculados para o serviço de geração de PDF.
                 var pdfBytes = _espelhoPontoService.GerarEspelhoPontoPDF(response.Data);
 
+                var pdfBytesAssinado = _signatureService.SignPdf(pdfBytes);
+
                 // Etapa 4: Retornar o PDF como um arquivo para download.
                 var nomeArquivo = $"EspelhoPonto_{response.Data.Funcionario.Nome.Replace(" ", "_")}_{ano}-{mes:00}.pdf";
 
-                return File(pdfBytes, "application/pdf", nomeArquivo);
+                return File(pdfBytesAssinado, "application/pdf", nomeArquivo);
             }
             catch (Exception ex)
             {
