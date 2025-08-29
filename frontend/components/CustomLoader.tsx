@@ -4,28 +4,39 @@ import LottieView from 'lottie-react-native';
 
 const CustomLoader = () => {
    return (
+      // Container principal (tela cheia com fundo translúcido)
       <View style={styles.container}>
-         <LottieView
-            // Certifique-se que o nome do arquivo corresponde ao que você baixou
-            source={require('../assets/fingerprint.json')}
-            style={styles.animation}
-            autoPlay
-            loop
-         />
+         {/* NOVO: Container que define o tamanho da animação */}
+         <View style={styles.animationWrapper}>
+            <LottieView
+               source={require('../assets/fingerprint2.json')}
+               // A animação agora ocupa 100% do seu container pai (o wrapper)
+               style={{ width: '100%', height: '100%' }}
+               autoPlay
+               loop
+            />
+         </View>
       </View>
    );
 };
 
 const styles = StyleSheet.create({
    container: {
-      flex: 1,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: '#FFFFFF', // Fundo branco sólido
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      zIndex: 1000,
    },
-   animation: {
-      width: 200,
-      height: 200,
+   // NOVO ESTILO: Este estilo agora controla o tamanho da animação.
+   // Altere os valores de width e height aqui para ajustar o tamanho.
+   animationWrapper: {
+      width: 200, // <-- Altere aqui para o tamanho desejado
+      height: 200, // <-- Altere aqui para o tamanho desejado
    },
 });
 

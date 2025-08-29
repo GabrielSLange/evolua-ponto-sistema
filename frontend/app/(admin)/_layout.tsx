@@ -2,6 +2,7 @@ import 'react-native-gesture-handler'; // Importante: deve ser a primeira linha
 import { Drawer } from 'expo-router/drawer';
 import { Appbar } from 'react-native-paper';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
+import CustomDrawerContent from '../../components/navigation/CustomDrawerContent';
 
 // Componente customizado para o cabeçalho
 const CustomHeader = ({ title }: { title: string }) => {
@@ -22,25 +23,14 @@ const CustomHeader = ({ title }: { title: string }) => {
 export default function AdminLayout() {
    return (
       <Drawer
+         // A mágica acontece aqui:
+         drawerContent={(props) => <CustomDrawerContent {...props} />}
          screenOptions={{
-            // Define nosso cabeçalho customizado para todas as telas
             header: ({ options }) => <CustomHeader title={options.title || 'Painel Admin'} />,
          }}
       >
-         <Drawer.Screen
-            name="index" // Aponta para o arquivo index.tsx
-            options={{
-               drawerLabel: 'Dashboard', // Texto no menu
-               title: 'Dashboard',       // Texto no cabeçalho
-            }}
-         />
-         <Drawer.Screen
-            name="relatorios" // Aponta para o arquivo relatorios.tsx
-            options={{
-               drawerLabel: 'Relatórios', // Texto no menu
-               title: 'Relatórios',       // Texto no cabeçalho
-            }}
-         />
+         <Drawer.Screen name="index" options={{ drawerLabel: 'Dashboard', title: 'Dashboard' }} />
+         <Drawer.Screen name="relatorios" options={{ drawerLabel: 'Relatórios', title: 'Relatórios' }} />
       </Drawer>
    );
 }

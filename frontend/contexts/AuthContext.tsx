@@ -52,6 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    }, []);
 
    const signIn = async (email: string, password: string) => {
+      setIsLoading(true);
       try {
          const response = await api.post<TokenResponse>('/auth/login', { email, password });
 
@@ -74,6 +75,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
          console.error("Falha no login:", error);
          throw new Error("Email ou senha inválidos.");
+      }
+      finally {
+         setIsLoading(false);
       }
    };
 
