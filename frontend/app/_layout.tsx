@@ -2,40 +2,35 @@ import { Slot, useRouter, useSegments } from 'expo-router';
 import { PaperProvider } from 'react-native-paper';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { useEffect } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+// A importação agora funcionará, pois o arquivo foi criado
+import CustomLoader from '../components/CustomLoader';
 
-const InitialLayout = () => {
+const RootLayoutNav = () => {
   const { isAuthenticated, isLoading, role } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
-    if (isLoading) return; // Se ainda estamos carregando, não faça nada
+    if (isLoading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
 
-    if (isAuthenticated && !inAuthGroup) {
-      // Se está autenticado e fora de um grupo protegido,
-      // redirecione para o painel correto.
+    if (isAuthenticated && inAuthGroup) {
+      // **CORREÇÃO:** Redireciona para a tela 'index' dentro de cada grupo
       if (role === 'superadmin') {
         router.replace('/(superadmin)');
       } else if (role === 'admin') {
         router.replace('/(admin)');
-      } else if (role === 'normal') {
-        router.replace('/(employee)');
+      } else { // 'normal'
+        router.replace('/(employee)/home');
       }
-    } else if (!isAuthenticated) {
-      // Se não está autenticado, force para a tela de login.
+    } else if (!isAuthenticated && !inAuthGroup) {
       router.replace('/(auth)/login');
     }
   }, [isAuthenticated, isLoading, role, segments]);
 
   if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
+    return <CustomLoader />;
   }
 
   return <Slot />;
@@ -45,7 +40,7 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <PaperProvider>
-        <InitialLayout />
+        <RootLayoutNav />
       </PaperProvider>
     </AuthProvider>
   );

@@ -1,20 +1,33 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import api from '../services/api';
-// 1. Importa nossas novas funções de armazenamento
+import { jwtDecode } from 'jwt-decode';
 import { saveAuthData, loadAuthData, clearAuthData } from '../services/storage';
 
-// ... (interfaces TokenResponse, UserData, AuthContextData permanecem as mesmas)
-interface UserData {
-   id: string; email: string; app_metadata: { role: 'superadmin' | 'admin' | 'normal'; };
+// --- Nossos tipos de dados ---
+interface DecodedToken {
+   app_metadata: {
+      role: 'superadmin' | 'admin' | 'normal';
+   };
 }
+interface UserData {
+   id: string;
+   email: string;
+}
+// **CORREÇÃO:** Alinha os nomes das propriedades com o JSON retornado pela API
 interface TokenResponse {
-   accessToken: string; refreshToken: string; user: UserData;
+   access_token: string;
+   refresh_token: string;
+   user: UserData;
 }
 interface AuthContextData {
-   token: string | null; isAuthenticated: boolean; role: 'superadmin' | 'admin' | 'normal' | null;
-   isLoading: boolean; signIn: (email: string, password: string) => Promise<void>; signOut: () => void;
+   token: string | null;
+   isAuthenticated: boolean;
+   role: 'superadmin' | 'admin' | 'normal' | null;
+   isLoading: boolean;
+   signIn: (email: string, password: string) => Promise<void>;
+   signOut: () => void;
 }
-
+// --- Fim dos tipos ---
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
@@ -23,37 +36,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    const [role, setRole] = useState<'superadmin' | 'admin' | 'normal' | null>(null);
    const [isLoading, setIsLoading] = useState(true);
 
-   // Efeito que roda uma vez quando o app inicia
    useEffect(() => {
       async function loadStoragedData() {
-         // 2. Usa nossa nova função para carregar os dados
          const authData = await loadAuthData();
-
-         if (authData) {
+         if (authData?.token) {
+            const decoded = jwtDecode<DecodedToken>(authData.token);
+            const userRole = decoded.app_metadata.role;
             api.defaults.headers.common['Authorization'] = `Bearer ${authData.token}`;
             setToken(authData.token);
-            setRole(authData.role as 'superadmin' | 'admin' | 'normal');
+            setRole(userRole);
          }
          setIsLoading(false);
       }
-
       loadStoragedData();
    }, []);
 
    const signIn = async (email: string, password: string) => {
       try {
          const response = await api.post<TokenResponse>('/auth/login', { email, password });
-         const { accessToken, refreshToken, user } = response.data;
-         const userRole = user.app_metadata.role;
 
-         setToken(accessToken);
+         // **CORREÇÃO:** Usa os nomes corretos (snake_case) para desestruturar a resposta
+         const { access_token, refresh_token } = response.data;
+
+         const decoded = jwtDecode<DecodedToken>(access_token);
+         const userRole = decoded.app_metadata.role;
+
+         setToken(access_token);
          setRole(userRole);
-         api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+         api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
 
-         // 3. Usa nossa nova função para salvar os dados
          await saveAuthData({
-            token: accessToken,
-            refreshToken: refreshToken,
+            token: access_token,
+            refreshToken: refresh_token,
             role: userRole,
          });
 
@@ -64,7 +78,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    };
 
    const signOut = async () => {
-      // 4. Usa nossa nova função para limpar os dados
       await clearAuthData();
       setToken(null);
       setRole(null);
