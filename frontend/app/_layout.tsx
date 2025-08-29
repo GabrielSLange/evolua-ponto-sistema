@@ -1,59 +1,52 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
+import { Slot, useRouter, useSegments } from 'expo-router';
+import { PaperProvider } from 'react-native-paper';
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { View, ActivityIndicator } from 'react-native';
 
-import { useColorScheme } from '@/components/useColorScheme';
-
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
-
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
-};
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
-export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    ...FontAwesome.font,
-  });
-
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
-  useEffect(() => {
-    if (error) throw error;
-  }, [error]);
+const InitialLayout = () => {
+  const { isAuthenticated, isLoading, role } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    if (isLoading) return; // Se ainda estamos carregando, não faça nada
+
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (isAuthenticated && !inAuthGroup) {
+      // Se está autenticado e fora de um grupo protegido,
+      // redirecione para o painel correto.
+      if (role === 'superadmin') {
+        router.replace('/(superadmin)');
+      } else if (role === 'admin') {
+        router.replace('/(admin)');
+      } else if (role === 'normal') {
+        router.replace('/(employee)');
+      }
+    } else if (!isAuthenticated) {
+      // Se não está autenticado, force para a tela de login.
+      router.replace('/(auth)/login');
     }
-  }, [loaded]);
+  }, [isAuthenticated, isLoading, role, segments]);
 
-  if (!loaded) {
-    return null;
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
-  return <RootLayoutNav />;
-}
+  return <Slot />;
+};
 
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
+export default function RootLayout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    <AuthProvider>
+      <PaperProvider>
+        <InitialLayout />
+      </PaperProvider>
+    </AuthProvider>
   );
 }
