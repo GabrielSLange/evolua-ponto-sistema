@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("http://localhost:3000", // Para o nosso futuro frontend Next.js
+                          policy.WithOrigins("http://localhost:8081", // Para o nosso futuro frontend Next.js
                                              "https://localhost:7080") // Para o Swagger local
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
