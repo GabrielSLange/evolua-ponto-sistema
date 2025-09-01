@@ -22,7 +22,8 @@ builder.Services.AddCors(options =>
                       policy =>
                       {
                           policy.WithOrigins("http://localhost:8081", // Para o nosso futuro frontend Next.js
-                                             "https://localhost:7080") // Para o Swagger local
+                                             "https://localhost:7080",
+                                             "https://evolua-ponto-sistema.vercel.app") // Para o Swagger local
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
                       });
