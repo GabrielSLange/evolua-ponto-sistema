@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { TextInput, Button, Text } from 'react-native-paper';
+import { TextInput, Button, Text, useTheme } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
+import ScreenContainer from '../../components/layouts/ScreenContainer';
 
 const LoginScreen = () => {
    const [email, setEmail] = useState('');
@@ -9,13 +10,16 @@ const LoginScreen = () => {
    const [error, setError] = useState('');
    const [loading, setLoading] = useState(false);
    const { signIn } = useAuth();
+   const theme = useTheme(); // Pega o tema
+
+   // Chama a nossa "fábrica" para criar os estilos com base no tema atual
+   const styles = getStyles(theme);
 
    const handleLogin = async () => {
-      setError('');
       setLoading(true);
+      setError('');
       try {
          await signIn(email, password);
-         // O redirecionamento será tratado pelo nosso _layout.tsx principal
       } catch (err: any) {
          setError(err.message || 'Erro ao tentar fazer login.');
       } finally {
@@ -24,60 +28,72 @@ const LoginScreen = () => {
    };
 
    return (
-      <View style={styles.container}>
-         <Text variant="headlineMedium" style={styles.title}>
-            Evolua Ponto
-         </Text>
-         <TextInput
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
-            style={styles.input}
-            keyboardType="email-address"
-            autoCapitalize="none"
-         />
-         <TextInput
-            label="Senha"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            style={styles.input}
-         />
-         {error ? <Text style={styles.error}>{error}</Text> : null}
-         <Button
-            mode="contained"
-            onPress={handleLogin}
-            loading={loading}
-            disabled={loading}
-            style={styles.button}
-         >
-            Entrar
-         </Button>
-      </View>
+      <ScreenContainer>
+         <View style={styles.formContainer}>
+            {/* Agora podemos usar o estilo diretamente, sem o array */}
+            <Text variant="headlineMedium" style={styles.title}>
+               Evolua Ponto
+            </Text>
+            <TextInput
+               label="Email"
+               value={email}
+               onChangeText={setEmail}
+               style={styles.input}
+               keyboardType="email-address"
+               autoCapitalize="none"
+            />
+            <TextInput
+               label="Senha"
+               value={password}
+               onChangeText={setPassword}
+               secureTextEntry
+               style={styles.input}
+            />
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+            <Button
+               mode="contained"
+               onPress={handleLogin}
+               loading={loading}
+               disabled={loading}
+               style={styles.button}
+            >
+               Entrar
+            </Button>
+         </View>
+      </ScreenContainer>
    );
 };
 
-const styles = StyleSheet.create({
-   container: {
-      flex: 1,
-      justifyContent: 'center',
-      padding: 20,
-   },
-   title: {
-      textAlign: 'center',
-      marginBottom: 24,
-   },
-   input: {
-      marginBottom: 16,
-   },
-   button: {
-      marginTop: 8,
-   },
-   error: {
-      color: 'red',
-      textAlign: 'center',
-      marginBottom: 12,
-   },
-});
+// NOVO: A "Fábrica de Estilos"
+// É uma função que fica fora do componente e retorna o StyleSheet.create
+const getStyles = (theme: any) =>
+   StyleSheet.create({
+      formContainer: {
+         flex: 1,
+         justifyContent: 'center',
+         padding: 20,
+         maxWidth: 400,
+         alignSelf: 'center',
+         width: '100%',
+      },
+      title: {
+         textAlign: 'center',
+         marginBottom: 24,
+         // Agora podemos usar o tema aqui dentro!
+         color: theme.colors.primary,
+      },
+      input: {
+         marginBottom: 16,
+      },
+      button: {
+         marginTop: 8,
+      },
+      error: {
+         // Podemos até usar as cores do tema para o erro
+         color: theme.colors.error,
+         textAlign: 'center',
+         marginBottom: 12,
+      },
+   });
 
 export default LoginScreen;

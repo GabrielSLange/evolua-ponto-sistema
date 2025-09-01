@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import api from '../services/api';
 import { jwtDecode } from 'jwt-decode';
 import { saveAuthData, loadAuthData, clearAuthData } from '../services/storage';
+import { useColorScheme } from 'react-native';
 
 // --- Nossos tipos de dados ---
 interface DecodedToken {
@@ -24,6 +25,8 @@ interface AuthContextData {
    isAuthenticated: boolean;
    role: 'superadmin' | 'admin' | 'normal' | null;
    isLoading: boolean;
+   theme: 'light' | 'dark'; // Propriedade para o tema atual
+   toggleTheme: () => void; // Função para alternar o tema
    signIn: (email: string, password: string) => Promise<void>;
    signOut: () => void;
 }
@@ -35,6 +38,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    const [token, setToken] = useState<string | null>(null);
    const [role, setRole] = useState<'superadmin' | 'admin' | 'normal' | null>(null);
    const [isLoading, setIsLoading] = useState(true);
+
+   // **NOVO:** Lógica para gerenciar o tema
+   const colorScheme = useColorScheme(); // Pega o tema do OS (light, dark, ou null)
+   const [theme, setTheme] = useState<'light' | 'dark'>(colorScheme || 'light');
+
+   const toggleTheme = () => {
+      setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+   };
 
    useEffect(() => {
       async function loadStoragedData() {
@@ -89,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    };
 
    return (
-      <AuthContext.Provider value={{ token, isAuthenticated: !!token, role, isLoading, signIn, signOut }}>
+      <AuthContext.Provider value={{ token, isAuthenticated: !!token, role, isLoading, theme, toggleTheme, signIn, signOut }}>
          {children}
       </AuthContext.Provider>
    );

@@ -1,23 +1,21 @@
 import { Slot, useRouter } from 'expo-router';
-import { PaperProvider } from 'react-native-paper';
+// 1. Importe os temas claro e escuro
+import { PaperProvider, MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { useEffect } from 'react';
 import CustomLoader from '../components/CustomLoader';
 
+// Componente que lida com a lógica de navegação/redirecionamento
 const RootLayoutNav = () => {
   const { isAuthenticated, isLoading, role } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    // Se ainda estiver carregando os dados do token, não fazemos nada.
     if (isLoading) {
       return;
     }
 
-    // LÓGICA DE REDIRECIONAMENTO SIMPLIFICADA E ROBUSTA
     if (isAuthenticated) {
-      // Se o usuário ESTÁ AUTENTICADO, garantimos que ele seja enviado
-      // para o painel correto, não importa onde ele esteja.
       if (role === 'superadmin') {
         router.replace('/(superadmin)');
       } else if (role === 'admin') {
@@ -26,28 +24,38 @@ const RootLayoutNav = () => {
         router.replace('/(employee)/home');
       }
     } else {
-      // Se o usuário NÃO ESTÁ AUTENTICADO, garantimos que ele
-      // seja enviado para a tela de login.
       router.replace('/(auth)/login');
     }
+  }, [isAuthenticated, isLoading, role]);
 
-  }, [isAuthenticated, isLoading, role]); // A dependência em 'segments' não é mais necessária
-
-  // Se estiver no carregamento inicial, exibe o loader.
   if (isLoading) {
     return <CustomLoader />;
   }
 
-  // Após o carregamento, o Expo Router renderiza a rota correta.
   return <Slot />;
 };
 
+// NOVO: Componente que aplica o tema ao aplicativo
+const ThemedApp = () => {
+  // Pega o estado 'theme' do nosso contexto
+  const { theme } = useAuth();
+
+  // Define qual objeto de tema usar com base no estado
+  const currentTheme = theme === 'dark' ? MD3DarkTheme : MD3LightTheme;
+
+  return (
+    // O PaperProvider agora recebe o tema correto e reage às mudanças
+    <PaperProvider theme={currentTheme}>
+      <RootLayoutNav />
+    </PaperProvider>
+  );
+}
+
+// O layout raiz agora envolve tudo com o AuthProvider e renderiza o ThemedApp
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <PaperProvider>
-        <RootLayoutNav />
-      </PaperProvider>
+      <ThemedApp />
     </AuthProvider>
   );
 }

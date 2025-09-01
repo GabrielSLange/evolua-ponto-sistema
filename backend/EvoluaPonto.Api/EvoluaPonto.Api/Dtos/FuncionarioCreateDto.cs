@@ -22,7 +22,7 @@ namespace EvoluaPonto.Api.Dtos
         [Required] 
         public Guid EstabelecimentoId { get; set; }
 
-        [Required] 
+        [Required]
         public string Role { get; set; } // "admin" ou "normal"
     }
 }

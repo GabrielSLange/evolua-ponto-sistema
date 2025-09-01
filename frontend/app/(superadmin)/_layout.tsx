@@ -1,30 +1,15 @@
 import 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
-import { Appbar } from 'react-native-paper';
-import { DrawerActions, useNavigation } from '@react-navigation/native';
-// Importa o nosso menu customizado
+// 1. Importe os componentes necessários
 import CustomDrawerContent from '../../components/navigation/CustomDrawerContent';
-
-// Componente customizado para o cabeçalho
-const CustomHeader = ({ title }: { title: string }) => {
-   const navigation = useNavigation();
-   return (
-      <Appbar.Header>
-         <Appbar.Action
-            icon="menu"
-            onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-         />
-         <Appbar.Content title={title} />
-      </Appbar.Header>
-   );
-};
+import CustomHeader from '../../components/navigation/CustomHeader';
 
 export default function SuperAdminLayout() {
    return (
       <Drawer
-         // **Verifique se esta linha está presente e correta**
          drawerContent={(props) => <CustomDrawerContent {...props} />}
          screenOptions={{
+            // 2. Use o novo CustomHeader
             header: ({ options }) => <CustomHeader title={options.title || 'Painel Super Admin'} />,
          }}
       >
@@ -33,6 +18,20 @@ export default function SuperAdminLayout() {
             options={{
                drawerLabel: 'Gerenciar Empresas',
                title: 'Gerenciar Empresas',
+            }}
+         />
+         <Drawer.Screen
+            name="add-empresa" // Nome do arquivo: add-empresa.tsx
+            options={{
+               drawerLabel: () => null, // Esta função vazia oculta o item do menu
+               title: 'Adicionar Empresa', // Este será o título no cabeçalho da página
+            }}
+         />
+         <Drawer.Screen
+            name="edit-empresa"
+            options={{
+               drawerLabel: () => null,
+               title: 'Editar Empresa',
             }}
          />
       </Drawer>
