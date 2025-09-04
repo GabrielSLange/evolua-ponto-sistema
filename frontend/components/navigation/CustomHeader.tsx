@@ -35,7 +35,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
             anchor={<Appbar.Action icon="account-circle" onPress={openMenu} />}
          >
             <View style={{ paddingHorizontal: 16, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-               <Text>Tema Escuro</Text>
+               <Text>Tema {theme === "dark" ? "Escuro" : "Claro"}  </Text>
                <Switch value={theme === 'dark'} onValueChange={toggleTheme} />
             </View>
          </Menu>
