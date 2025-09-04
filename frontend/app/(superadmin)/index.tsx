@@ -1,14 +1,15 @@
 import { View, FlatList, StyleSheet } from 'react-native';
-import { Text, Card, Title, Paragraph, FAB, IconButton } from 'react-native-paper';
+import { Text, Card, Title, Paragraph, FAB, IconButton, Switch } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import CustomLoader from '../../components/CustomLoader';
 import ScreenContainer from '../../components/layouts/ScreenContainer';
 import { useEmpresa } from '@/hooks/superadmin/useEmpresa';
+import React from 'react';
 
 
 
 const SuperAdminScreen = () => {
-   const { empresas, loading } = useEmpresa();
+   const { empresas, loading, toggleEmpresaAtivo } = useEmpresa();
    const router = useRouter();
 
 
@@ -26,7 +27,18 @@ const SuperAdminScreen = () => {
                renderItem={({ item }) => (
                   <Card style={styles.card}>
                      <Card.Content>
-                        <Title>{item.razaoSocial}</Title>
+                        {/* Adicionamos um rótulo para o Switch */}
+                        <View style={styles.cardHeader}>
+                           <Title>{item.razaoSocial}</Title>
+                           <View style={styles.switchContainer}>
+                              {/* 3. Adicionamos o Text que muda com base no estado 'item.ativo' */}
+                              <Text style={{ marginRight: 8 }}>{item.ativo ? 'Ativo' : 'Inativo'}</Text>
+                              <Switch
+                                 value={item.ativo}
+                                 onValueChange={() => toggleEmpresaAtivo(item.id)}
+                              />
+                           </View>
+                        </View>
                         <Paragraph>CNPJ: {item.cnpj}</Paragraph>
                      </Card.Content>
                      <Card.Actions>
@@ -74,6 +86,15 @@ const styles = StyleSheet.create({
    },
    listContentContainer: {
       paddingBottom: 80,
+   },
+   cardHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+   },
+   switchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
    }
 });
 

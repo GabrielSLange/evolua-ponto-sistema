@@ -24,9 +24,32 @@ export const useEmpresa = () => {
          });
    }, []);
 
+   const toggleEmpresaAtivo = async (id: string) => {
+      // Guarda o estado original caso a API falhe
+      const originalEmpresas = [...empresas];
+
+      // 1. Atualiza a UI instantaneamente (a parte "otimista")
+      setEmpresas(currentEmpresas =>
+         currentEmpresas.map(empresa =>
+            empresa.id === id ? { ...empresa, ativo: !empresa.ativo } : empresa
+         )
+      );
+
+      // 2. Tenta sincronizar com o backend em segundo plano
+      try {
+         await api.patch(`/empresas?Id=${id}`);
+      } catch (error) {
+         console.error("Falha ao atualizar status da empresa:", error);
+         // 3. Se a API falhar, reverte a mudança na UI
+         setEmpresas(originalEmpresas);
+         // Aqui você pode mostrar um snackbar de erro
+      }
+   };
+
+
    useFocusEffect(fetchEmpresas);
 
-   return { empresas, loading };
+   return { empresas, loading, toggleEmpresaAtivo };
 }
 
 // Tela de add-empresa
