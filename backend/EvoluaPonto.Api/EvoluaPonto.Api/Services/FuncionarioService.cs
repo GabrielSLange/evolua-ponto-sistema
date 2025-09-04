@@ -78,14 +78,16 @@ namespace EvoluaPonto.Api.Services
             return new ServiceResponse<ModelFuncionario> { Data = funcionarioBanco };
         }
 
-        public async Task<ServiceResponse<bool>> DeleteFuncionario(Guid Id)
+        public async Task<ServiceResponse<bool>> ToggleAtivoAsync(Guid funcionarioId)
         {
-            ModelFuncionario? funcionarioBanco = await _context.Funcionarios.FirstOrDefaultAsync(tb => tb.Id == Id);
+            ModelFuncionario? funcionarioBanco = await _context.Funcionarios.FirstOrDefaultAsync(tb => tb.Id == funcionarioId);
 
             if (funcionarioBanco is null)
                 return new ServiceResponse<bool> { Success = false, ErrorMessage = "Não existe um funcionário cadastrado com esse ID" };
 
-            _context.Remove(funcionarioBanco);
+            funcionarioBanco.Ativo = !funcionarioBanco.Ativo;
+
+            _context.Update(funcionarioBanco);
             await _context.SaveChangesAsync();
 
             return new ServiceResponse<bool> { Data = true };

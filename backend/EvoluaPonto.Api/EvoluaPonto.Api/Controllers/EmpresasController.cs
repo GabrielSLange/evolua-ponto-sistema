@@ -113,20 +113,19 @@ namespace EvoluaPonto.Api.Controllers
             
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteEmpresa(Guid Id)
+        [HttpPatch]
+        public async Task<IActionResult> ToggleAtivo(Guid Id)
         {
             try
             {
-                ServiceResponse<bool> responseEmpresa = await _empresaService.DeleteAsync(Id);
-                if (!responseEmpresa.Success)
-                {
-                    return NotFound(responseEmpresa.ErrorMessage);
-                }
+                ServiceResponse<bool> responseEmpresa = await _empresaService.ToggleAtivoAsync(Id);
 
-                return Ok(responseEmpresa.Success);
+                if (!responseEmpresa.Success)
+                    return NotFound(responseEmpresa.ErrorMessage);
+
+                return Ok(responseEmpresa.Data);
             }
-            catch(Exception ex)
+            catch (Exception ex) 
             {
                 return BadRequest(ex.Message);
             }

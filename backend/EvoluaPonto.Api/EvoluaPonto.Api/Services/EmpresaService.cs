@@ -62,20 +62,15 @@ namespace EvoluaPonto.Api.Services
            return new ServiceResponse<ModelEmpresa> { Data = EmpresaBanco };
         }        
     
-        public async Task<ServiceResponse<bool>> DeleteAsync(Guid Id)
+        public async Task<ServiceResponse<bool>> ToggleAtivoAsync(Guid idEmpresa)
         {
-            ModelEmpresa? empresaBanco = await _context.Empresas.FirstOrDefaultAsync(tb => tb.Id  == Id);
+            ModelEmpresa? empresaBanco = await _context.Empresas.FirstOrDefaultAsync(tb => tb.Id  == idEmpresa);
 
-            if (empresaBanco is null) 
-            {
-                return new ServiceResponse<bool>
-                {
-                    Success = false,
-                    ErrorMessage = "Empresa não encontrada pelo Id"
-                };
-            }
+            if(empresaBanco == null)
+                return new ServiceResponse<bool> { Success = false, ErrorMessage = "Empresa não encontrada no banco" };
 
-            _context.Empresas.Remove(empresaBanco);
+            empresaBanco.Ativo = !empresaBanco.Ativo;
+            _context.Update(empresaBanco);
             await _context.SaveChangesAsync();
 
             return new ServiceResponse<bool> { Data = true };

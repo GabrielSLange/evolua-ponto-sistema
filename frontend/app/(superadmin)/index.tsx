@@ -22,6 +22,7 @@ const SuperAdminScreen = () => {
             <FlatList
                data={empresas}
                keyExtractor={(item) => item.id}
+               contentContainerStyle={styles.listContentContainer}
                renderItem={({ item }) => (
                   <Card style={styles.card}>
                      <Card.Content>
@@ -66,6 +67,13 @@ const styles = StyleSheet.create({
       marginTop: 50,
       alignItems: 'center',
       justifyContent: 'center',
+   },
+   editButton: {
+      marginRight: 'auto',
+
+   },
+   listContentContainer: {
+      paddingBottom: 80,
    }
 });
 

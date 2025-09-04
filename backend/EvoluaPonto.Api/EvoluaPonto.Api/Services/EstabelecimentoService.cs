@@ -52,14 +52,15 @@ namespace EvoluaPonto.Api.Services
             return new ServiceResponse<ModelEstabelecimento> { Data = estabelecimentoBanco };
         }
 
-        public async Task<ServiceResponse<bool>> DeleteEstabelecimento(Guid Id)
+        public async Task<ServiceResponse<bool>> ToggleAtivoAsync(Guid estabelecimentoId)
         {
-            ModelEstabelecimento? estabelecimentoBanco = await _context.Estabelecimentos.FirstOrDefaultAsync(tb => tb.Id == Id);
+            ModelEstabelecimento? estabelecimentoBanco = await _context.Estabelecimentos.FirstOrDefaultAsync(tb => tb.Id == estabelecimentoId);
 
-            if (estabelecimentoBanco is null)
-                return new ServiceResponse<bool> { Success = false, ErrorMessage = "Não foi encontrado nenhum estabelecimento com o ID informado" };
+            if (estabelecimentoBanco == null)
+                return new ServiceResponse<bool> { Success = false, ErrorMessage = "Não foi encontrado nenhum estabalecimento com esse ID" };
 
-            _context.Remove(estabelecimentoBanco);
+            estabelecimentoBanco.Ativo = !estabelecimentoBanco.Ativo;
+            _context.Update(estabelecimentoBanco);
             await _context.SaveChangesAsync();
 
             return new ServiceResponse<bool> { Data = true };

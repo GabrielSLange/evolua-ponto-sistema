@@ -27,6 +27,9 @@ namespace EvoluaPonto.Api.Models
         [Column("created_at")]
         public DateTime? CreatedAt { get; set; }
 
+        [Column("ativo")]
+        public bool Ativo { get; set; }
+
         //Relação com a tabela de empresas
 
         [Required]

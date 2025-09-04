@@ -69,12 +69,12 @@ namespace EvoluaPonto.Api.Controllers
             }
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteFuncionario(Guid Id)
+        [HttpPatch]
+        public async Task<IActionResult> ToggleAtivo(Guid Id)
         {
             try
             {
-                ServiceResponse<bool> responseFuncionario = await _funcionarioService.DeleteFuncionario(Id);
+                ServiceResponse<bool> responseFuncionario = await _funcionarioService.ToggleAtivoAsync(Id);
 
                 if (!responseFuncionario.Success)
                     return NotFound(responseFuncionario.ErrorMessage);
