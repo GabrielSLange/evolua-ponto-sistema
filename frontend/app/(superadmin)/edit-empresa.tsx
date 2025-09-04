@@ -1,47 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { } from 'react';
 import { View } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import EmpresaForm, { EmpresaFormData } from '../../components/forms/EmpresaForm';
-import api from '../../services/api';
+import EmpresaForm from '../../components/forms/EmpresaForm';
 import CustomLoader from '../../components/CustomLoader';
 import ScreenContainer from '../../components/layouts/ScreenContainer';
+import { useEditEmpresa } from '@/hooks/superadmin/useEmpresa';
 
 const EditEmpresaScreen = () => {
-   const [loading, setLoading] = useState(false);
-   const [initialData, setInitialData] = useState<EmpresaFormData | undefined>(undefined);
+
    const router = useRouter();
-   const { id } = useLocalSearchParams(); // Pega o ID da empresa da URL
+   const { id } = useLocalSearchParams();
 
-   // Busca os dados da empresa ao carregar a tela
-   useEffect(() => {
-      if (id) {
-         setLoading(true);
-         api.get(`/empresas/${id}`)
-            .then(response => {
-               if (response.data && response.data) {
-                  setInitialData(response.data);
-               }
-            })
-            .catch(error => console.error("Erro ao buscar dados da empresa:", error))
-            .finally(() => setLoading(false));
-      }
-   }, [id]);
+   const { loading, empresa, updateEmpresa } = useEditEmpresa(id as string);
 
-   const handleUpdateEmpresa = async (data: EmpresaFormData) => {
-      setLoading(true);
+   const handleUpdateEmpresa = async (data: any) => {
       try {
-         await api.put(`/empresas/`, data);
-         router.back(); // Volta para a lista após a atualização
+         await updateEmpresa(data);
       } catch (error) {
          console.error("Erro ao atualizar empresa:", error);
-         // Adicionar feedback de erro
-      } finally {
-         setLoading(false);
       }
-   };
+   }
 
-   if (loading && !initialData) {
+   if (loading) {
       return <CustomLoader />;
    }
 
@@ -53,9 +34,8 @@ const EditEmpresaScreen = () => {
                <Appbar.Content title="Editar Empresa" />
             </Appbar.Header>
             <EmpresaForm
-               isLoading={loading}
                onSubmit={handleUpdateEmpresa}
-               initialData={initialData} // Passa os dados para preencher o formulário
+               initialData={empresa || undefined}
                submitButtonLabel="Salvar Alterações"
             />
          </View>

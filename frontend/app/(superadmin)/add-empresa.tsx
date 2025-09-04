@@ -1,32 +1,30 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { useRouter } from 'expo-router';
-import EmpresaForm, { EmpresaFormData } from '../../components/forms/EmpresaForm';
-import api from '../../services/api';
+import EmpresaForm from '../../components/forms/EmpresaForm';
 import ScreenContainer from '../../components/layouts/ScreenContainer';
+import { ModelEmpresa } from '@/models/ModelEmpresa';
+import { useCreateEmpresa } from '@/hooks/superadmin/useEmpresa';
+import CustomLoader from '@/components/CustomLoader';
 
 const AddEmpresaScreen = () => {
-   const [loading, setLoading] = useState(false);
    const router = useRouter();
 
-   const handleAddEmpresa = async (data: EmpresaFormData) => {
-      setLoading(true);
+   const [loading, addEmpresa] = useCreateEmpresa();
+
+   const handleCreateEmpresa = async (data: ModelEmpresa) => {
       try {
-         // Chama o endpoint de criação de empresa na nossa API
-         await api.post('/empresas', {
-            razaoSocial: data.razaoSocial,
-            cnpj: data.cnpj,
-         });
-         // Se a criação for bem-sucedida, volta para a tela anterior (a lista de empresas)
-         router.back();
-      } catch (error) {
-         console.error("Erro ao criar empresa:", error);
-         // Aqui você pode adicionar um alerta ou feedback de erro para o usuário
-      } finally {
-         setLoading(false);
+         await addEmpresa(data);
       }
-   };
+      catch (error) {
+         console.error("Erro ao criar empresa:", error);
+      }
+   }
+
+   if (loading) {
+      return <CustomLoader />;
+   }
 
    return (
       <ScreenContainer>
@@ -36,8 +34,7 @@ const AddEmpresaScreen = () => {
                <Appbar.Content title="Adicionar Nova Empresa" />
             </Appbar.Header>
             <EmpresaForm
-               isLoading={loading}
-               onSubmit={handleAddEmpresa}
+               onSubmit={handleCreateEmpresa}
                submitButtonLabel="Cadastrar Empresa"
             />
          </View>
