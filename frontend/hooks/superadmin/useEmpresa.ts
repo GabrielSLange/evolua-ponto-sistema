@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import api from "../../services/api";
 import { ModelEmpresa } from "@/models/ModelEmpresa";
+import { isAxiosError } from "axios";
+import { useNotification } from '../../contexts/NotificationContext';
 
 
 //Tela de index do superadmin (listagem de empresas)
@@ -46,16 +48,29 @@ export const useEmpresa = () => {
       }
    };
 
+   const formatCNPJ = (cnpj: string) => {
+      if (!cnpj) return '';
+
+      // Remove qualquer caractere que não seja número
+      const digitsOnly = cnpj.replace(/\D/g, '');
+
+      // Aplica a máscara e retorna a string formatada
+      return digitsOnly.replace(
+         /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
+         '$1.$2.$3/$4-$5'
+      );
+   };
 
    useFocusEffect(fetchEmpresas);
 
-   return { empresas, loading, toggleEmpresaAtivo };
+   return { empresas, loading, toggleEmpresaAtivo, formatCNPJ };
 }
 
 // Tela de add-empresa
 export const useCreateEmpresa = () => {
    const [loading, setLoading] = useState(false);
    const router = useRouter();
+   const { showNotification } = useNotification();
 
    const addEmpresa = async (data: ModelEmpresa) => {
       setLoading(true);
@@ -67,7 +82,10 @@ export const useCreateEmpresa = () => {
          router.back();
       }
       catch (error) {
-         console.error("Erro ao criar empresa:", error);
+         if (isAxiosError(error) && error.response) {
+            const apiMessage = error.response.data || "Erro desconhecido da API";
+            showNotification(apiMessage, "error");
+         }
       }
       finally {
          setLoading(false);
@@ -81,6 +99,7 @@ export const useEditEmpresa = (empresaId: string) => {
    const [loading, setLoading] = useState(false);
    const [empresa, setEmpresa] = useState<ModelEmpresa | null>(null);
    const router = useRouter();
+   const { showNotification } = useNotification();
 
 
    useEffect(() => {
@@ -103,8 +122,10 @@ export const useEditEmpresa = (empresaId: string) => {
          await api.put(`/empresas/`, data);
          router.back(); // Volta para a lista após a atualização
       } catch (error) {
-         console.error("Erro ao atualizar empresa:", error);
-         // Adicionar feedback de erro
+         if (isAxiosError(error) && error.response) {
+            const apiMessage = error.response.data || "Erro desconhecido da API";
+            showNotification(apiMessage, "error");
+         }
       } finally {
          setLoading(false);
       }

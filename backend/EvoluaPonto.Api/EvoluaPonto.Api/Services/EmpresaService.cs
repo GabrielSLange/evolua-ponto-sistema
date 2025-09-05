@@ -54,7 +54,6 @@ namespace EvoluaPonto.Api.Services
             if (await _context.Empresas.AsNoTracking().AnyAsync(tb => tb.Cnpj == EmpresaAtualizada.Cnpj && tb.Id != EmpresaAtualizada.Id )) { return new ServiceResponse<ModelEmpresa> { Success = false, ErrorMessage = "Já existe uma empresa cadastrada com esse CNPJ" }; }
 
             EmpresaBanco.RazaoSocial = EmpresaAtualizada.RazaoSocial;
-            EmpresaBanco.Cnpj = EmpresaAtualizada.Cnpj;
 
             _context.Update(EmpresaBanco);
             await _context.SaveChangesAsync();

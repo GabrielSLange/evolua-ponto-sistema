@@ -3,6 +3,7 @@ import { useFocusEffect } from 'expo-router';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
+import { MaskedTextInput } from "react-native-mask-text";
 
 // Interface para as propriedades que o nosso formulário receberá
 interface EmpresaFormProps {
@@ -36,7 +37,12 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({
 
    const handleSubmit = () => {
       // Chama a função passada por props com os dados atuais do formulário
-      onSubmit({ razaoSocial, cnpj, id: initialData?.id || '' });
+      onSubmit({
+         razaoSocial,
+         cnpj,
+         id: initialData?.id || '',
+         ativo: initialData?.ativo ?? true // ou false, dependendo do padrão desejado
+      });
    };
 
    return (
@@ -47,13 +53,28 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({
             onChangeText={setRazaoSocial}
             style={styles.input}
          />
-         <TextInput
-            label="CNPJ"
-            value={cnpj}
-            onChangeText={setCnpj}
-            style={styles.input}
-            keyboardType="number-pad"
-         />
+         <View style={styles.input}>
+            <TextInput
+               editable={!initialData}
+               label="CNPJ"
+               value={cnpj}
+               onChangeText={(text) => {
+                  // Remove tudo que não for número
+                  const rawText = text.replace(/\D/g, '');
+                  setCnpj(rawText);
+               }}
+               keyboardType="number-pad"
+               render={props => (
+                  <MaskedTextInput
+                     {...props}
+                     mask="99.999.999/9999-99"
+                     value={cnpj}
+                     onChangeText={(text, rawText) => setCnpj(rawText)}
+                     keyboardType="number-pad"
+                  />
+               )}
+            />
+         </View>
          <Button
             mode="contained"
             onPress={handleSubmit}

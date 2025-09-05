@@ -4,6 +4,39 @@ import { PaperProvider, MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { useEffect } from 'react';
 import CustomLoader from '../components/CustomLoader';
+import { Snackbar } from 'react-native-paper';
+import { NotificationProvider, NotificationStateContext } from '../contexts/NotificationContext';
+import { useContext } from 'react';
+
+// NOVO: Componente que renderiza o Snackbar global
+const GlobalSnackbar = () => {
+  const notificationState = useContext(NotificationStateContext);
+
+  if (!notificationState) return null;
+
+  // Define a cor do snackbar com base no tipo de notificação
+  const getBackgroundColor = () => {
+    switch (notificationState.type) {
+      case 'error':
+        return '#B00020'; // Cor de erro do Material Design
+      case 'success':
+        return '#00C853'; // Cor de sucesso
+      default:
+        return undefined; // Cor padrão do tema
+    }
+  };
+
+  return (
+    <Snackbar
+      visible={notificationState.visible}
+      onDismiss={notificationState.onDismiss}
+      duration={4000}
+      style={{ backgroundColor: getBackgroundColor() }}
+    >
+      {notificationState.message}
+    </Snackbar>
+  );
+}
 
 // Componente que lida com a lógica de navegação/redirecionamento
 const RootLayoutNav = () => {
@@ -55,7 +88,10 @@ const ThemedApp = () => {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <ThemedApp />
+      <NotificationProvider>
+        <ThemedApp />
+        <GlobalSnackbar />
+      </NotificationProvider>
     </AuthProvider>
   );
 }

@@ -9,7 +9,7 @@ import React from 'react';
 
 
 const SuperAdminScreen = () => {
-   const { empresas, loading, toggleEmpresaAtivo } = useEmpresa();
+   const { empresas, loading, toggleEmpresaAtivo, formatCNPJ } = useEmpresa();
    const router = useRouter();
 
 
@@ -39,7 +39,7 @@ const SuperAdminScreen = () => {
                               />
                            </View>
                         </View>
-                        <Paragraph>CNPJ: {item.cnpj}</Paragraph>
+                        <Paragraph>CNPJ: {formatCNPJ(item.cnpj)}</Paragraph>
                      </Card.Content>
                      <Card.Actions>
                         <IconButton icon="pencil" onPress={() => router.push(`/(superadmin)/edit-empresa?id=${item.id}`)}>
