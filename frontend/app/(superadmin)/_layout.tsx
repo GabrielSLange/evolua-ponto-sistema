@@ -21,17 +21,27 @@ export default function SuperAdminLayout() {
             }}
          />
          <Drawer.Screen
-            name="add-empresa" // Nome do arquivo: add-empresa.tsx
+            name="add-empresa"
             options={{
-               drawerLabel: () => null, // Esta função vazia oculta o item do menu
-               title: 'Adicionar Empresa', // Este será o título no cabeçalho da página
+               // **CORREÇÃO APLICADA AQUI**
+               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
+               title: 'Adicionar Empresa',
             }}
          />
          <Drawer.Screen
             name="edit-empresa"
             options={{
-               drawerLabel: () => null,
+               // **CORREÇÃO APLICADA AQUI**
+               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
                title: 'Editar Empresa',
+            }}
+         />
+         <Drawer.Screen
+            name="estabelecimentos"
+            options={{
+               // **CORREÇÃO APLICADA AQUI**
+               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
+               title: 'Estabelecimentos',
             }}
          />
       </Drawer>

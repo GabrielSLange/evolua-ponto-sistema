@@ -31,6 +31,24 @@ namespace EvoluaPonto.Api.Controllers
             }
         }
 
+        [HttpGet("Id")]
+        public async Task<IActionResult> GetEstabelecimentoId(Guid estabelecimentoId)
+        {
+            try
+            {
+                ServiceResponse<ModelEstabelecimento> responseEstabelecimento = await _estabelecimentoService.GetEstabelecimentoById(estabelecimentoId);
+
+                if (!responseEstabelecimento.Success)
+                    return NotFound(responseEstabelecimento.ErrorMessage);
+
+                return Ok(responseEstabelecimento.Data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateEstabelecimento([FromBody] ModelEstabelecimento estabelecimentoNovo)
         {

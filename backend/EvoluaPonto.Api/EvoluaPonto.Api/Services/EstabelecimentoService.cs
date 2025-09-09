@@ -17,6 +17,16 @@ namespace EvoluaPonto.Api.Services
         public async Task<ServiceResponse<List<ModelEstabelecimento>>> GetEstabelecimentosEmpresa(Guid EmpresaId) 
             => new ServiceResponse<List<ModelEstabelecimento>> { Data = await _context.Estabelecimentos.AsNoTracking().Where(tb => tb.EmpresaId == EmpresaId).ToListAsync() };
 
+        public async Task<ServiceResponse<ModelEstabelecimento>> GetEstabelecimentoById(Guid EstabelecimentoId)
+        {
+            ModelEstabelecimento? estabelecimentoBanco = await _context.Estabelecimentos.FirstOrDefaultAsync(tb => tb.Id == EstabelecimentoId);
+
+            if(estabelecimentoBanco is null)
+                return new ServiceResponse<ModelEstabelecimento> { Success = false, ErrorMessage = "Nenhum estabelecimento encontrado com o ID informado"};
+
+            return new ServiceResponse<ModelEstabelecimento> { Data = estabelecimentoBanco };
+        }
+
         public async Task<ServiceResponse<ModelEstabelecimento>> CreateEsabelecimento(ModelEstabelecimento novoEstabelecimento)
         {
             if (!await _context.Empresas.AnyAsync(tb => tb.Id == novoEstabelecimento.EmpresaId))

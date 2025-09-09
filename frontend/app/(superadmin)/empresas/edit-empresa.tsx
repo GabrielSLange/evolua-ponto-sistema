@@ -2,9 +2,9 @@ import React, { } from 'react';
 import { View } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import EmpresaForm from '../../components/forms/EmpresaForm';
-import CustomLoader from '../../components/CustomLoader';
-import ScreenContainer from '../../components/layouts/ScreenContainer';
+import EmpresaForm from '../../../components/forms/EmpresaForm';
+import CustomLoader from '../../../components/CustomLoader';
+import ScreenContainer from '../../../components/layouts/ScreenContainer';
 import { useEditEmpresa } from '@/hooks/superadmin/useEmpresa';
 
 const EditEmpresaScreen = () => {

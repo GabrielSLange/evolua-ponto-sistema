@@ -50,7 +50,7 @@ const RootLayoutNav = () => {
 
     if (isAuthenticated) {
       if (role === 'superadmin') {
-        router.replace('/(superadmin)');
+        router.replace('/(superadmin)/empresas');
       } else if (role === 'admin') {
         router.replace('/(admin)');
       } else if (role === 'normal') {

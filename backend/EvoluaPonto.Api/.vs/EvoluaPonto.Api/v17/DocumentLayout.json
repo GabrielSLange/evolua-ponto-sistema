@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\controllers\\estabelecimentocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\controllers\\estabelecimentocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\services\\estabelecimentoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\services\\estabelecimentoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\services\\empresaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\services\\empresaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -19,16 +27,8 @@
       "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\services\\funcionarioservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\controllers\\estabelecimentocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\controllers\\estabelecimentocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\controllers\\empresascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\controllers\\empresascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\services\\estabelecimentoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|solutionrelative:evoluaponto.api\\services\\estabelecimentoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{BD5B536A-3AED-4042-8C6A-C26C4A74F575}|EvoluaPonto.Api\\EvoluaPonto.Api.csproj|c:\\users\\novacontabilidade\\documents\\projetosdev\\evolua-ponto-sistema\\backend\\evoluaponto.api\\evoluaponto.api\\models\\modelempresa.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -46,7 +46,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -54,7 +54,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "FuncionarioController.cs",
               "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Controllers\\FuncionarioController.cs",
               "RelativeDocumentMoniker": "EvoluaPonto.Api\\Controllers\\FuncionarioController.cs",
@@ -62,48 +62,51 @@
               "RelativeToolTip": "EvoluaPonto.Api\\Controllers\\FuncionarioController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-04T20:33:48.336Z"
+              "WhenOpened": "2025-09-04T20:33:48.336Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 1,
               "Title": "EstabelecimentoService.cs",
               "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\EstabelecimentoService.cs",
               "RelativeDocumentMoniker": "EvoluaPonto.Api\\Services\\EstabelecimentoService.cs",
               "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\EstabelecimentoService.cs",
               "RelativeToolTip": "EvoluaPonto.Api\\Services\\EstabelecimentoService.cs",
-              "ViewState": "AgIAACwAAAAAAAAAAAAlwEUAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAAABoAAABdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-04T20:28:26.723Z"
+              "WhenOpened": "2025-09-04T20:28:26.723Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 0,
               "Title": "EstabelecimentoController.cs",
               "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Controllers\\EstabelecimentoController.cs",
               "RelativeDocumentMoniker": "EvoluaPonto.Api\\Controllers\\EstabelecimentoController.cs",
               "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Controllers\\EstabelecimentoController.cs",
               "RelativeToolTip": "EvoluaPonto.Api\\Controllers\\EstabelecimentoController.cs",
-              "ViewState": "AgIAAEIAAAAAAAAAAAAAAFIAAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAAACsAAAA2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-04T20:25:21.007Z"
+              "WhenOpened": "2025-09-04T20:25:21.007Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "EmpresaService.cs",
               "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\EmpresaService.cs",
               "RelativeDocumentMoniker": "EvoluaPonto.Api\\Services\\EmpresaService.cs",
               "ToolTip": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\EmpresaService.cs",
               "RelativeToolTip": "EvoluaPonto.Api\\Services\\EmpresaService.cs",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAAADcAAABFAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADcAAABFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-04T20:19:40.67Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "EmpresasController.cs",
               "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Controllers\\EmpresasController.cs",
               "RelativeDocumentMoniker": "EvoluaPonto.Api\\Controllers\\EmpresasController.cs",
@@ -127,7 +130,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "ModelEstabelecimento.cs",
               "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Models\\ModelEstabelecimento.cs",
               "RelativeDocumentMoniker": "EvoluaPonto.Api\\Models\\ModelEstabelecimento.cs",
@@ -135,12 +138,11 @@
               "RelativeToolTip": "EvoluaPonto.Api\\Models\\ModelEstabelecimento.cs",
               "ViewState": "AgIAABsAAAAAAAAAAAAAAC0AAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-04T20:16:39.982Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-04T20:16:39.982Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "FuncionarioService.cs",
               "DocumentMoniker": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\Services\\FuncionarioService.cs",
               "RelativeDocumentMoniker": "EvoluaPonto.Api\\Services\\FuncionarioService.cs",
