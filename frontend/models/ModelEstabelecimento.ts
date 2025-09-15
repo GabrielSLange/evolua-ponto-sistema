@@ -1,5 +1,6 @@
-export interface Estabelecimento {
+export interface ModelEstabelecimento {
    id: string;
+   empresaId: string;
    nomeFantasia: string;
    logradouro: string;
    numero: string;

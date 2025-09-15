@@ -20,3 +20,4 @@
 *.mdf
 *.DS_Store
 *.pfx
+**/backend/EvoluaPonto.Api/.vs/

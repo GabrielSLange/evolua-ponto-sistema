@@ -1,23 +1,12 @@
+import { ModelEstabelecimento } from '@/models/ModelEstabelecimento';
 import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 
-// Interface para os dados do formulário
-export interface EstabelecimentoFormData {
-   nomeFantasia: string;
-   logradouro: string;
-   numero: string;
-   bairro: string;
-   cidade: string;
-   estado: string;
-   cep: string;
-   complemento: string;
-}
-
 // Props que o formulário recebe
 interface EstabelecimentoFormProps {
-   initialData?: EstabelecimentoFormData;
-   onSubmit: (data: EstabelecimentoFormData) => void;
+   initialData?: ModelEstabelecimento;
+   onSubmit: (data: ModelEstabelecimento) => void;
    isLoading: boolean;
    submitButtonLabel?: string;
 }
@@ -28,15 +17,18 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
    isLoading,
    submitButtonLabel = 'Salvar',
 }) => {
-   const [formData, setFormData] = useState<EstabelecimentoFormData>({
-      nomeFantasia: '',
-      logradouro: '',
-      numero: '',
-      bairro: '',
-      cidade: '',
-      estado: '',
-      cep: '',
-      complemento: '',
+   const [formData, setFormData] = useState<ModelEstabelecimento>({
+      id: "",
+      empresaId: "",
+      nomeFantasia: "",
+      logradouro: "",
+      numero: "",
+      bairro: "",
+      cidade: "",
+      cep: "",
+      complemento: "",
+      estado: "",
+      ativo: true,
    });
 
    useEffect(() => {
@@ -45,13 +37,22 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
       } else {
          // Limpa o formulário no modo de criação
          setFormData({
-            nomeFantasia: '', logradouro: '', numero: '', bairro: '',
-            cidade: '', estado: '', cep: '', complemento: ''
+            id: "",
+            empresaId: "",
+            nomeFantasia: "",
+            logradouro: "",
+            numero: "",
+            bairro: "",
+            cidade: "",
+            cep: "",
+            complemento: "",
+            estado: "",
+            ativo: true,
          });
       }
    }, [initialData]);
 
-   const handleChange = (name: keyof EstabelecimentoFormData, value: string) => {
+   const handleChange = (name: keyof ModelEstabelecimento, value: string) => {
       setFormData(prev => ({ ...prev, [name]: value }));
    };
 

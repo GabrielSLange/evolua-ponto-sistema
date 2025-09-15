@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, FlatList, StyleSheet, Pressable } from 'react-native';
-import { Appbar, Card, Title, Paragraph, Text, Switch, IconButton } from 'react-native-paper';
+import { Appbar, Card, Title, Paragraph, Text, Switch, IconButton, FAB } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import ScreenContainer from '../../../components/layouts/ScreenContainer';
 import CustomLoader from '../../../components/CustomLoader';
 import { useEstabelecimentos } from '../../../hooks/superadmin/useEstabelecimento';
-import { Estabelecimento } from '../../../models/ModelEstabelecimento';
+import { ModelEstabelecimento } from '../../../models/ModelEstabelecimento';
 
 const EstabelecimentosScreen = () => {
    const router = useRouter();
@@ -25,55 +25,64 @@ const EstabelecimentosScreen = () => {
             <Appbar.BackAction onPress={() => router.back()} />
             <Appbar.Content title={`Estabelecimentos de ${empresaNome}`} />
          </Appbar.Header>
-         <FlatList
-            data={estabelecimentos}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }: { item: Estabelecimento }) => (
-               <Card style={styles.card}>
-                  <View style={styles.cardHeader}>
-                     <Pressable>
-                        {/* Ainda será implementado o clique para ver os funcionários */}
-                        {/* style={styles.titleContainer}
+         <View style={styles.container}>
+            <FlatList
+               data={estabelecimentos}
+               keyExtractor={(item) => item.id}
+               renderItem={({ item }: { item: ModelEstabelecimento }) => (
+                  <Card style={styles.card}>
+                     <View style={styles.cardHeader}>
+                        <Pressable>
+                           {/* Ainda será implementado o clique para ver os funcionários */}
+                           {/* style={styles.titleContainer}
                      onPress={() => router.push({
                         pathname: '/(superadmin)/funcionarios',
                         params: { empresaId: item.id, empresaNome: item.razaoSocial }
                      })} */}
-                     </Pressable>
+                        </Pressable>
 
-                     <View style={styles.switchContainer}>
-                        <Text style={{ marginRight: 8 }}>{item.ativo ? 'Ativo' : 'Inativo'}</Text>
-                        <Switch
-                           value={item.ativo}
-                           onValueChange={() => toggleEstabelecimentoAtivo(item.id)}
-                        />
+                        <View style={styles.switchContainer}>
+                           <Text style={{ marginRight: 8 }}>{item.ativo ? 'Ativo' : 'Inativo'}</Text>
+                           <Switch
+                              value={item.ativo}
+                              onValueChange={() => toggleEstabelecimentoAtivo(item.id)}
+                           />
+                        </View>
+
                      </View>
 
-                  </View>
-
-                  <Pressable
-                  // onPress={() => router.push({
-                  //    pathname: '/(superadmin)/funcionarios',
-                  //    params: { empresaId: item.id, empresaNome: item.nomeFantasia }
-                  // })}
-                  />
-
-                  <Card.Content>
-                     <Title>{item.nomeFantasia}</Title>
-                     <Paragraph>{`${item.logradouro}, ${item.numero} - ${item.bairro}`}</Paragraph>
-                     <Paragraph>{`${item.cidade} / ${item.estado}`}</Paragraph>
-                  </Card.Content>
-
-                  {/* As ações ficam separadas no final */}
-                  <Card.Actions style={styles.cardActions}>
-                     <IconButton
-                        icon="pencil"
-                        onPress={() => router.push(`/estabelecimentos/edit-estabelecimento?id=${item.id}`)}
+                     <Pressable
+                     // onPress={() => router.push({
+                     //    pathname: '/(superadmin)/funcionarios',
+                     //    params: { empresaId: item.id, empresaNome: item.nomeFantasia }
+                     // })}
                      />
-                  </Card.Actions>
-               </Card>
-            )}
-            ListEmptyComponent={<View style={styles.emptyContainer}><Text>Nenhum estabelecimento cadastrado.</Text></View>}
-         />
+
+                     <Card.Content>
+                        <Title>{item.nomeFantasia}</Title>
+                        <Paragraph>{`${item.logradouro}, ${item.numero} - ${item.bairro}`}</Paragraph>
+                        <Paragraph>{`${item.cidade} / ${item.estado}`}</Paragraph>
+                     </Card.Content>
+
+                     {/* As ações ficam separadas no final */}
+                     <Card.Actions style={styles.cardActions}>
+                        <IconButton
+                           icon="pencil"
+                           onPress={() => router.push(`/estabelecimentos/edit-estabelecimento?id=${item.id}&empresaId=${empresaId}&empresaNome=${empresaNome}`)}
+                        />
+                     </Card.Actions>
+                  </Card>
+               )}
+               ListEmptyComponent={<View style={styles.emptyContainer}><Text>Nenhum estabelecimento cadastrado.</Text></View>}
+            />
+            <FAB
+               style={styles.fab}
+               icon="plus"
+               onPress={() => {
+                  router.push(`/(superadmin)/estabelecimentos/add-estabelecimento?empresaId=${empresaId}&empresaNome=${empresaNome}`);
+               }}
+            />
+         </View>
       </ScreenContainer>
    );
 };
@@ -98,6 +107,15 @@ const styles = StyleSheet.create({
    },
    cardActions: {
       justifyContent: 'flex-end', // Alinha o botão de editar à direita
+   },
+   container: {
+      flex: 1,
+   },
+   fab: {
+      position: 'absolute',
+      margin: 16,
+      right: 0,
+      bottom: 0,
    },
 });
 

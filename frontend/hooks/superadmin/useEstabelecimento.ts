@@ -1,13 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
 import api from '../../services/api';
-import { Estabelecimento } from '../../models/ModelEstabelecimento';
+import { ModelEstabelecimento } from '../../models/ModelEstabelecimento';
 import { useNotification } from '@/contexts/NotificationContext';
-import EstabelecimentosScreen from '@/app/(superadmin)/estabelecimentos/estabelecimentos';
 
 // Controller para a lógica de estabelecimentos
 export const useEstabelecimentos = (empresaId: string | undefined) => {
-   const [estabelecimentos, setEstabelecimentos] = useState<Estabelecimento[]>([]);
+   const [estabelecimentos, setEstabelecimentos] = useState<ModelEstabelecimento[]>([]);
    const [loading, setLoading] = useState(true);
 
    const fetchEstabelecimentos = useCallback(() => {
@@ -40,7 +39,7 @@ export const useEstabelecimentos = (empresaId: string | undefined) => {
       );
 
       try {
-         await api.patch(`/estabelecimento?estabelecimentoId=${estabelecimentoId}`);
+         await api.patch(`/Estabelecimento?Id=${estabelecimentoId}`);
       }
       catch (error) {
          console.error("Erro ao atualizar status do estabelecimento:", error);
@@ -60,7 +59,7 @@ export const useAddEstabelecimento = () => {
    const router = useRouter();
    const { showNotification } = useNotification();
 
-   const addEstabelecimento = async (data: Estabelecimento) => { // Use 'any' por enquanto, criaremos a interface depois
+   const addEstabelecimento = async (data: ModelEstabelecimento) => { // Use 'any' por enquanto, criaremos a interface depois
       setLoading(true);
       try {
          await api.post('/estabelecimento', data);
