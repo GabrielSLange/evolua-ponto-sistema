@@ -1,6 +1,5 @@
 export interface ModelEstabelecimento {
    id: string;
-   empresaId: string;
    nomeFantasia: string;
    logradouro: string;
    numero: string;
@@ -10,4 +9,5 @@ export interface ModelEstabelecimento {
    complemento: string;
    estado: string;
    ativo: boolean;
+   empresaId: string;
 }

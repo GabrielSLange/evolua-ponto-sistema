@@ -18,16 +18,16 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
    submitButtonLabel = 'Salvar',
 }) => {
    const [formData, setFormData] = useState<ModelEstabelecimento>({
-      id: "",
-      empresaId: "",
-      nomeFantasia: "",
-      logradouro: "",
-      numero: "",
-      bairro: "",
-      cidade: "",
-      cep: "",
-      complemento: "",
-      estado: "",
+      id: '',
+      empresaId: '',
+      nomeFantasia: '',
+      logradouro: '',
+      numero: '',
+      bairro: '',
+      cidade: '',
+      cep: '',
+      complemento: '',
+      estado: '',
       ativo: true,
    });
 
@@ -37,16 +37,16 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
       } else {
          // Limpa o formulário no modo de criação
          setFormData({
-            id: "",
-            empresaId: "",
-            nomeFantasia: "",
-            logradouro: "",
-            numero: "",
-            bairro: "",
-            cidade: "",
-            cep: "",
-            complemento: "",
-            estado: "",
+            id: '',
+            empresaId: '',
+            nomeFantasia: '',
+            logradouro: '',
+            numero: '',
+            bairro: '',
+            cidade: '',
+            cep: '',
+            complemento: '',
+            estado: '',
             ativo: true,
          });
       }

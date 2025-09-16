@@ -1,33 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import api from '../../../services/api';
-import { useNotification } from '../../../contexts/NotificationContext';
 import EstabelecimentoForm from '../../../components/forms/EstabelecimentoForm';
-import { ModelEstabelecimento } from '@/models/ModelEstabelecimento';
+import { useAddEstabelecimento } from '@/hooks/superadmin/useEstabelecimento';
 
 const AddEstabelecimentoScreen = () => {
-   const [loading, setLoading] = useState(false);
    const router = useRouter();
    const { empresaId, empresaNome } = useLocalSearchParams(); // Pega o ID da empresa-mãe
-   const { showNotification } = useNotification();
 
-   const handleAdd = async (data: ModelEstabelecimento) => {
-      setLoading(true);
-      try {
-         console.log(empresaId);
-         data.empresaId = String(empresaId);
-         await api.post('/Estabelecimento', { ...data });
-         showNotification('Estabelecimento cadastrado com sucesso!', 'success');
-         router.back();
-      } catch (error) {
-         showNotification('Erro ao cadastrar estabelecimento.', 'error');
-         // console.error(error);
-      } finally {
-         setLoading(false);
-      }
-   };
+   const { loading, addEstabelecimento } = useAddEstabelecimento(empresaId as string);
 
    return (
       <View style={{ flex: 1 }}>
@@ -37,7 +19,7 @@ const AddEstabelecimentoScreen = () => {
          </Appbar.Header>
          <EstabelecimentoForm
             isLoading={loading}
-            onSubmit={handleAdd}
+            onSubmit={addEstabelecimento}
             submitButtonLabel="Cadastrar"
          />
       </View>

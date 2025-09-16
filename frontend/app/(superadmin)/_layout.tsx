@@ -14,14 +14,14 @@ export default function SuperAdminLayout() {
          }}
       >
          <Drawer.Screen
-            name="index"
+            name="empresas/index"
             options={{
                drawerLabel: 'Gerenciar Empresas',
                title: 'Gerenciar Empresas',
             }}
          />
          <Drawer.Screen
-            name="add-empresa"
+            name="empresas/add-empresa"
             options={{
                // **CORREÇÃO APLICADA AQUI**
                drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
@@ -29,7 +29,7 @@ export default function SuperAdminLayout() {
             }}
          />
          <Drawer.Screen
-            name="edit-empresa"
+            name="empresas/edit-empresa"
             options={{
                // **CORREÇÃO APLICADA AQUI**
                drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
@@ -37,11 +37,27 @@ export default function SuperAdminLayout() {
             }}
          />
          <Drawer.Screen
-            name="estabelecimentos"
+            name="estabelecimentos/estabelecimentos"
             options={{
                // **CORREÇÃO APLICADA AQUI**
                drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
                title: 'Estabelecimentos',
+            }}
+         />
+         <Drawer.Screen
+            name="estabelecimentos/edit-estabelecimento"
+            options={{
+               // **CORREÇÃO APLICADA AQUI**
+               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
+               title: 'Editar Estabelecimento',
+            }}
+         />
+         <Drawer.Screen
+            name="estabelecimentos/add-estabelecimento"
+            options={{
+               // **CORREÇÃO APLICADA AQUI**
+               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
+               title: 'Adicionar Estabelecimento',
             }}
          />
       </Drawer>

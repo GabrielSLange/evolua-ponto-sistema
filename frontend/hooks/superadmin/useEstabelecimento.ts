@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { router, useFocusEffect, useRouter } from 'expo-router';
 import api from '../../services/api';
 import { ModelEstabelecimento } from '../../models/ModelEstabelecimento';
 import { useNotification } from '@/contexts/NotificationContext';
@@ -54,21 +54,22 @@ export const useEstabelecimentos = (empresaId: string | undefined) => {
 };
 
 // Controller para adicionar um novo estabelecimento
-export const useAddEstabelecimento = () => {
+export const useAddEstabelecimento = (empresaId: string) => {
    const [loading, setLoading] = useState(false);
    const router = useRouter();
    const { showNotification } = useNotification();
 
-   const addEstabelecimento = async (data: ModelEstabelecimento) => { // Use 'any' por enquanto, criaremos a interface depois
-      setLoading(true);
+   const addEstabelecimento = async (estabelecimento: ModelEstabelecimento) => { // Use 'any' por enquanto, criar         estabelecimento.empresaId = String(empresaId);
       try {
-         await api.post('/estabelecimento', data);
+         await api.post('/Estabelecimento', { ...estabelecimento });
          showNotification('Estabelecimento cadastrado com sucesso!', 'success');
          router.back();
       } catch (error) {
+         console.error("Erro ao cadastrar estabelecimento:", error);
          showNotification('Erro ao cadastrar estabelecimento.', 'error');
       } finally {
          setLoading(false);
+         router.back();
       }
    };
 

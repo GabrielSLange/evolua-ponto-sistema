@@ -36,6 +36,7 @@ namespace EvoluaPonto.Api.Controllers
         {
             try
             {
+
                 ServiceResponse<ModelEstabelecimento> responseEstabelecimento = await _estabelecimentoService.GetEstabelecimentoById(estabelecimentoId);
 
                 if (!responseEstabelecimento.Success)
@@ -54,6 +55,11 @@ namespace EvoluaPonto.Api.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
                 ServiceResponse<ModelEstabelecimento> responseEstabelecimento = await _estabelecimentoService.CreateEsabelecimento(estabelecimentoNovo);
 
                 if (!responseEstabelecimento.Success)
