@@ -24,3 +24,6 @@
 
 
 .env
+.env.production
+
+backup_evolua_ponto.sql
