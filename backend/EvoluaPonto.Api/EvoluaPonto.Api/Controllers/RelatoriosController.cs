@@ -8,7 +8,7 @@ namespace EvoluaPonto.Api.Controllers
 {
     [Authorize] // Protege todos os endpoints de relatório
     [ApiController]
-    [Route("api/relatorios")]
+    [Route("relatorios")]
     public class RelatoriosController : ControllerBase
     {
         private readonly AfdService _afdService;

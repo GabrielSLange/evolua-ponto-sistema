@@ -1,27 +1,35 @@
-# Estágio 1: Instalação das Dependências
-FROM node:18-alpine AS deps
-WORKDIR /app
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci
-
-# Estágio 2: Build do Projeto
+# Estágio 1: Build do projeto Expo para a web
 FROM node:18-alpine AS builder
+
+ARG NEXT_PUBLIC_API_URL
+# 2. Define uma variável de ambiente REAL dentro do contêiner usando o valor do argumento
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+
+# Instala a linha de comando do Expo
+RUN npm install -g expo-cli
+
+# Copia os arquivos de dependência e instala usando a flag que já funcionou
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci --legacy-peer-deps
+
+# Copia todo o código do frontend
 COPY frontend/. .
-RUN npm run build
 
-# Estágio 3: Imagem Final de Produção
-FROM node:18-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+RUN echo "O valor da API_URL no momento do build é: $NEXT_PUBLIC_API_URL"
 
-# Expõe a porta que o Next.js usa
-EXPOSE 3000
+# --- O COMANDO CORRETO PARA EXPORTAR O PROJETO WEB ---
+RUN npx expo export -p web
 
-# Comando para iniciar o servidor de produção
-CMD ["npx", "expo", "start"]
+# Estágio 2: Imagem final com Nginx para servir os arquivos estáticos
+FROM nginx:stable-alpine
+
+# Copia os arquivos estáticos gerados pelo Expo (da pasta /app/dist) 
+# para a pasta padrão do Nginx que serve conteúdo web
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Expõe a porta 80, que é a porta padrão do Nginx
+EXPOSE 80
+
+# O Nginx inicia automaticamente, então não precisamos do comando CMD

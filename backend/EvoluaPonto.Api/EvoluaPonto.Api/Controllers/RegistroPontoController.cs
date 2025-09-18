@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace EvoluaPonto.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class RegistroPontoController : ControllerBase
     {
         private readonly RegistroPontoService _registroPontoService;

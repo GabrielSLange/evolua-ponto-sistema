@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EvoluaPonto.Api.Controllers
 {
-    [Authorize]
+    // [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class EstabelecimentoController : ControllerBase
     {
         private readonly EstabelecimentoService _estabelecimentoService;
@@ -67,7 +67,7 @@ namespace EvoluaPonto.Api.Controllers
 
                 return Ok(responseEstabelecimento.Data);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -103,7 +103,7 @@ namespace EvoluaPonto.Api.Controllers
 
                 return Ok(responseEstabelecimento.Data);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

@@ -7,16 +7,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EvoluaPonto.Api.Controllers
 {
-    [Authorize]
+    // [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class FuncionarioController : ControllerBase
     {
         private readonly FuncionarioService _funcionarioService;
 
         public FuncionarioController(FuncionarioService funcionarioService)
         {
-            _funcionarioService = funcionarioService;            
+            _funcionarioService = funcionarioService;
         }
 
         [HttpGet]

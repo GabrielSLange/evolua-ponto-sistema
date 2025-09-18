@@ -1,6 +1,13 @@
-# Ignorar pastas de build/binários do .NET em qualquer subdiretório
+# Ignorar pastas de dependências
+**/node_modules
+
+# Ignorar pastas de build/binários do .NET
 **/bin
 **/obj
 
-# Ignorar dependências do Node
-node_modules
+# Ignorar pasta de build do Next.js
+.next
+
+# Ignorar arquivos de log e sistema
+npm-debug.log*
+.DS_Store

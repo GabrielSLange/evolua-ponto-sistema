@@ -23,6 +23,8 @@ builder.Services.AddCors(options =>
                       {
                           policy.WithOrigins("http://localhost:8081", // Para o nosso futuro frontend Next.js
                                              "https://localhost:7080",
+                                             "http://localhost:8080",
+                                             "http://localhost:80",
                                              "https://evolua-ponto-sistema.vercel.app") // Para o Swagger local
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
@@ -43,7 +45,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true, // Valida para quem o token foi emitido
             ValidAudience = builder.Configuration["Jwt:Audience"],
 
-            ClockSkew = TimeSpan.Zero // Remove a tolerância de tempo na expiração do token
+            ClockSkew = TimeSpan.Zero // Remove a tolerï¿½ncia de tempo na expiraï¿½ï¿½o do token
         };
     });
 
@@ -51,22 +53,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    // Define o Título e a Versão da sua API
+    options.AddServer(new Microsoft.OpenApi.Models.OpenApiServer() { Url = "/api" });
+    // Define o Tï¿½tulo e a Versï¿½o da sua API
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "Evolua Ponto API", Version = "v1" });
 
-    // Adiciona a definição de segurança "Bearer" que o Swagger UI usará.
+    // Adiciona a definiï¿½ï¿½o de seguranï¿½a "Bearer" que o Swagger UI usarï¿½.
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
         Description = "Por favor, insira 'Bearer ' seguido do seu token JWT",
         Name = "Authorization",
-        Type = SecuritySchemeType.Http, // Usar Http é mais semanticamente correto para Bearer
+        Type = SecuritySchemeType.Http, // Usar Http ï¿½ mais semanticamente correto para Bearer
         BearerFormat = "JWT",
         Scheme = "bearer"
     });
 
-    // Adiciona o requisito de segurança global que aplica a definição "Bearer" aos endpoints.
-    // Isso fará com que o cadeado apareça em todos os endpoints que exigem autorização.
+    // Adiciona o requisito de seguranï¿½a global que aplica a definiï¿½ï¿½o "Bearer" aos endpoints.
+    // Isso farï¿½ com que o cadeado apareï¿½a em todos os endpoints que exigem autorizaï¿½ï¿½o.
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -107,12 +110,12 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
-
+app.UsePathBase("/api");
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
 app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwaggerUI();
 //}
 
 app.UseHttpsRedirection();

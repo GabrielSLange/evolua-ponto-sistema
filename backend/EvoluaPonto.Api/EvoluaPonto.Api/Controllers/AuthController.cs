@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EvoluaPonto.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly SupabaseAdminService _supabaseAdmin;

@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EvoluaPonto.Api.Controllers
 {
-    [Authorize]
+    // [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class EmpresasController : ControllerBase
     {
         private readonly EmpresaService _empresaService;
@@ -25,7 +25,7 @@ namespace EvoluaPonto.Api.Controllers
             try
             {
                 ServiceResponse<ModelEmpresa> ResponseEmpresa = await _empresaService.GetByIdAsync(Id);
-                if(!ResponseEmpresa.Success)
+                if (!ResponseEmpresa.Success)
                 {
                     return NotFound(ResponseEmpresa.ErrorMessage);
                 }
@@ -34,10 +34,10 @@ namespace EvoluaPonto.Api.Controllers
                     return Ok(ResponseEmpresa.Data);
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-            }            
+            }
         }
 
         [HttpGet]
@@ -73,10 +73,10 @@ namespace EvoluaPonto.Api.Controllers
 
                 return CreatedAtAction(nameof(GetEmpresaById), new { id = ResponseEmpresa.Data?.Id }, ResponseEmpresa.Data);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-            }            
+            }
         }
 
         [HttpPut]
@@ -101,16 +101,16 @@ namespace EvoluaPonto.Api.Controllers
                     {
                         return Conflict(ResponseEmpresa.ErrorMessage);
                     }
-                    
+
                 }
 
                 return Ok(ResponseEmpresa.Data);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-            
+
         }
 
         [HttpPatch]
@@ -125,7 +125,7 @@ namespace EvoluaPonto.Api.Controllers
 
                 return Ok(responseEmpresa.Data);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

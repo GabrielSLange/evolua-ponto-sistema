@@ -1,9 +1,12 @@
+// frontend/api.ts
 import axios from 'axios';
+import Constants from 'expo-constants';
+
+// Pega a URL do objeto 'extra' que definimos no app.config.js
+const apiUrl = Constants.expoConfig?.extra?.apiUrl;
 
 const api = axios.create({
-   // URL de produção
-   // baseURL: 'https://evolua-ponto-sistema-production.up.railway.app/api/',
-   baseURL: 'https://localhost:7080/api/',
+   baseURL: apiUrl,
 });
 
 export default api;

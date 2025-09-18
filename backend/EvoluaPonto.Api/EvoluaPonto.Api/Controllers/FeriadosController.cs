@@ -7,7 +7,7 @@ namespace EvoluaPonto.Api.Controllers
 {
     [Authorize] // Protege os endpoints
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class FeriadosController : ControllerBase
     {
         private readonly FeriadoPersonalizadoService _feriadoService;
