@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:15-alpine
+    container_name: database_service
+    restart: always
+    environment:
+      - POSTGRES_USER=meu_usuario
+      - POSTGRES_PASSWORD=minha_senha_forte
+      - POSTGRES_DB=meu_banco
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: backend_service
+    restart: always
+    depends_on:
+      - database
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: frontend_service
+    restart: always
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx_proxy
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+      - frontend
+
+  # --- NOVA SEÇÃO ADICIONADA ABAIXO ---
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_gui
+    restart: always
+    environment:
+      # Defina aqui o login para a interface do pgAdmin
+      - PGADMIN_DEFAULT_EMAIL=admin@exemplo.com
+      - PGADMIN_DEFAULT_PASSWORD=minha_senha_forte_pgadmin
+    ports:
+      # A porta 5050 no seu PC vai apontar para a porta 80 do contêiner
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - database
+
+volumes:
+  postgres_data:
+  pgadmin_data: # <-- ADICIONE ESTE NOVO VOLUME

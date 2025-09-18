@@ -1,0 +1,6 @@
+# Ignorar pastas de build/binários do .NET em qualquer subdiretório
+**/bin
+**/obj
+
+# Ignorar dependências do Node
+node_modules
