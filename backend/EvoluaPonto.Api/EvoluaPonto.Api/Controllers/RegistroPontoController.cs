@@ -2,11 +2,13 @@
 using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Shared;
 using EvoluaPonto.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace EvoluaPonto.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class RegistroPontoController : ControllerBase

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EvoluaPonto.Api.Controllers
 {
-    // [Authorize]
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class EstabelecimentoController : ControllerBase
