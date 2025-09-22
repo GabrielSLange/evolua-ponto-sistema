@@ -13,7 +13,7 @@ export const useEmpresa = () => {
 
    const fetchEmpresas = useCallback(() => {
       setLoading(true);
-      api.get('/empresas')
+      api.get('/Empresas')
          .then(response => {
             if (response.data && response.data)
                setEmpresas(response.data);
