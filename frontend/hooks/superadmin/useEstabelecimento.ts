@@ -56,8 +56,25 @@ export const useEstabelecimentos = (empresaId: string | undefined) => {
 // Controller para adicionar um novo estabelecimento
 export const useAddEstabelecimento = (empresaId: string) => {
    const [loading, setLoading] = useState(false);
+   const [initialData, setInitialData] = useState<ModelEstabelecimento>();
    const router = useRouter();
    const { showNotification } = useNotification();
+
+   useEffect(() => {
+      setInitialData({
+         id: '',
+         nomeFantasia: '',
+         logradouro: '',
+         numero: '',
+         bairro: '',
+         cidade: '',
+         cep: '',
+         complemento: '',
+         estado: '',
+         ativo: true,
+         empresaId: String(empresaId)
+      });
+   }, [empresaId]);
 
    const addEstabelecimento = async (estabelecimento: ModelEstabelecimento) => { // Use 'any' por enquanto, criar         estabelecimento.empresaId = String(empresaId);
       try {
@@ -77,16 +94,16 @@ export const useAddEstabelecimento = (empresaId: string) => {
 };
 
 // Controller para editar um estabelecimento existente
-export const useEditEstabelecimento = (estabelecumentoId: string | undefined) => {
+export const useEditEstabelecimento = (estabelecimentoId: string | undefined) => {
    const [loading, setLoading] = useState(false);
    const [initialData, setInitialData] = useState<any>();
    const router = useRouter();
    const { showNotification } = useNotification();
 
    useEffect(() => {
-      if (estabelecumentoId) {
+      if (estabelecimentoId) {
          setLoading(true);
-         api.get(`/estabelecimento/Id?estabelecimentoId=${estabelecumentoId}`)
+         api.get(`/estabelecimento/Id?estabelecimentoId=${estabelecimentoId}`)
             .then(response => {
                if (response.data && response.data) {
                   setInitialData(response.data);
@@ -100,7 +117,7 @@ export const useEditEstabelecimento = (estabelecumentoId: string | undefined) =>
                setLoading(false);
             });
       }
-   }, [estabelecumentoId]);
+   }, [estabelecimentoId]);
 
    const updateEstabelecimento = async (data: any) => {
       setLoading(true);

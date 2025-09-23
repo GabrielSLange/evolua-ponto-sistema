@@ -1,4 +1,5 @@
 // frontend/app.config.js
+require('dotenv').config({ path: '.env.local' });
 
 module.exports = {
    // Você provavelmente já tem configurações como 'name', 'slug', 'version', etc.
