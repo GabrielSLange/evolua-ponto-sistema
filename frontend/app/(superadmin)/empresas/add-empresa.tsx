@@ -13,9 +13,9 @@ const AddEmpresaScreen = () => {
 
    const [loading, addEmpresa] = useCreateEmpresa();
 
-   const handleCreateEmpresa = async (data: ModelEmpresa) => {
+   const handleCreateEmpresa = async (empresa: ModelEmpresa) => {
       try {
-         await addEmpresa(data);
+         await addEmpresa(empresa);
       }
       catch (error) {
          console.error("Erro ao criar empresa:", error);

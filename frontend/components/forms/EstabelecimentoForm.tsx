@@ -1,18 +1,19 @@
 import { ModelEstabelecimento } from '@/models/ModelEstabelecimento';
-import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from 'expo-router';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 
 // Props que o formulário recebe
 interface EstabelecimentoFormProps {
-   initialData?: ModelEstabelecimento;
+   estabelecimento?: ModelEstabelecimento;
    onSubmit: (data: ModelEstabelecimento) => void;
    isLoading: boolean;
    submitButtonLabel?: string;
 }
 
 const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
-   initialData,
+   estabelecimento,
    onSubmit,
    isLoading,
    submitButtonLabel = 'Salvar',
@@ -31,9 +32,11 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
       ativo: true,
    });
 
-   useEffect(() => {
-      if (initialData) {
-         setFormData(initialData);
+   const verificarDadosFormulario = useCallback(() => {
+      console.log(estabelecimento);
+
+      if (estabelecimento?.id !== null && estabelecimento?.id !== undefined) {
+         setFormData(estabelecimento);
       } else {
          // Limpa o formulário no modo de criação
          setFormData({
@@ -50,7 +53,9 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
             ativo: true,
          });
       }
-   }, [initialData]);
+   }, [estabelecimento]);
+
+   useFocusEffect(verificarDadosFormulario);
 
    const handleChange = (name: keyof ModelEstabelecimento, value: string) => {
       setFormData(prev => ({ ...prev, [name]: value }));

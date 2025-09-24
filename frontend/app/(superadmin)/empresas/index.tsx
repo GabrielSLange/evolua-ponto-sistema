@@ -33,7 +33,7 @@ const SuperAdminScreen = () => {
                         <Pressable
                            style={styles.titleContainer}
                            onPress={() => router.push({
-                              pathname: '/(superadmin)/estabelecimentos/estabelecimentos',
+                              pathname: '/(superadmin)/estabelecimentos',
                               params: { empresaId: item.id, empresaNome: item.razaoSocial }
                            })}
                         >
@@ -53,7 +53,7 @@ const SuperAdminScreen = () => {
                      {/* O corpo do card também é clicável para navegação */}
                      <Pressable
                         onPress={() => router.push({
-                           pathname: '/(superadmin)/estabelecimentos/estabelecimentos',
+                           pathname: '/(superadmin)/estabelecimentos',
                            params: { empresaId: item.id, empresaNome: item.razaoSocial }
                         })}
                      >

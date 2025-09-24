@@ -56,28 +56,16 @@ export const useEstabelecimentos = (empresaId: string | undefined) => {
 // Controller para adicionar um novo estabelecimento
 export const useAddEstabelecimento = (empresaId: string) => {
    const [loading, setLoading] = useState(false);
-   const [initialData, setInitialData] = useState<ModelEstabelecimento>();
+   const [estabelecimento] = useState<ModelEstabelecimento>();
    const router = useRouter();
    const { showNotification } = useNotification();
 
-   useEffect(() => {
-      setInitialData({
-         id: '',
-         nomeFantasia: '',
-         logradouro: '',
-         numero: '',
-         bairro: '',
-         cidade: '',
-         cep: '',
-         complemento: '',
-         estado: '',
-         ativo: true,
-         empresaId: String(empresaId)
-      });
-   }, [empresaId]);
-
    const addEstabelecimento = async (estabelecimento: ModelEstabelecimento) => { // Use 'any' por enquanto, criar         estabelecimento.empresaId = String(empresaId);
       try {
+         setLoading(true);
+         estabelecimento.id = undefined;
+         estabelecimento.empresaId = String(empresaId);
+         console.log(estabelecimento);
          await api.post('/Estabelecimento', { ...estabelecimento });
          showNotification('Estabelecimento cadastrado com sucesso!', 'success');
          router.back();
@@ -90,13 +78,13 @@ export const useAddEstabelecimento = (empresaId: string) => {
       }
    };
 
-   return { loading, addEstabelecimento };
+   return { loading, addEstabelecimento, estabelecimento };
 };
 
 // Controller para editar um estabelecimento existente
 export const useEditEstabelecimento = (estabelecimentoId: string | undefined) => {
    const [loading, setLoading] = useState(false);
-   const [initialData, setInitialData] = useState<any>();
+   const [estabelecimento, setEstabelecimento] = useState<ModelEstabelecimento>();
    const router = useRouter();
    const { showNotification } = useNotification();
 
@@ -106,7 +94,7 @@ export const useEditEstabelecimento = (estabelecimentoId: string | undefined) =>
          api.get(`/estabelecimento/Id?estabelecimentoId=${estabelecimentoId}`)
             .then(response => {
                if (response.data && response.data) {
-                  setInitialData(response.data);
+                  setEstabelecimento(response.data);
                }
             })
             .catch(error => {
@@ -132,5 +120,5 @@ export const useEditEstabelecimento = (estabelecimentoId: string | undefined) =>
       }
    };
 
-   return { loading, initialData, updateEstabelecimento };
+   return { loading, estabelecimento, updateEstabelecimento };
 };

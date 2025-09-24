@@ -37,7 +37,7 @@ export default function SuperAdminLayout() {
             }}
          />
          <Drawer.Screen
-            name="estabelecimentos/estabelecimentos"
+            name="estabelecimentos/index"
             options={{
                // **CORREÇÃO APLICADA AQUI**
                drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu

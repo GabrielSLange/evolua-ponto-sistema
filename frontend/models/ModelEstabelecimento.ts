@@ -1,5 +1,5 @@
 export interface ModelEstabelecimento {
-   id: string;
+   id: string | undefined;
    nomeFantasia: string;
    logradouro: string;
    numero: string;

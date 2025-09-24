@@ -7,69 +7,79 @@ import { MaskedTextInput } from "react-native-mask-text";
 
 // Interface para as propriedades que o nosso formulário receberá
 interface EmpresaFormProps {
-   initialData?: ModelEmpresa; // Dados iniciais para o modo de edição
-   onSubmit: (data: ModelEmpresa) => void; // Para controlar o estado de carregamento do botão
+   empresa?: ModelEmpresa; // Dados iniciais para o modo de edição
+   onSubmit: (empresa: ModelEmpresa) => void; // Para controlar o estado de carregamento do botão
    submitButtonLabel?: string; // Texto customizado para o botão (ex: "Salvar", "Atualizar")
+   isLoading?: boolean; // Para controlar o estado de carregamento do botão
 }
 
 const EmpresaForm: React.FC<EmpresaFormProps> = ({
-   initialData,
+   empresa,
    onSubmit,
    submitButtonLabel = 'Salvar',
 }) => {
    const [loading, setLoading] = useState(false);
-   const [razaoSocial, setRazaoSocial] = useState('');
-   const [cnpj, setCnpj] = useState('');
+
+   const [empresaForm, setEmpresaForm] = useState<ModelEmpresa>({
+      razaoSocial: '',
+      cnpj: '',
+      id: '',
+      ativo: true
+   });
 
    const definirDadosIniciais = useCallback(() => {
       setLoading(true);
-      if (initialData != undefined) {
-         setRazaoSocial(initialData.razaoSocial || '');
-         setCnpj(initialData.cnpj || '');
+      if (empresa !== undefined) {
+         setEmpresaForm({
+            razaoSocial: empresa.razaoSocial || '',
+            cnpj: empresa.cnpj || '',
+            id: empresa.id || '',
+            ativo: empresa.ativo || true
+         });
       } else {
-         setRazaoSocial('');
-         setCnpj('');
+         setEmpresaForm({
+            razaoSocial: '',
+            cnpj: '',
+            id: '',
+            ativo: true
+         });
       }
       setLoading(false);
-   }, [initialData]);
+   }, [empresa]);
 
    useFocusEffect(definirDadosIniciais);
 
    const handleSubmit = () => {
       // Chama a função passada por props com os dados atuais do formulário
-      onSubmit({
-         razaoSocial,
-         cnpj,
-         id: initialData?.id || '',
-         ativo: initialData?.ativo ?? true // ou false, dependendo do padrão desejado
-      });
+      onSubmit(empresaForm);
    };
 
    return (
       <View style={styles.container}>
          <TextInput
             label="Razão Social"
-            value={razaoSocial}
-            onChangeText={setRazaoSocial}
+            value={empresaForm.razaoSocial}
+            onChangeText={text => empresaForm.razaoSocial = text}
             style={styles.input}
          />
          <View style={styles.input}>
             <TextInput
-               editable={!initialData}
+               editable={!empresa}
                label="CNPJ"
-               value={cnpj}
+               value={empresaForm.cnpj}
+               style={styles.input}
                onChangeText={(text) => {
                   // Remove tudo que não for número
                   const rawText = text.replace(/\D/g, '');
-                  setCnpj(rawText);
+                  empresaForm.cnpj = rawText;
                }}
                keyboardType="number-pad"
                render={props => (
                   <MaskedTextInput
                      {...props}
                      mask="99.999.999/9999-99"
-                     value={cnpj}
-                     onChangeText={(text, rawText) => setCnpj(rawText)}
+                     value={empresaForm.cnpj}
+                     onChangeText={text => empresaForm.cnpj = text}
                      keyboardType="number-pad"
                   />
                )}
