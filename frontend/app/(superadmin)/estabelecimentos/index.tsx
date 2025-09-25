@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, FlatList, StyleSheet, Pressable } from 'react-native';
-import { Appbar, Card, Title, Paragraph, Text, Switch, IconButton, FAB } from 'react-native-paper';
+import { Appbar, Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import ScreenContainer from '../../../components/layouts/ScreenContainer';
-import CustomLoader from '../../../components/CustomLoader';
 import { useEstabelecimentos } from '../../../hooks/superadmin/useEstabelecimento';
 import { ModelEstabelecimento } from '../../../models/ModelEstabelecimento';
+import CustomLoader from '@/components/CustomLoader';
 
 const EstabelecimentosScreen = () => {
    const router = useRouter();
@@ -19,16 +19,17 @@ const EstabelecimentosScreen = () => {
       return <CustomLoader />;
    }
 
+
    return (
       <ScreenContainer>
          <Appbar.Header>
             <Appbar.BackAction onPress={() => router.back()} />
             <Appbar.Content title={`Estabelecimentos de ${empresaNome}`} />
-         </Appbar.Header>  
+         </Appbar.Header>
          <View style={styles.container}>
             <FlatList
                data={estabelecimentos}
-               keyExtractor={(item, index) => item.id ?? `estabelecimento-${index}`}
+               keyExtractor={(item) => item.id as string}
                renderItem={({ item }: { item: ModelEstabelecimento }) => (
                   <Card style={styles.card}>
                      <View style={styles.cardHeader}>
@@ -45,7 +46,7 @@ const EstabelecimentosScreen = () => {
                            <Text style={{ marginRight: 8 }}>{item.ativo ? 'Ativo' : 'Inativo'}</Text>
                            <Switch
                               value={item.ativo}
-                              onValueChange={() => toggleEstabelecimentoAtivo(item.id ?? '')}
+                              onValueChange={() => toggleEstabelecimentoAtivo(item.id as string)}
                            />
                         </View>
 
@@ -66,10 +67,13 @@ const EstabelecimentosScreen = () => {
 
                      {/* As ações ficam separadas no final */}
                      <Card.Actions style={styles.cardActions}>
-                        <IconButton
-                           icon="pencil"
-                           onPress={() => router.push(`/estabelecimentos/edit-estabelecimento?estabelecimentoId=${item.id}&empresaId=${empresaId}&empresaNome=${empresaNome}`)}
-                        />
+                        <Tooltip title="Editar Estabelecimento " enterTouchDelay={0}>
+                           <IconButton
+                              icon="pencil"
+                              onPress={() => router.push(`/estabelecimentos/edit-estabelecimento?estabelecimentoId=${item.id}&empresaId=${empresaId}&empresaNome=${empresaNome}`)}
+                           />
+                        </Tooltip>
+
                      </Card.Actions>
                   </Card>
                )}

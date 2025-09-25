@@ -10,9 +10,9 @@ import { useEditEmpresa } from '@/hooks/superadmin/useEmpresa';
 const EditEmpresaScreen = () => {
 
    const router = useRouter();
-   const { id } = useLocalSearchParams();
+   const { empresaId } = useLocalSearchParams();
 
-   const { loading, empresa, updateEmpresa } = useEditEmpresa(id as string);
+   const { loading, empresa, updateEmpresa } = useEditEmpresa(empresaId as string);
 
    const handleUpdateEmpresa = async (data: any) => {
       try {
@@ -35,7 +35,7 @@ const EditEmpresaScreen = () => {
             </Appbar.Header>
             <EmpresaForm
                onSubmit={handleUpdateEmpresa}
-               initialData={empresa || undefined}
+               empresa={empresa || undefined}
                submitButtonLabel="Salvar Alterações"
             />
          </View>

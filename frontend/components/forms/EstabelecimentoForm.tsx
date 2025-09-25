@@ -122,7 +122,6 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
          <Button
             mode="contained"
             onPress={handleSubmit}
-            loading={isLoading}
             disabled={isLoading}
             style={styles.button}
          >

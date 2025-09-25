@@ -1,5 +1,5 @@
 export interface ModelEmpresa {
-   id: string;
+   id: string | undefined;
    razaoSocial: string;
    cnpj: string;
    ativo: boolean;

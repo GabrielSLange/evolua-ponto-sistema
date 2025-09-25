@@ -81,7 +81,7 @@ export const useAddEstabelecimento = (empresaId: string, empresaNome: string) =>
 };
 
 // Controller para editar um estabelecimento existente
-export const useEditEstabelecimento = (estabelecimentoId: string | undefined, empresaNome: string) => {
+export const useEditEstabelecimento = (estabelecimentoId: string | undefined, empresaId: string, empresaNome: string) => {
    const [loading, setLoading] = useState(false);
    const [estabelecimento, setEstabelecimento] = useState<ModelEstabelecimento>();
    const router = useRouter();
@@ -112,7 +112,7 @@ export const useEditEstabelecimento = (estabelecimentoId: string | undefined, em
       try {
          await api.put('/estabelecimento', estabelecimento);
          showNotification('Estabelecimento atualizado com sucesso!', 'success');
-         router.push(`/estabelecimentos?empresaId=${estabelecimento.empresaId}&empresaNome=${empresaNome}`);
+         router.push(`/estabelecimentos?empresaId=${empresaId}&empresaNome=${empresaNome}`);
       } catch (error) {
          showNotification('Erro ao atualizar estabelecimento.', 'error');
       } finally {

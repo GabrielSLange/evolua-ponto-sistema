@@ -72,13 +72,11 @@ export const useCreateEmpresa = () => {
    const router = useRouter();
    const { showNotification } = useNotification();
 
-   const addEmpresa = async (data: ModelEmpresa) => {
+   const addEmpresa = async (empresa: ModelEmpresa) => {
       setLoading(true);
       try {
-         await api.post('/empresas', {
-            razaoSocial: data.razaoSocial,
-            cnpj: data.cnpj,
-         });
+         empresa.id = undefined;
+         await api.post('/empresas', empresa);
          router.back();
       }
       catch (error) {

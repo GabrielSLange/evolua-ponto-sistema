@@ -59,7 +59,7 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({
          <TextInput
             label="Razão Social"
             value={empresaForm.razaoSocial}
-            onChangeText={text => empresaForm.razaoSocial = text}
+            onChangeText={text => setEmpresaForm(prev => ({ ...prev, razaoSocial: text }))}
             style={styles.input}
          />
          <View style={styles.input}>

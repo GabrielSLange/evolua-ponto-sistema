@@ -1,5 +1,5 @@
 import { View, FlatList, StyleSheet, Pressable } from 'react-native';
-import { Text, Card, Title, Paragraph, FAB, Button, IconButton, Switch, Portal, Dialog } from 'react-native-paper';
+import { Text, Card, Title, Paragraph, FAB, Button, IconButton, Switch, Portal, Dialog, Tooltip } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import CustomLoader from '../../../components/CustomLoader';
 import ScreenContainer from '../../../components/layouts/ScreenContainer';
@@ -23,7 +23,7 @@ const SuperAdminScreen = () => {
          <View style={styles.container}>
             <FlatList
                data={empresas}
-               keyExtractor={(item) => item.id}
+               keyExtractor={(item) => item.id as string}
                contentContainerStyle={styles.listContentContainer}
                renderItem={({ item }: { item: ModelEmpresa }) => (
                   <Card style={styles.card}>
@@ -45,7 +45,7 @@ const SuperAdminScreen = () => {
                            <Text style={{ marginRight: 8 }}>{item.ativo ? 'Ativo' : 'Inativo'}</Text>
                            <Switch
                               value={item.ativo}
-                              onValueChange={() => toggleEmpresaAtivo(item.id)}
+                              onValueChange={() => toggleEmpresaAtivo(item.id as string)}
                            />
                         </View>
                      </View>
@@ -64,10 +64,13 @@ const SuperAdminScreen = () => {
 
                      {/* As ações ficam separadas no final */}
                      <Card.Actions style={styles.cardActions}>
-                        <IconButton
-                           icon="pencil"
-                           onPress={() => router.push(`/(superadmin)/empresas/edit-empresa?id=${item.id}`)}
-                        />
+                        <Tooltip title="Editar Empresa" enterTouchDelay={0}>
+                           <IconButton
+                              icon="pencil"
+                              onPress={() => router.push(`empresas/edit-empresa?empresaId=${item.id}`)}
+                           />
+                        </Tooltip>
+
                      </Card.Actions>
                   </Card>
                )}

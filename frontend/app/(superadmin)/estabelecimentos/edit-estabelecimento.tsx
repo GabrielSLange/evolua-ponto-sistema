@@ -13,12 +13,11 @@ const EditEstabelecimentoScreen = () => {
    const { estabelecimentoId, empresaId, empresaNome } = useLocalSearchParams();
    const { showNotification } = useNotification();
 
-   const { loading, estabelecimento, updateEstabelecimento } = useEditEstabelecimento(estabelecimentoId as string, empresaNome as string);
+   const { loading, estabelecimento, updateEstabelecimento } = useEditEstabelecimento(estabelecimentoId as string, empresaId as string, empresaNome as string);
 
    const handleUpdate = async (estabalecimento: ModelEstabelecimento) => {
       try {
          await updateEstabelecimento(estabalecimento);
-         router.back();
       } catch (error) {
          showNotification('Erro ao atualizar estabelecimento.', 'error');
       }
