@@ -10,7 +10,7 @@ const AddEstabelecimentoScreen = () => {
    const router = useRouter();
    const { empresaId, empresaNome } = useLocalSearchParams(); // Pega o ID da empresa-mãe
 
-   const { loading, addEstabelecimento } = useAddEstabelecimento(empresaId as string);
+   const { loading, addEstabelecimento } = useAddEstabelecimento(empresaId as string, empresaNome as string);
 
    return (
       <ScreenContainer>

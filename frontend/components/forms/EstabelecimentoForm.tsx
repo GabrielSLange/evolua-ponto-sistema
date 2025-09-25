@@ -33,7 +33,6 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
    });
 
    const verificarDadosFormulario = useCallback(() => {
-      console.log(estabelecimento);
 
       if (estabelecimento?.id !== null && estabelecimento?.id !== undefined) {
          setFormData(estabelecimento);

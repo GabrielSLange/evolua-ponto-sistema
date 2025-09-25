@@ -10,10 +10,10 @@ import { useEditEstabelecimento } from '@/hooks/superadmin/useEstabelecimento';
 
 const EditEstabelecimentoScreen = () => {
    const router = useRouter();
-   const { id, empresaId, empresaNome } = useLocalSearchParams();
+   const { estabelecimentoId, empresaId, empresaNome } = useLocalSearchParams();
    const { showNotification } = useNotification();
 
-   const { loading, estabelecimento, updateEstabelecimento } = useEditEstabelecimento(id as string);
+   const { loading, estabelecimento, updateEstabelecimento } = useEditEstabelecimento(estabelecimentoId as string, empresaNome as string);
 
    const handleUpdate = async (estabalecimento: ModelEstabelecimento) => {
       try {

@@ -54,7 +54,7 @@ export const useEstabelecimentos = (empresaId: string | undefined) => {
 };
 
 // Controller para adicionar um novo estabelecimento
-export const useAddEstabelecimento = (empresaId: string) => {
+export const useAddEstabelecimento = (empresaId: string, empresaNome: string) => {
    const [loading, setLoading] = useState(false);
    const [estabelecimento] = useState<ModelEstabelecimento>();
    const router = useRouter();
@@ -65,10 +65,9 @@ export const useAddEstabelecimento = (empresaId: string) => {
          setLoading(true);
          estabelecimento.id = undefined;
          estabelecimento.empresaId = String(empresaId);
-         console.log(estabelecimento);
          await api.post('/Estabelecimento', { ...estabelecimento });
          showNotification('Estabelecimento cadastrado com sucesso!', 'success');
-         router.back();
+         router.push(`/estabelecimentos?empresaId=${empresaId}&empresaNome=${empresaNome}`);
       } catch (error) {
          console.error("Erro ao cadastrar estabelecimento:", error);
          showNotification('Erro ao cadastrar estabelecimento.', 'error');
@@ -82,13 +81,14 @@ export const useAddEstabelecimento = (empresaId: string) => {
 };
 
 // Controller para editar um estabelecimento existente
-export const useEditEstabelecimento = (estabelecimentoId: string | undefined) => {
+export const useEditEstabelecimento = (estabelecimentoId: string | undefined, empresaNome: string) => {
    const [loading, setLoading] = useState(false);
    const [estabelecimento, setEstabelecimento] = useState<ModelEstabelecimento>();
    const router = useRouter();
    const { showNotification } = useNotification();
 
    useEffect(() => {
+      console.log("Estabelecimento ID:", estabelecimentoId);
       if (estabelecimentoId) {
          setLoading(true);
          api.get(`/estabelecimento/Id?estabelecimentoId=${estabelecimentoId}`)
@@ -107,12 +107,12 @@ export const useEditEstabelecimento = (estabelecimentoId: string | undefined) =>
       }
    }, [estabelecimentoId]);
 
-   const updateEstabelecimento = async (data: any) => {
+   const updateEstabelecimento = async (estabelecimento: ModelEstabelecimento) => {
       setLoading(true);
       try {
-         await api.put('/estabelecimento', data);
+         await api.put('/estabelecimento', estabelecimento);
          showNotification('Estabelecimento atualizado com sucesso!', 'success');
-         router.back();
+         router.push(`/estabelecimentos?empresaId=${estabelecimento.empresaId}&empresaNome=${empresaNome}`);
       } catch (error) {
          showNotification('Erro ao atualizar estabelecimento.', 'error');
       } finally {

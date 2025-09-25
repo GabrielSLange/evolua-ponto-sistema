@@ -36,7 +36,6 @@ namespace EvoluaPonto.Api.Controllers
         {
             try
             {
-
                 ServiceResponse<ModelEstabelecimento> responseEstabelecimento = await _estabelecimentoService.GetEstabelecimentoById(estabelecimentoId);
 
                 if (!responseEstabelecimento.Success)

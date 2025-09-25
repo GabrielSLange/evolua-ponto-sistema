@@ -24,11 +24,11 @@ const EstabelecimentosScreen = () => {
          <Appbar.Header>
             <Appbar.BackAction onPress={() => router.back()} />
             <Appbar.Content title={`Estabelecimentos de ${empresaNome}`} />
-         </Appbar.Header>
+         </Appbar.Header>  
          <View style={styles.container}>
             <FlatList
                data={estabelecimentos}
-               keyExtractor={(item) => item.id}
+               keyExtractor={(item, index) => item.id ?? `estabelecimento-${index}`}
                renderItem={({ item }: { item: ModelEstabelecimento }) => (
                   <Card style={styles.card}>
                      <View style={styles.cardHeader}>
@@ -45,7 +45,7 @@ const EstabelecimentosScreen = () => {
                            <Text style={{ marginRight: 8 }}>{item.ativo ? 'Ativo' : 'Inativo'}</Text>
                            <Switch
                               value={item.ativo}
-                              onValueChange={() => toggleEstabelecimentoAtivo(item.id)}
+                              onValueChange={() => toggleEstabelecimentoAtivo(item.id ?? '')}
                            />
                         </View>
 
@@ -68,7 +68,7 @@ const EstabelecimentosScreen = () => {
                      <Card.Actions style={styles.cardActions}>
                         <IconButton
                            icon="pencil"
-                           onPress={() => router.push(`/estabelecimentos/edit-estabelecimento?id=${item.id}&empresaId=${empresaId}&empresaNome=${empresaNome}`)}
+                           onPress={() => router.push(`/estabelecimentos/edit-estabelecimento?estabelecimentoId=${item.id}&empresaId=${empresaId}&empresaNome=${empresaNome}`)}
                         />
                      </Card.Actions>
                   </Card>
