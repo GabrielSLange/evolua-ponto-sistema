@@ -87,8 +87,7 @@ export const useEditEstabelecimento = (estabelecimentoId: string | undefined, em
    const router = useRouter();
    const { showNotification } = useNotification();
 
-   useEffect(() => {
-      console.log("Estabelecimento ID:", estabelecimentoId);
+   const carregarDadosEstabelecimento = useCallback(() => {
       if (estabelecimentoId) {
          setLoading(true);
          api.get(`/estabelecimento/Id?estabelecimentoId=${estabelecimentoId}`)
@@ -106,6 +105,8 @@ export const useEditEstabelecimento = (estabelecimentoId: string | undefined, em
             });
       }
    }, [estabelecimentoId]);
+
+   useFocusEffect(carregarDadosEstabelecimento);
 
    const updateEstabelecimento = async (estabelecimento: ModelEstabelecimento) => {
       setLoading(true);

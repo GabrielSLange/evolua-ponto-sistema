@@ -15,6 +15,8 @@ const EditEstabelecimentoScreen = () => {
 
    const { loading, estabelecimento, updateEstabelecimento } = useEditEstabelecimento(estabelecimentoId as string, empresaId as string, empresaNome as string);
 
+   
+
    const handleUpdate = async (estabalecimento: ModelEstabelecimento) => {
       try {
          await updateEstabelecimento(estabalecimento);
