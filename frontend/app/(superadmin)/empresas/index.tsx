@@ -6,13 +6,16 @@ import ScreenContainer from '../../../components/layouts/ScreenContainer';
 import { useEmpresa } from '@/hooks/superadmin/useEmpresa';
 import React from 'react';
 import { ModelEmpresa } from '@/models/ModelEmpresa';
+import Colors from '@/constants/Colors';
 
 
 
 const SuperAdminScreen = () => {
    const { empresas, loading, toggleEmpresaAtivo, formatCNPJ } = useEmpresa();
    const router = useRouter();
-   const corPadrao = useColorScheme();
+   const colorScheme = useColorScheme();
+   const iconColor = Colors[colorScheme === 'dark' ? 'dark' : 'light'].color;
+   console.log(iconColor)
 
    if (loading) {
       return <CustomLoader />;
@@ -67,7 +70,7 @@ const SuperAdminScreen = () => {
                         <Tooltip title="Acessar Estabelecimentos" enterTouchDelay={0} leaveTouchDelay={0}>
                            <IconButton
                               icon="office-building-marker"
-                              iconColor={corPadrao === 'dark' ? 'rgba(230, 225, 229, 0.87)' : 'rgba(28, 27, 31, 0.87)'}
+                              iconColor={iconColor}
                               containerColor="transparent"
                               onPress={() => router.push(
                                  {
@@ -81,7 +84,7 @@ const SuperAdminScreen = () => {
                         <Tooltip title="Editar Empresa" enterTouchDelay={0} leaveTouchDelay={0}>
                            <IconButton
                               icon="pencil"
-                              iconColor={corPadrao === 'dark' ? 'rgba(230, 225, 229, 0.87)' : 'rgba(28, 27, 31, 0.87)'}
+                              iconColor={iconColor}
                               containerColor="transparent"
                               onPress={() => router.push(`empresas/edit-empresa?empresaId=${item.id}`)}
                            />
