@@ -1,4 +1,4 @@
-import { View, FlatList, StyleSheet, Pressable } from 'react-native';
+import { View, FlatList, StyleSheet, Pressable, useColorScheme } from 'react-native';
 import { Text, Card, Title, Paragraph, FAB, Button, IconButton, Switch, Portal, Dialog, Tooltip } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import CustomLoader from '../../../components/CustomLoader';
@@ -12,7 +12,7 @@ import { ModelEmpresa } from '@/models/ModelEmpresa';
 const SuperAdminScreen = () => {
    const { empresas, loading, toggleEmpresaAtivo, formatCNPJ } = useEmpresa();
    const router = useRouter();
-
+   const corPadrao = useColorScheme();
 
    if (loading) {
       return <CustomLoader />;
@@ -64,13 +64,28 @@ const SuperAdminScreen = () => {
 
                      {/* As ações ficam separadas no final */}
                      <Card.Actions style={styles.cardActions}>
-                        <Tooltip title="Editar Empresa" enterTouchDelay={0}>
+                        <Tooltip title="Acessar Estabelecimentos" enterTouchDelay={0} leaveTouchDelay={0}>
                            <IconButton
-                              icon="pencil"
-                              onPress={() => router.push(`empresas/edit-empresa?empresaId=${item.id}`)}
+                              icon="office-building-marker"
+                              iconColor={corPadrao === 'dark' ? 'rgba(230, 225, 229, 0.87)' : 'rgba(28, 27, 31, 0.87)'}
+                              containerColor="transparent"
+                              onPress={() => router.push(
+                                 {
+                                    pathname: '/(superadmin)/estabelecimentos',
+                                    params: { empresaId: item.id, empresaNome: item.razaoSocial }
+                                 }
+                              )}
                            />
                         </Tooltip>
 
+                        <Tooltip title="Editar Empresa" enterTouchDelay={0} leaveTouchDelay={0}>
+                           <IconButton
+                              icon="pencil"
+                              iconColor={corPadrao === 'dark' ? 'rgba(230, 225, 229, 0.87)' : 'rgba(28, 27, 31, 0.87)'}
+                              containerColor="transparent"
+                              onPress={() => router.push(`empresas/edit-empresa?empresaId=${item.id}`)}
+                           />
+                        </Tooltip>
                      </Card.Actions>
                   </Card>
                )}
