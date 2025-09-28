@@ -1,12 +1,11 @@
-import { View, FlatList, StyleSheet, Pressable, useColorScheme } from 'react-native';
-import { Text, Card, Title, Paragraph, FAB, Button, IconButton, Switch, Portal, Dialog, Tooltip, useTheme } from 'react-native-paper';
+import { View, FlatList, StyleSheet, Pressable } from 'react-native';
+import { Text, Card, Title, Paragraph, FAB, IconButton, Switch, Tooltip, useTheme } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import CustomLoader from '../../../components/CustomLoader';
 import ScreenContainer from '../../../components/layouts/ScreenContainer';
 import { useEmpresa } from '@/hooks/superadmin/useEmpresa';
 import React from 'react';
 import { ModelEmpresa } from '@/models/ModelEmpresa';
-
 
 const SuperAdminScreen = () => {
    const { empresas, loading, toggleEmpresaAtivo, formatCNPJ } = useEmpresa();

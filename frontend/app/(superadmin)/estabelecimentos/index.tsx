@@ -69,7 +69,18 @@ const EstabelecimentosScreen = () => {
 
                      {/* As ações ficam separadas no final */}
                      <Card.Actions style={styles.cardActions}>
-                        <Tooltip title="Editar Estabelecimento " enterTouchDelay={0}>
+                        <Tooltip title="Acessar Funcionários" enterTouchDelay={0} leaveTouchDelay={0}>
+                           <IconButton
+                              // ICON NÃO ESTÁ FUNCIONANDO
+                              // NÃO FOI ENCONTRADO UM ICON QUE FOSSE ACEITO PELA APLICAÇÃO
+                              icon="person"
+                              iconColor={iconColor}
+                              containerColor="transparent"
+                              // Navegação ainda será implementada
+                           />
+                        </Tooltip>
+
+                        <Tooltip title="Editar Estabelecimento" enterTouchDelay={0} leaveTouchDelay={0}>
                            <IconButton
                               icon="pencil"
                               iconColor={iconColor}
