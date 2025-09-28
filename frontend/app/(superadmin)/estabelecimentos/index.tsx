@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, FlatList, StyleSheet, Pressable } from 'react-native';
-import { Appbar, Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip } from 'react-native-paper';
+import { Appbar, Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import ScreenContainer from '../../../components/layouts/ScreenContainer';
 import { useEstabelecimentos } from '../../../hooks/superadmin/useEstabelecimento';
@@ -9,6 +9,8 @@ import CustomLoader from '@/components/CustomLoader';
 
 const EstabelecimentosScreen = () => {
    const router = useRouter();
+   const theme = useTheme();
+   const iconColor = theme.colors.secondary;
    // Pega o ID da empresa e o nome da empresa passados na navegação
    const { empresaId, empresaNome } = useLocalSearchParams<{ empresaId: string; empresaNome: string }>();
 
@@ -70,6 +72,8 @@ const EstabelecimentosScreen = () => {
                         <Tooltip title="Editar Estabelecimento " enterTouchDelay={0}>
                            <IconButton
                               icon="pencil"
+                              iconColor={iconColor}
+                              containerColor="transparent"
                               onPress={() => router.push(`/estabelecimentos/edit-estabelecimento?estabelecimentoId=${item.id}&empresaId=${empresaId}&empresaNome=${empresaNome}`)}
                            />
                         </Tooltip>
