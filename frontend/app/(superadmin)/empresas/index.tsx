@@ -1,21 +1,18 @@
 import { View, FlatList, StyleSheet, Pressable, useColorScheme } from 'react-native';
-import { Text, Card, Title, Paragraph, FAB, Button, IconButton, Switch, Portal, Dialog, Tooltip } from 'react-native-paper';
+import { Text, Card, Title, Paragraph, FAB, Button, IconButton, Switch, Portal, Dialog, Tooltip, useTheme } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import CustomLoader from '../../../components/CustomLoader';
 import ScreenContainer from '../../../components/layouts/ScreenContainer';
 import { useEmpresa } from '@/hooks/superadmin/useEmpresa';
 import React from 'react';
 import { ModelEmpresa } from '@/models/ModelEmpresa';
-import Colors from '@/constants/Colors';
-
 
 
 const SuperAdminScreen = () => {
    const { empresas, loading, toggleEmpresaAtivo, formatCNPJ } = useEmpresa();
    const router = useRouter();
-   const colorScheme = useColorScheme();
-   const iconColor = Colors[colorScheme === 'dark' ? 'dark' : 'light'].color;
-   console.log(iconColor)
+   const theme = useTheme();
+   const iconColor = theme.colors.secondary;
 
    if (loading) {
       return <CustomLoader />;
