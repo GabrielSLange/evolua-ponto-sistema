@@ -63,28 +63,30 @@ const SuperAdminScreen = () => {
 
                      {/* As ações ficam separadas no final */}
                      <Card.Actions style={styles.cardActions}>
-                        <Tooltip title="Acessar Estabelecimentos" enterTouchDelay={0} leaveTouchDelay={0}>
-                           <IconButton
-                              icon="office-building-marker"
-                              iconColor={iconColor}
-                              containerColor="transparent"
-                              onPress={() => router.push(
-                                 {
-                                    pathname: '/(superadmin)/estabelecimentos',
-                                    params: { empresaId: item.id, empresaNome: item.razaoSocial }
-                                 }
-                              )}
-                           />
-                        </Tooltip>
+                        <View style={{ flexDirection: 'row' }}>
+                           <Tooltip title="Acessar Estabelecimentos" enterTouchDelay={0} leaveTouchDelay={0}>
+                              <IconButton
+                                 icon="office-building-marker"
+                                 iconColor={iconColor}
+                                 containerColor="transparent"
+                                 onPress={() => router.push(
+                                    {
+                                       pathname: '/(superadmin)/estabelecimentos',
+                                       params: { empresaId: item.id, empresaNome: item.razaoSocial }
+                                    }
+                                 )}
+                              />
+                           </Tooltip>
 
-                        <Tooltip title="Editar Empresa" enterTouchDelay={0} leaveTouchDelay={0}>
-                           <IconButton
-                              icon="pencil"
-                              iconColor={iconColor}
-                              containerColor="transparent"
-                              onPress={() => router.push(`empresas/edit-empresa?empresaId=${item.id}`)}
-                           />
-                        </Tooltip>
+                           <Tooltip title="Editar Empresa" enterTouchDelay={0} leaveTouchDelay={0}>
+                              <IconButton
+                                 icon="pencil"
+                                 iconColor={iconColor}
+                                 containerColor="transparent"
+                                 onPress={() => router.push(`empresas/edit-empresa?empresaId=${item.id}`)}
+                              />
+                           </Tooltip>
+                        </View>
                      </Card.Actions>
                   </Card>
                )}

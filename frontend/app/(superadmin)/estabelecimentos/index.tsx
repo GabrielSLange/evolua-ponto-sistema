@@ -6,6 +6,7 @@ import ScreenContainer from '../../../components/layouts/ScreenContainer';
 import { useEstabelecimentos } from '../../../hooks/superadmin/useEstabelecimento';
 import { ModelEstabelecimento } from '../../../models/ModelEstabelecimento';
 import CustomLoader from '@/components/CustomLoader';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const EstabelecimentosScreen = () => {
    const router = useRouter();
@@ -38,10 +39,10 @@ const EstabelecimentosScreen = () => {
                         <Pressable>
                            {/* Ainda será implementado o clique para ver os funcionários */}
                            {/* style={styles.titleContainer}
-                     onPress={() => router.push({
-                        pathname: '/(superadmin)/funcionarios',
-                        params: { empresaId: item.id, empresaNome: item.razaoSocial }
-                     })} */}
+                           onPress={() => router.push({
+                              pathname: '/(superadmin)/funcionarios',
+                              params: { empresaId: item.id, empresaNome: item.razaoSocial }
+                           })} */}
                         </Pressable>
 
                         <View style={styles.switchContainer}>
@@ -68,27 +69,23 @@ const EstabelecimentosScreen = () => {
                      </Card.Content>
 
                      {/* As ações ficam separadas no final */}
-                     <Card.Actions style={styles.cardActions}>
-                        <Tooltip title="Acessar Funcionários" enterTouchDelay={0} leaveTouchDelay={0}>
-                           <IconButton
-                              // ICON NÃO ESTÁ FUNCIONANDO
-                              // NÃO FOI ENCONTRADO UM ICON QUE FOSSE ACEITO PELA APLICAÇÃO
-                              icon="person"
-                              iconColor={iconColor}
-                              containerColor="transparent"
-                              // Navegação ainda será implementada
-                           />
-                        </Tooltip>
-
-                        <Tooltip title="Editar Estabelecimento" enterTouchDelay={0} leaveTouchDelay={0}>
-                           <IconButton
-                              icon="pencil"
-                              iconColor={iconColor}
-                              containerColor="transparent"
-                              onPress={() => router.push(`/estabelecimentos/edit-estabelecimento?estabelecimentoId=${item.id}&empresaId=${empresaId}&empresaNome=${empresaNome}`)}
-                           />
-                        </Tooltip>
-
+                     <Card.Actions >
+                        <View style={{ flexDirection: 'row' }}>
+                           <Tooltip title="Gerenciar Funcionários" enterTouchDelay={0} leaveTouchDelay={0}>
+                              <IconButton
+                                 icon="account-group"
+                                 iconColor={iconColor}
+                                 onPress={() => { }}
+                              />
+                           </Tooltip>
+                           <Tooltip title="Editar Estabelecimento" enterTouchDelay={0} leaveTouchDelay={0}>
+                              <IconButton
+                                 icon="pencil"
+                                 iconColor={iconColor}
+                                 onPress={() => router.push(`/estabelecimentos/edit-estabelecimento?estabelecimentoId=${item.id}&empresaId=${empresaId}&empresaNome=${empresaNome}`)}
+                              />
+                           </Tooltip>
+                        </View>
                      </Card.Actions>
                   </Card>
                )}
