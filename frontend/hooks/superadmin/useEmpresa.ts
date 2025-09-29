@@ -26,6 +26,8 @@ export const useEmpresa = () => {
          });
    }, []);
 
+   //Teste
+
    const toggleEmpresaAtivo = async (id: string) => {
       // Guarda o estado original caso a API falhe
       const originalEmpresas = [...empresas];
