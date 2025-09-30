@@ -6,6 +6,7 @@ import { useColorScheme } from 'react-native';
 
 // --- Nossos tipos de dados ---
 interface DecodedToken {
+   sub: string;
    app_metadata: {
       role: 'superadmin' | 'admin' | 'normal';
    };
@@ -23,6 +24,7 @@ interface TokenResponse {
 interface AuthContextData {
    token: string | null;
    isAuthenticated: boolean;
+   userId: string | null;
    role: 'superadmin' | 'admin' | 'normal' | null;
    isLoading: boolean;
    theme: 'light' | 'dark'; // Propriedade para o tema atual
@@ -38,6 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    const [token, setToken] = useState<string | null>(null);
    const [role, setRole] = useState<'superadmin' | 'admin' | 'normal' | null>(null);
    const [isLoading, setIsLoading] = useState(true);
+   const [userId, setUserId] = useState<string | null>(null);
 
    // **NOVO:** Lógica para gerenciar o tema
    const colorScheme = useColorScheme(); // Pega o tema do OS (light, dark, ou null)
@@ -54,6 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const decoded = jwtDecode<DecodedToken>(authData.token);
             const userRole = decoded.app_metadata.role;
             api.defaults.headers.common['Authorization'] = `Bearer ${authData.token}`;
+            setUserId(authData.id);
             setToken(authData.token);
             setRole(userRole);
          }
@@ -72,6 +76,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
          const decoded = jwtDecode<DecodedToken>(access_token);
          const userRole = decoded.app_metadata.role;
+         console.log('Decoded token:', decoded.sub);
+         setUserId(decoded.sub);
 
          setToken(access_token);
          setRole(userRole);
@@ -81,6 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             token: access_token,
             refreshToken: refresh_token,
             role: userRole,
+            id: decoded.sub
          });
 
       } catch (error) {
@@ -96,11 +103,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await clearAuthData();
       setToken(null);
       setRole(null);
+      setUserId(null);
       delete api.defaults.headers.common['Authorization'];
    };
 
    return (
-      <AuthContext.Provider value={{ token, isAuthenticated: !!token, role, isLoading, theme, toggleTheme, signIn, signOut }}>
+      <AuthContext.Provider value={{ token, isAuthenticated: !!token, userId, role, isLoading, theme, toggleTheme, signIn, signOut }}>
          {children}
       </AuthContext.Provider>
    );

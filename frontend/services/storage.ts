@@ -6,6 +6,7 @@ type AuthData = {
    token: string;
    refreshToken: string;
    role: string;
+   id: string;
 };
 
 // Função para salvar os dados de autenticação
@@ -15,11 +16,13 @@ export const saveAuthData = async (data: AuthData) => {
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('authRefreshToken', data.refreshToken);
       localStorage.setItem('authRole', data.role);
+      localStorage.setItem('userId', data.id);
    } else {
       // No mobile, usamos SecureStore
       await SecureStore.setItemAsync('authToken', data.token);
       await SecureStore.setItemAsync('authRefreshToken', data.refreshToken);
       await SecureStore.setItemAsync('authRole', data.role);
+      await SecureStore.setItemAsync('UserId', data.id);
    }
 };
 
@@ -29,12 +32,14 @@ export const loadAuthData = async (): Promise<AuthData | null> => {
       const token = localStorage.getItem('authToken');
       const refreshToken = localStorage.getItem('authRefreshToken');
       const role = localStorage.getItem('authRole');
-      return token && refreshToken && role ? { token, refreshToken, role } : null;
+      const id = localStorage.getItem('userId') || '';
+      return token && refreshToken && role ? { token, refreshToken, role, id } : null;
    } else {
       const token = await SecureStore.getItemAsync('authToken');
       const refreshToken = await SecureStore.getItemAsync('authRefreshToken');
       const role = await SecureStore.getItemAsync('authRole');
-      return token && refreshToken && role ? { token, refreshToken, role } : null;
+      const id = await SecureStore.getItemAsync('userId') || '';
+      return token && refreshToken && role ? { token, refreshToken, role, id } : null;
    }
 };
 
@@ -44,9 +49,11 @@ export const clearAuthData = async () => {
       localStorage.removeItem('authToken');
       localStorage.removeItem('authRefreshToken');
       localStorage.removeItem('authRole');
+      localStorage.removeItem('userId');
    } else {
       await SecureStore.deleteItemAsync('authToken');
       await SecureStore.deleteItemAsync('authRefreshToken');
       await SecureStore.deleteItemAsync('authRole');
+      await SecureStore.deleteItemAsync('userId');
    }
 };

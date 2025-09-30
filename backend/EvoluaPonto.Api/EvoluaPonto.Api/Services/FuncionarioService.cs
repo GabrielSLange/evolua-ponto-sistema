@@ -27,6 +27,18 @@ namespace EvoluaPonto.Api.Services
                     .ToListAsync()
             };
 
+        public async Task<ServiceResponse<ModelFuncionario>> GetFuncionarioById(Guid funcionarioId)
+        {
+            ModelFuncionario? funcionario = await _context.Funcionarios
+                .Include(tb => tb.Estabelecimento)
+                .FirstOrDefaultAsync(tb => tb.Id == funcionarioId);
+
+            if (funcionario is null)
+                return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = "Não existe funcionário com esse ID" };
+
+            return new ServiceResponse<ModelFuncionario> { Data = funcionario };
+        }
+
         public async Task<ServiceResponse<ModelFuncionario>> CreateFuncionario(FuncionarioCreateDto funcionarioDto)
         {
             if (!await _context.Estabelecimentos.AsNoTracking().AnyAsync(tb => tb.Id == funcionarioDto.EstabelecimentoId))

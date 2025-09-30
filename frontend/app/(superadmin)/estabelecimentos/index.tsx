@@ -7,6 +7,7 @@ import { useEstabelecimentos } from '../../../hooks/superadmin/useEstabeleciment
 import { ModelEstabelecimento } from '../../../models/ModelEstabelecimento';
 import CustomLoader from '@/components/CustomLoader';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import ListEstabelcimentos from '@/components/lists/listEstabelecimentos';
 
 const EstabelecimentosScreen = () => {
    const router = useRouter();
@@ -29,76 +30,14 @@ const EstabelecimentosScreen = () => {
             <Appbar.BackAction onPress={() => router.back()} />
             <Appbar.Content title={`Estabelecimentos de ${empresaNome}`} />
          </Appbar.Header>
-         <View style={styles.container}>
-            <FlatList
-               data={estabelecimentos}
-               keyExtractor={(item) => item.id as string}
-               renderItem={({ item }: { item: ModelEstabelecimento }) => (
-                  <Card style={styles.card}>
-                     <View style={styles.cardHeader}>
-                        <Pressable>
-                           {/* Ainda será implementado o clique para ver os funcionários */}
-                           {/* style={styles.titleContainer}
-                           onPress={() => router.push({
-                              pathname: '/(superadmin)/funcionarios',
-                              params: { empresaId: item.id, empresaNome: item.razaoSocial }
-                           })} */}
-                        </Pressable>
-
-                        <View style={styles.switchContainer}>
-                           <Text style={{ marginRight: 8 }}>{item.ativo ? 'Ativo' : 'Inativo'}</Text>
-                           <Switch
-                              value={item.ativo}
-                              onValueChange={() => toggleEstabelecimentoAtivo(item.id as string)}
-                           />
-                        </View>
-
-                     </View>
-
-                     <Pressable
-                     // onPress={() => router.push({
-                     //    pathname: '/(superadmin)/funcionarios',
-                     //    params: { empresaId: item.id, empresaNome: item.nomeFantasia }
-                     // })}
-                     />
-
-                     <Card.Content>
-                        <Title>{item.nomeFantasia}</Title>
-                        <Paragraph>{`${item.logradouro}, ${item.numero} - ${item.bairro}`}</Paragraph>
-                        <Paragraph>{`${item.cidade} / ${item.estado}`}</Paragraph>
-                     </Card.Content>
-
-                     {/* As ações ficam separadas no final */}
-                     <Card.Actions >
-                        <View style={{ flexDirection: 'row' }}>
-                           <Tooltip title="Gerenciar Funcionários" enterTouchDelay={0} leaveTouchDelay={0}>
-                              <IconButton
-                                 icon="account-group"
-                                 iconColor={iconColor}
-                                 onPress={() => { }}
-                              />
-                           </Tooltip>
-                           <Tooltip title="Editar Estabelecimento" enterTouchDelay={0} leaveTouchDelay={0}>
-                              <IconButton
-                                 icon="pencil"
-                                 iconColor={iconColor}
-                                 onPress={() => router.push(`/estabelecimentos/edit-estabelecimento?estabelecimentoId=${item.id}&empresaId=${empresaId}&empresaNome=${empresaNome}`)}
-                              />
-                           </Tooltip>
-                        </View>
-                     </Card.Actions>
-                  </Card>
-               )}
-               ListEmptyComponent={<View style={styles.emptyContainer}><Text>Nenhum estabelecimento cadastrado.</Text></View>}
-            />
-            <FAB
-               style={styles.fab}
-               icon="plus"
-               onPress={() => {
-                  router.push(`/(superadmin)/estabelecimentos/add-estabelecimento?empresaId=${empresaId}&empresaNome=${empresaNome}`);
-               }}
-            />
-         </View>
+         <ListEstabelcimentos
+            estabelecimentos={estabelecimentos}
+            loading={loading}
+            permissao="superadmin"
+            empresaId={empresaId}
+            userId={null}
+            toggleEstabelecimentoAtivo={toggleEstabelecimentoAtivo}
+         />
       </ScreenContainer>
    );
 };
