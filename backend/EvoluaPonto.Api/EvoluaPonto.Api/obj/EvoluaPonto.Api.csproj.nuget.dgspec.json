@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\vitor.moraes\\Documents\\startup\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj": {}
+    "D:\\StartUp\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\vitor.moraes\\Documents\\startup\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj": {
+    "D:\\StartUp\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\vitor.moraes\\Documents\\startup\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj",
+        "projectUniqueName": "D:\\StartUp\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj",
         "projectName": "EvoluaPonto.Api",
-        "projectPath": "C:\\Users\\vitor.moraes\\Documents\\startup\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj",
-        "packagesPath": "C:\\Users\\vitor.moraes\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\vitor.moraes\\Documents\\startup\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\obj\\",
+        "projectPath": "D:\\StartUp\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj",
+        "packagesPath": "C:\\Users\\Vitor Moraes\\.nuget\\packages\\",
+        "outputPath": "D:\\StartUp\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\vitor.moraes\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Vitor Moraes\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
