@@ -10,11 +10,11 @@ namespace EvoluaPonto.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class FuncionarioController : ControllerBase
+    public class FuncionariosController : ControllerBase
     {
         private readonly FuncionarioService _funcionarioService;
 
-        public FuncionarioController(FuncionarioService funcionarioService)
+        public FuncionariosController(FuncionarioService funcionarioService)
         {
             _funcionarioService = funcionarioService;
         }
@@ -25,6 +25,24 @@ namespace EvoluaPonto.Api.Controllers
             try
             {
                 ServiceResponse<List<ModelFuncionario>> responseFuncionario = await _funcionarioService.GetFuncionariosEmpresa(EmpresaId);
+                return Ok(responseFuncionario.Data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("id")]
+        public async Task<IActionResult> GetFuncionarioId(Guid funcionarioId)
+        {
+            try
+            {
+                ServiceResponse<ModelFuncionario> responseFuncionario = await _funcionarioService.GetFuncionarioById(funcionarioId);
+
+                if (!responseFuncionario.Success)
+                    return Conflict(responseFuncionario.ErrorMessage);
+
                 return Ok(responseFuncionario.Data);
             }
             catch (Exception ex)

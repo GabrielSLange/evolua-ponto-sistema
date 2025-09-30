@@ -40,7 +40,7 @@ const GlobalSnackbar = () => {
 
 // Componente que lida com a lógica de navegação/redirecionamento
 const RootLayoutNav = () => {
-  const { isAuthenticated, isLoading, role } = useAuth();
+  const { isAuthenticated, isLoading, role, userId } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -50,13 +50,15 @@ const RootLayoutNav = () => {
 
     if (isAuthenticated) {
       if (role === 'superadmin') {
-        router.replace('/(superadmin)/empresas');
+        router.replace(`/(superadmin)/empresas`);
       } else if (role === 'admin') {
-        router.replace('/(admin)');
+        console.log('Redirecionando admin para estabelecimentoId:', userId);
+        router.replace(`/(admin)/estabelecimentos?userId=${userId}`);
       } else if (role === 'normal') {
         router.replace('/(employee)/home');
       }
-    } else {
+    }
+    else {
       router.replace('/(auth)/login');
     }
   }, [isAuthenticated, isLoading, role]);

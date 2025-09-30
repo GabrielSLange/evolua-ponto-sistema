@@ -13,8 +13,8 @@ export default function AdminLayout() {
             header: ({ options }) => <CustomHeader title={options.title || 'Painel Admin'} />,
          }}
       >
-         <Drawer.Screen name="index" options={{ drawerLabel: 'Dashboard', title: 'Dashboard' }} />
          <Drawer.Screen name="relatorios" options={{ drawerLabel: 'Relatórios', title: 'Relatórios' }} />
+         <Drawer.Screen name="estabelecimentos" options={{ drawerLabel: 'Estabelecimentos', title: 'Estabelecimentos' }} />
          {/* Pode apagar a tela de configurações daqui */}
          {/* <Drawer.Screen name="configuracoes" options={{ drawerLabel: 'Configurações', title: 'Configurações' }} /> */}
       </Drawer>
