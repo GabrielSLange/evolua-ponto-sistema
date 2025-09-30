@@ -122,7 +122,6 @@ const styles = StyleSheet.create({
    },
    editButton: {
       marginRight: 'auto',
-
    },
    card: {
       margin: 8,

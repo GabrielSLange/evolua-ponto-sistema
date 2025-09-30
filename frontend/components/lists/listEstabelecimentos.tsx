@@ -9,7 +9,7 @@ interface ListEstabelcimentosProps {
    estabelecimentos: ModelEstabelecimento[];
    loading: boolean;
    permissao: string;
-   userId: string;
+   userId: string | null;
    empresaId?: string;
    toggleEstabelecimentoAtivo: (id: string) => void;
 }
@@ -37,6 +37,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
          <FlatList
             data={estabelecimentos}
             keyExtractor={(item) => item.id as string}
+            contentContainerStyle={styles.listContentContainer}
             renderItem={({ item }: { item: ModelEstabelecimento }) => (
                <Card style={styles.card}>
                   <View style={styles.cardHeader}>
@@ -88,7 +89,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                               iconColor={iconColor}
                               onPress={() => router.push({
                                  pathname: `/(${permissao})/estabelecimentos/edit-estabelecimento`,
-                                 params: { estabelecimentoId: item.id, userId: userId }
+                                 params: { estabelecimentoId: item.id, userId: userId, empresaId: empresaId, empresaNome: item.nomeFantasia }
                               })}
                            />
                         </Tooltip>
@@ -143,6 +144,9 @@ const styles = StyleSheet.create({
       right: 0,
       bottom: 0,
    },
+   listContentContainer: {
+      paddingBottom: 80,
+   }
 });
 
 export default ListEstabelcimentos;
