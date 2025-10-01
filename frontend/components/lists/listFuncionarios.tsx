@@ -1,7 +1,7 @@
 import React from "react";
 import { View, FlatList, StyleSheet, Pressable } from 'react-native';
 import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme } from 'react-native-paper';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { ModelFuncionario } from '../../models/ModelFuncionario';
 import CustomLoader from '@/components/CustomLoader';
 

@@ -12,7 +12,6 @@ import ListEstabelcimentos from '@/components/lists/listEstabelecimentos';
 const EstabelecimentosScreen = () => {
    const router = useRouter();
    const theme = useTheme();
-   const iconColor = theme.colors.secondary;
    // Pega o ID da empresa e o nome da empresa passados na navegação
    const { empresaId, empresaNome } = useLocalSearchParams<{ empresaId: string; empresaNome: string }>();
 
