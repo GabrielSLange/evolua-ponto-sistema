@@ -60,6 +60,14 @@ export default function SuperAdminLayout() {
                title: 'Adicionar Estabelecimento',
             }}
          />
+         <Drawer.Screen
+            name='funcionarios/index'
+            options={{
+               // **CORREÇÃO APLICADA AQUI**
+               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
+               title: 'Funcionários',
+            }}
+         />
       </Drawer>
    );
 }
