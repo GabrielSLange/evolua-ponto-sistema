@@ -11,10 +11,10 @@ const FuncionariosScreen = () => {
     const router = useRouter();
     const theme = useTheme();
     // Pega o ID do estabelecimento e o nome do estabelecimento passados na navegação
-    const { estabelecimentoId, estabelecimentoNome } = useLocalSearchParams<{ estabelecimentoId: string; estabelecimentoNome: string }>();
+    const { estabelecimentoId, estabelecimentoNome, empresaId } = useLocalSearchParams<{ estabelecimentoId: string; estabelecimentoNome: string; empresaId: string }>();
 
     // Usa o nosso hook (Controller) para buscar os dados
-    const { funcionarios, loading, toggleFuncionarioAtivo } = useFuncionarios(estabelecimentoId);
+    const { funcionarios, loading, toggleFuncionarioAtivo } = useFuncionarios(empresaId);
 
     if (loading) {
         return <CustomLoader />;

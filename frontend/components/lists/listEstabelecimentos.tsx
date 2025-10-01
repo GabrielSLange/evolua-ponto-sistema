@@ -41,13 +41,13 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
             renderItem={({ item }: { item: ModelEstabelecimento }) => (
                <Card style={styles.card}>
                   <View style={styles.cardHeader}>
-                     <Pressable>
-                        {/* Ainda será implementado o clique para ver os funcionários */}
-                        {/* style={styles.titleContainer}
+                     <Pressable
+                        style={styles.titleContainer}
                            onPress={() => router.push({
                               pathname: '/(superadmin)/funcionarios',
-                              params: { empresaId: item.id, empresaNome: item.razaoSocial }
-                           })} */}
+                              params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId }
+                           })}
+                     >
                            <Title>{item.nomeFantasia}</Title>
                      </Pressable>
 
@@ -62,10 +62,10 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                   </View>
 
                   <Pressable
-                  // onPress={() => router.push({
-                  //    pathname: '/(superadmin)/funcionarios',
-                  //    params: { empresaId: item.id, empresaNome: item.nomeFantasia }
-                  // })}
+                     onPress={() => router.push({
+                        pathname: '/(superadmin)/funcionarios',
+                        params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId }
+                     })}
                   />
 
                   <Card.Content>
@@ -80,7 +80,10 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                            <IconButton
                               icon="account-group"
                               iconColor={iconColor}
-                              onPress={() => { }}
+                              onPress={() => router.push({
+                                 pathname: '/(superadmin)/funcionarios',
+                                 params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId }
+                              })}
                            />
                         </Tooltip>
                         <Tooltip title="Editar Estabelecimento" enterTouchDelay={0} leaveTouchDelay={0}>
@@ -127,6 +130,9 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       paddingHorizontal: 16,
       paddingTop: 16,
+   },
+   titleContainer: {
+      flex: 1, // Faz o título ocupar o espaço disponível
    },
    switchContainer: {
       flexDirection: 'row',

@@ -5,16 +5,16 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useNotification } from "@/contexts/NotificationContext";
 
 // Controller para a lógica de funcionários
-export const useFuncionarios = (estabelecimentoId: string | undefined) => {
+export const useFuncionarios = (empresaId: string | undefined) => {
   const [funcionarios, setFuncionarios] = useState<ModelFuncionario[]>([]);
   const [loading, setLoading] = useState(true);
 
     const fetchFuncionarios = useCallback(() => {
-        // Só busca os dados se tivermos um ID de Estabelecimento
-        if (!estabelecimentoId) return;
+        // Só busca os dados se tivermos um ID de Empresa
+        if (!empresaId) return;
 
         setLoading(true);
-        api.get(`/funcionarios?estabelecimentoId=${estabelecimentoId}`)
+        api.get(`/funcionarios?empresaId=${empresaId}`)
             .then(response => {
                 if (response.data && response.data) {
                     setFuncionarios(response.data);
@@ -26,7 +26,7 @@ export const useFuncionarios = (estabelecimentoId: string | undefined) => {
             .finally(() => {
                 setLoading(false);
             });
-    }, [estabelecimentoId]);
+    }, [empresaId]);
 
     const toggleFuncionarioAtivo = async (funcionarioId: string) => {
         const originalFuncionarios = [...funcionarios];
