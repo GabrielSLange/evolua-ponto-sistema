@@ -48,6 +48,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                               pathname: '/(superadmin)/funcionarios',
                               params: { empresaId: item.id, empresaNome: item.razaoSocial }
                            })} */}
+                           <Title>{item.nomeFantasia}</Title>
                      </Pressable>
 
                      <View style={styles.switchContainer}>
@@ -68,7 +69,6 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                   />
 
                   <Card.Content>
-                     <Title>{item.nomeFantasia}</Title>
                      <Paragraph>{`${item.logradouro}, ${item.numero} - ${item.bairro}`}</Paragraph>
                      <Paragraph>{`${item.cidade} / ${item.estado}`}</Paragraph>
                   </Card.Content>
