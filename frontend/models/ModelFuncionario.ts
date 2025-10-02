@@ -2,8 +2,12 @@ export interface ModelFuncionario {
     id: string | undefined;
     nome: string;
     cpf: string;
+    email: string;
+    password?: string;
     cargo: string;
-    horarioTrabalho: string;
-    ativo: boolean;
     estabelecimentoId: string;
+    role: string;
+    horarioContratual?: string;
+    ativo: boolean;
+    createdAt?: Date;
 }
