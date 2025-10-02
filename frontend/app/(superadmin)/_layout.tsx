@@ -68,6 +68,13 @@ export default function SuperAdminLayout() {
                title: 'Funcionários',
             }}
          />
+         <Drawer.Screen
+            name='funcionarios/add-funcionario'
+            options={{
+               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
+               title: 'Adicionar Funcionário',
+            }}
+         />
       </Drawer>
    );
 }

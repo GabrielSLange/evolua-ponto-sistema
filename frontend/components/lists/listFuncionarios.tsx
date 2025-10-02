@@ -1,7 +1,7 @@
 import React from "react";
 import { View, FlatList, StyleSheet, Pressable } from 'react-native';
 import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme } from 'react-native-paper';
-import { useRouter } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import { ModelFuncionario } from '../../models/ModelFuncionario';
 import CustomLoader from '@/components/CustomLoader';
 
@@ -85,7 +85,12 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
             <FAB
                 style={styles.fab}
                 icon="plus"
-                // Implementar a navegação para a tela de adição
+                onPress={() => {
+                    router.push({
+                        pathname: `/${permissao}/funcionarios/add-funcionario`,
+                        params: { estabelecimentoId: estabelecimentoId, userId: userId }
+                    });
+                }}
             />
         </View>
     );
