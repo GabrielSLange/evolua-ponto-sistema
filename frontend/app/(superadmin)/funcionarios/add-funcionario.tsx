@@ -8,7 +8,7 @@ import ScreenContainer from "@/components/layouts/ScreenContainer";
 
 const AddFuncionarioScreen = () => {
     const router = useRouter();
-    const { estabelecimentoId, estabelecimentoNome, empresaId } = useLocalSearchParams<{ estabelecimentoId: string; estabelecimentoNome: string; empresaId: string }>(); // Pega o ID do estabelecimento-mãe
+    const { estabelecimentoId, estabelecimentoNome } = useLocalSearchParams<{ estabelecimentoId: string; estabelecimentoNome: string; empresaId: string }>(); // Pega o ID do estabelecimento-mãe
 
     const { loading, addFuncionario } = useAddFuncionario(estabelecimentoId as string, estabelecimentoNome as string);
 

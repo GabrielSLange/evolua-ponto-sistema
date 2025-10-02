@@ -87,7 +87,7 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                 icon="plus"
                 onPress={() => {
                     router.push({
-                        pathname: `/${permissao}/funcionarios/add-funcionario`,
+                        pathname: `/(${permissao})/funcionarios/add-funcionario`,
                         params: { estabelecimentoId: estabelecimentoId, userId: userId }
                     });
                 }}
