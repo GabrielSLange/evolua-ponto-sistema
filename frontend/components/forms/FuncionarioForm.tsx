@@ -19,7 +19,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     submitButtonLabel = 'Salvar',
 }) => {
     const [formData, setFormData] = useState<ModelFuncionario>({
-        id: '',
+        id: null,
         estabelecimentoId: '',
         nome: '',
         cpf: '',

@@ -1,5 +1,5 @@
 export interface ModelFuncionario {
-    id: string | undefined;
+    id: string | null;
     nome: string;
     cpf: string;
     email: string;
