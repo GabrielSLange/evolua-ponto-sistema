@@ -60,7 +60,7 @@ export const useAddFuncionario = (estabelecimentoId: string, estabelecimentoNome
     const addFuncionario = async (funcionario: ModelFuncionario) => {
         try {
             setLoading(true);
-            funcionario.id = undefined;
+            funcionario.id = null;
             funcionario.estabelecimentoId = estabelecimentoId;
             await api.post('/funcionarios', { ...funcionario });
             showNotification('Funcionário cadastrado com sucesso!', 'success');
