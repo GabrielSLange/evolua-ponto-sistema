@@ -58,7 +58,8 @@ namespace EvoluaPonto.Api.Services
                 Cpf = funcionarioDto.Cpf,
                 Cargo = funcionarioDto.Cargo,
                 EstabelecimentoId = funcionarioDto.EstabelecimentoId,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                Ativo = true
             };
 
             await _context.Funcionarios.AddAsync(novoFuncionario);
