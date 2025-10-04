@@ -11,7 +11,7 @@ const AddFuncionarioScreen = () => {
     const router = useRouter();
     const { estabelecimentoId, estabelecimentoNome, empresaNome } = useLocalSearchParams<{ estabelecimentoId: string; estabelecimentoNome: string; empresaNome: string }>(); // Pega o ID do estabelecimento-mãe
 
-    const { loading, addFuncionario } = useAddFuncionario(estabelecimentoId as string, estabelecimentoNome as string);
+    const { loading, addFuncionario } = useAddFuncionario(estabelecimentoId as string, estabelecimentoNome as string, empresaNome as string);
 
     if (loading) return <CustomLoader />;
 

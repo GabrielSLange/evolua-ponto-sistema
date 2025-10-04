@@ -10,11 +10,11 @@ import { useEditFuncionario } from "@/hooks/superadmin/useFuncionario";
 
 const EditFuncionarioScreen = () => {
     const router = useRouter();
-    const { funcionarioId, estabelecimentoId, userId, estabelecimentoNome, empresaNome } = useLocalSearchParams<{ funcionarioId: string; estabelecimentoId: string; userId: string, estabelecimentoNome: string, empresaNome: string }>();
+    const { funcionarioId, estabelecimentoId, estabelecimentoNome, empresaNome } = useLocalSearchParams<{ funcionarioId: string; estabelecimentoId: string; estabelecimentoNome: string, empresaNome: string }>();
 
     const { showNotification } = useNotification();
 
-    const { loading, funcionario, updateFuncionario } = useEditFuncionario(funcionarioId as string, estabelecimentoId as string, userId as string);
+    const { loading, funcionario, updateFuncionario } = useEditFuncionario(funcionarioId as string, estabelecimentoId as string, estabelecimentoNome as string, empresaNome as string);
 
     const handleUpdate = async (funcionario: ModelFuncionario) => {
         try {
@@ -33,7 +33,7 @@ const EditFuncionarioScreen = () => {
                 <Appbar.Header>
                     <Appbar.BackAction onPress={() => router.push({
                         pathname: `/funcionarios`,
-                        params: { estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+                        params: { estabelecimentoId: estabelecimentoId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
                     })} />
                     <Appbar.Content title="Editar Funcionário" />
                 </Appbar.Header>
