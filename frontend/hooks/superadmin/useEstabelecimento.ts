@@ -73,7 +73,6 @@ export const useAddEstabelecimento = (empresaId: string, empresaNome: string) =>
          showNotification('Erro ao cadastrar estabelecimento.', 'error');
       } finally {
          setLoading(false);
-         router.back();
       }
    };
 
@@ -90,6 +89,7 @@ export const useEditEstabelecimento = (estabelecimentoId: string | undefined, em
    const carregarDadosEstabelecimento = useCallback(() => {
       if (estabelecimentoId) {
          setLoading(true);
+
          api.get(`/estabelecimento/Id?estabelecimentoId=${estabelecimentoId}`)
             .then(response => {
                if (response.data && response.data) {

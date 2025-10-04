@@ -76,7 +76,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
          const decoded = jwtDecode<DecodedToken>(access_token);
          const userRole = decoded.app_metadata.role;
-         console.log('Decoded token:', decoded.sub);
          setUserId(decoded.sub);
 
          setToken(access_token);

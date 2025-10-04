@@ -6,21 +6,25 @@ import { ModelFuncionario } from '../../models/ModelFuncionario';
 import CustomLoader from '@/components/CustomLoader';
 
 interface ListFuncionariosProps {
-   funcionarios: ModelFuncionario[];
-   loading: boolean;
-   permissao: string;
-   userId: string | null;
-   estabelecimentoId?: string;
-   toggleFuncionarioAtivo: (id: string) => void;
+    funcionarios: ModelFuncionario[];
+    loading: boolean;
+    permissao: string;
+    userId: string | null;
+    estabelecimentoId?: string;
+    estabelecimentoNome?: string;
+    empresaNome?: string;
+    toggleFuncionarioAtivo: (id: string) => void;
 }
 
 const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
-   funcionarios,
-   loading,
-   permissao,
-   userId,
-   estabelecimentoId,
-   toggleFuncionarioAtivo,
+    funcionarios,
+    loading,
+    permissao,
+    userId,
+    estabelecimentoId,
+    estabelecimentoNome,
+    empresaNome,
+    toggleFuncionarioAtivo,
 }) => {
     const router = useRouter();
     const theme = useTheme();
@@ -28,17 +32,17 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
     // Pega o ID da empresa e o nome da empresa passados na navegação
 
     if (loading) {
-       return <CustomLoader />;
+        return <CustomLoader />;
     }
 
     return (
-       <View style={styles.container}>
+        <View style={styles.container}>
             <FlatList
                 data={funcionarios}
                 keyExtractor={(item) => item.id as string}
                 contentContainerStyle={styles.listContentContainer}
                 renderItem={({ item }: { item: ModelFuncionario }) => (
-                <Card style={styles.card}>
+                    <Card style={styles.card}>
                         <View style={styles.cardHeader}>
                             <Pressable>
                                 {/* Ainda será implementado o clique para ver as informações do funcionário */}
@@ -48,15 +52,15 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                             <View style={styles.switchContainer}>
                                 <Text style={{ marginRight: 8 }}>{item.ativo ? 'Ativo' : 'Inativo'}</Text>
                                 <Switch
-                                value={item.ativo}
-                                onValueChange={() => toggleFuncionarioAtivo(item.id as string)}
+                                    value={item.ativo}
+                                    onValueChange={() => toggleFuncionarioAtivo(item.id as string)}
                                 />
                             </View>
 
                         </View>
 
                         <Pressable
-                            /* Ainda será implementado o clique para ver as informações do funcionário */
+                        /* Ainda será implementado o clique para ver as informações do funcionário */
                         >
 
                             <Card.Content>
@@ -73,7 +77,7 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                                         iconColor={iconColor}
                                         onPress={() => router.push({
                                             pathname: `/(${permissao})/funcionarios/edit-funcionario`,
-                                            params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, userId: userId}
+                                            params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
                                         })}
                                     />
                                 </Tooltip>
@@ -89,7 +93,7 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                 onPress={() => {
                     router.push({
                         pathname: `/(${permissao})/funcionarios/add-funcionario`,
-                        params: { estabelecimentoId: estabelecimentoId, userId: userId }
+                        params: { estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
                     });
                 }}
             />
@@ -98,38 +102,38 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
 };
 
 const styles = StyleSheet.create({
-   card: {
-      margin: 8
-   },
-   emptyContainer: {
-      flex: 1, marginTop: 50, alignItems: 'center'
-   },
-   cardHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: 16,
-      paddingTop: 16,
-   },
-   switchContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-   },
-   cardActions: {
-      justifyContent: 'flex-end', // Alinha o botão de editar à direita
-   },
-   container: {
-      flex: 1,
-   },
-   fab: {
-      position: 'absolute',
-      margin: 16,
-      right: 0,
-      bottom: 0,
-   },
-   listContentContainer: {
-      paddingBottom: 80,
-   }
+    card: {
+        margin: 8
+    },
+    emptyContainer: {
+        flex: 1, marginTop: 50, alignItems: 'center'
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingTop: 16,
+    },
+    switchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    cardActions: {
+        justifyContent: 'flex-end', // Alinha o botão de editar à direita
+    },
+    container: {
+        flex: 1,
+    },
+    fab: {
+        position: 'absolute',
+        margin: 16,
+        right: 0,
+        bottom: 0,
+    },
+    listContentContainer: {
+        paddingBottom: 80,
+    }
 });
 
 export default ListFuncionarios;

@@ -18,12 +18,12 @@ namespace EvoluaPonto.Api.Services
             _supabaseAdmin = supabaseAdmin;
         }
 
-        public async Task<ServiceResponse<List<ModelFuncionario>>> GetFuncionariosEmpresa(Guid IdEmpresa)
+        public async Task<ServiceResponse<List<ModelFuncionario>>> GetFuncionariosEstabelecimento(Guid estabelecimentoId)
             => new ServiceResponse<List<ModelFuncionario>>
             {
                 Data = await _context.Funcionarios
                     .AsNoTracking()
-                    .Where(tb => tb.Estabelecimento.EmpresaId == IdEmpresa)
+                    .Where(tb => tb.EstabelecimentoId == estabelecimentoId)
                     .ToListAsync()
             };
 

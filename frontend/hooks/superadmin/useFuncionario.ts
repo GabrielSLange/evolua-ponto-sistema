@@ -5,16 +5,16 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useNotification } from "@/contexts/NotificationContext";
 
 // Controller para a lógica de funcionários
-export const useFuncionarios = (empresaId: string | undefined) => {
-  const [funcionarios, setFuncionarios] = useState<ModelFuncionario[]>([]);
-  const [loading, setLoading] = useState(true);
+export const useFuncionarios = (estabelecimentoId: string | undefined) => {
+    const [funcionarios, setFuncionarios] = useState<ModelFuncionario[]>([]);
+    const [loading, setLoading] = useState(true);
 
     const fetchFuncionarios = useCallback(() => {
         // Só busca os dados se tivermos um ID de Empresa
-        if (!empresaId) return;
+        if (!estabelecimentoId) return;
 
         setLoading(true);
-        api.get(`/funcionarios?empresaId=${empresaId}`)
+        api.get(`/Funcionarios?estabelecimentoId=${estabelecimentoId}`)
             .then(response => {
                 if (response.data && response.data) {
                     setFuncionarios(response.data);
@@ -26,7 +26,7 @@ export const useFuncionarios = (empresaId: string | undefined) => {
             .finally(() => {
                 setLoading(false);
             });
-    }, [empresaId]);
+    }, [estabelecimentoId]);
 
     const toggleFuncionarioAtivo = async (funcionarioId: string) => {
         const originalFuncionarios = [...funcionarios];
@@ -53,11 +53,11 @@ export const useFuncionarios = (empresaId: string | undefined) => {
 // Controller para adicionar um novo funcionário
 export const useAddFuncionario = (estabelecimentoId: string, estabelecimentoNome: string) => {
     const [loading, setLoading] = useState(false);
-    const [funcionario] = useState<ModelFuncionario>();
     const router = useRouter();
     const { showNotification } = useNotification();
 
     const addFuncionario = async (funcionario: ModelFuncionario) => {
+
         try {
             setLoading(true);
             funcionario.id = null;
@@ -70,11 +70,10 @@ export const useAddFuncionario = (estabelecimentoId: string, estabelecimentoNome
             showNotification('Erro ao cadastrar funcionário.', 'error');
         } finally {
             setLoading(false);
-            router.back();
         }
     };
 
-    return { loading, addFuncionario, funcionario };
+    return { loading, addFuncionario };
 };
 
 // Controller para editar um funcionário existente
@@ -87,6 +86,7 @@ export const useEditFuncionario = (funcionarioId: string | undefined, estabeleci
     const carregarDadosFuncionario = useCallback(() => {
         if (funcionarioId) {
             setLoading(true);
+
             api.get(`/funcionarios/Id?funcionarioId=${funcionarioId}`)
                 .then(response => {
                     if (response.data && response.data) {

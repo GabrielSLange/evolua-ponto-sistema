@@ -20,7 +20,6 @@ const AddEstabelecimentoScreen = () => {
                <Appbar.Content title="Novo Estabelecimento" />
             </Appbar.Header>
             <EstabelecimentoForm
-               isLoading={loading}
                onSubmit={addEstabelecimento}
                submitButtonLabel="Cadastrar"
             />

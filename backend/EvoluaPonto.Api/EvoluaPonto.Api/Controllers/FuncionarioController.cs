@@ -20,11 +20,11 @@ namespace EvoluaPonto.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetFuncionariosEmpresa(Guid EmpresaId)
+        public async Task<IActionResult> GetFuncionariosEmpresa(Guid estabelecimentoId)
         {
             try
             {
-                ServiceResponse<List<ModelFuncionario>> responseFuncionario = await _funcionarioService.GetFuncionariosEmpresa(EmpresaId);
+                ServiceResponse<List<ModelFuncionario>> responseFuncionario = await _funcionarioService.GetFuncionariosEstabelecimento(estabelecimentoId);
                 return Ok(responseFuncionario.Data);
             }
             catch (Exception ex)

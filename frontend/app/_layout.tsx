@@ -52,7 +52,6 @@ const RootLayoutNav = () => {
       if (role === 'superadmin') {
         router.replace(`/(superadmin)/empresas`);
       } else if (role === 'admin') {
-        console.log('Redirecionando admin para estabelecimentoId:', userId);
         router.replace(`/(admin)/estabelecimentos?userId=${userId}`);
       } else if (role === 'normal') {
         router.replace('/(employee)/home');

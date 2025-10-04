@@ -8,34 +8,38 @@ import { useFuncionarios } from '../../../hooks/superadmin/useFuncionario';
 import ListFuncionarios from '../../../components/lists/listFuncionarios';
 
 const FuncionariosScreen = () => {
-    const router = useRouter();
-    const theme = useTheme();
-    // Pega o ID do estabelecimento e o nome do estabelecimento passados na navegação
-    const { estabelecimentoId, estabelecimentoNome, empresaId } = useLocalSearchParams<{ estabelecimentoId: string; estabelecimentoNome: string; empresaId: string }>();
+   const router = useRouter();
+   // Pega o ID do estabelecimento e o nome do estabelecimento passados na navegação
+   const { estabelecimentoId, estabelecimentoNome, empresaId, empresaNome } = useLocalSearchParams<{ estabelecimentoId: string; estabelecimentoNome: string; empresaId: string, empresaNome: string }>();
 
-    // Usa o nosso hook (Controller) para buscar os dados
-    const { funcionarios, loading, toggleFuncionarioAtivo } = useFuncionarios(empresaId);
+   // Usa o nosso hook (Controller) para buscar os dados
+   const { funcionarios, loading, toggleFuncionarioAtivo } = useFuncionarios(estabelecimentoId);
 
-    if (loading) {
-        return <CustomLoader />;
-    }
+   if (loading) {
+      return <CustomLoader />;
+   }
 
-    return (
-        <ScreenContainer>
-            <Appbar.Header>
-                <Appbar.BackAction onPress={() => router.back()} />
-                <Appbar.Content title={`Funcionários de ${estabelecimentoNome}`} />
-            </Appbar.Header>
-            <ListFuncionarios
-                funcionarios={funcionarios}
-                loading={loading}
-                permissao="superadmin"
-                estabelecimentoId={estabelecimentoId}
-                userId={null}
-                toggleFuncionarioAtivo={toggleFuncionarioAtivo}
-            />
-        </ScreenContainer>
-    );
+   return (
+      <ScreenContainer>
+         <Appbar.Header>
+            <Appbar.BackAction onPress={() => router.push({
+               pathname: `/estabelecimentos`,
+               params: { estabelecimentoId: estabelecimentoId, estabelecimentoNome: estabelecimentoNome, empresaId: empresaId, empresaNome: empresaNome }
+            })} />
+            <Appbar.Content title={`Funcionários de ${estabelecimentoNome}`} />
+         </Appbar.Header>
+         <ListFuncionarios
+            funcionarios={funcionarios}
+            loading={loading}
+            permissao="superadmin"
+            estabelecimentoId={estabelecimentoId}
+            estabelecimentoNome={estabelecimentoNome}
+            empresaNome={empresaNome}
+            userId={null}
+            toggleFuncionarioAtivo={toggleFuncionarioAtivo}
+         />
+      </ScreenContainer>
+   );
 };
 
 const styles = StyleSheet.create({

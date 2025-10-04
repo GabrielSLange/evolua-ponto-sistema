@@ -10,7 +10,8 @@ import { useEditFuncionario } from "@/hooks/superadmin/useFuncionario";
 
 const EditFuncionarioScreen = () => {
     const router = useRouter();
-    const { funcionarioId, estabelecimentoId, userId } = useLocalSearchParams<{ funcionarioId: string; estabelecimentoId: string; userId: string }>();
+    const { funcionarioId, estabelecimentoId, userId, estabelecimentoNome, empresaNome } = useLocalSearchParams<{ funcionarioId: string; estabelecimentoId: string; userId: string, estabelecimentoNome: string, empresaNome: string }>();
+
     const { showNotification } = useNotification();
 
     const { loading, funcionario, updateFuncionario } = useEditFuncionario(funcionarioId as string, estabelecimentoId as string, userId as string);
@@ -24,17 +25,19 @@ const EditFuncionarioScreen = () => {
         }
     };
 
-    if (loading && !funcionario) return <CustomLoader />;
+    if (loading) return <CustomLoader />;
 
     return (
         <ScreenContainer>
             <View style={{ flex: 1 }}>
                 <Appbar.Header>
-                    <Appbar.BackAction onPress={() => router.push(`/funcionarios?estabelecimentoId=${estabelecimentoId}&userId=${userId}`)} />
+                    <Appbar.BackAction onPress={() => router.push({
+                        pathname: `/funcionarios`,
+                        params: { estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+                    })} />
                     <Appbar.Content title="Editar Funcionário" />
                 </Appbar.Header>
                 <FuncionarioForm
-                    isLoading={loading}
                     onSubmit={handleUpdate}
                     funcionario={funcionario}
                     submitButtonLabel="Salvar Alterações"

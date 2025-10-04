@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, FlatList, StyleSheet, Pressable } from 'react-native';
 import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme } from 'react-native-paper';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { ModelEstabelecimento } from '../../models/ModelEstabelecimento';
 import CustomLoader from '@/components/CustomLoader';
 
@@ -11,6 +11,7 @@ interface ListEstabelcimentosProps {
    permissao: string;
    userId: string | null;
    empresaId?: string;
+   empresaNome?: string;
    toggleEstabelecimentoAtivo: (id: string) => void;
 }
 
@@ -20,6 +21,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
    permissao,
    userId,
    empresaId,
+   empresaNome,
    toggleEstabelecimentoAtivo,
 }) => {
    const router = useRouter();
@@ -43,12 +45,12 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                   <View style={styles.cardHeader}>
                      <Pressable
                         style={styles.titleContainer}
-                           onPress={() => router.push({
-                              pathname: '/(superadmin)/funcionarios',
-                              params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId }
-                           })}
+                        onPress={() => router.push({
+                           pathname: '/(superadmin)/funcionarios',
+                           params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId, empresaNome: empresaNome }
+                        })}
                      >
-                           <Title>{item.nomeFantasia}</Title>
+                        <Title>{item.nomeFantasia}</Title>
                      </Pressable>
 
                      <View style={styles.switchContainer}>
@@ -64,7 +66,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                   <Pressable
                      onPress={() => router.push({
                         pathname: '/(superadmin)/funcionarios',
-                        params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId }
+                        params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId, empresaNome: empresaNome }
                      })}
                   />
 
@@ -82,7 +84,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                               iconColor={iconColor}
                               onPress={() => router.push({
                                  pathname: '/(superadmin)/funcionarios',
-                                 params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId }
+                                 params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId, empresaNome: empresaNome }
                               })}
                            />
                         </Tooltip>
@@ -106,7 +108,6 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
             style={styles.fab}
             icon="plus"
             onPress={() => {
-               console.log({ empresaId, userId });
                router.push({
                   pathname: `/(${permissao})/estabelecimentos/add-estabelecimento`,
                   params: { empresaId: empresaId, userId: userId }

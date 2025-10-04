@@ -8,14 +8,12 @@ import { TextInput, Button } from 'react-native-paper';
 interface EstabelecimentoFormProps {
    estabelecimento?: ModelEstabelecimento;
    onSubmit: (data: ModelEstabelecimento) => void;
-   isLoading: boolean;
    submitButtonLabel?: string;
 }
 
 const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
    estabelecimento,
    onSubmit,
-   isLoading,
    submitButtonLabel = 'Salvar',
 }) => {
    const [formData, setFormData] = useState<ModelEstabelecimento>({
@@ -122,7 +120,6 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
          <Button
             mode="contained"
             onPress={handleSubmit}
-            disabled={isLoading}
             style={styles.button}
          >
             {submitButtonLabel}

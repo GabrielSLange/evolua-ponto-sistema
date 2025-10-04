@@ -1,17 +1,14 @@
 import React from 'react';
-import { View, FlatList, StyleSheet, Pressable } from 'react-native';
-import { Appbar, Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
+import { Appbar, useTheme } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import ScreenContainer from '../../../components/layouts/ScreenContainer';
 import { useEstabelecimentos } from '../../../hooks/superadmin/useEstabelecimento';
-import { ModelEstabelecimento } from '../../../models/ModelEstabelecimento';
 import CustomLoader from '@/components/CustomLoader';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ListEstabelcimentos from '@/components/lists/listEstabelecimentos';
 
 const EstabelecimentosScreen = () => {
    const router = useRouter();
-   const theme = useTheme();
    // Pega o ID da empresa e o nome da empresa passados na navegação
    const { empresaId, empresaNome } = useLocalSearchParams<{ empresaId: string; empresaNome: string }>();
 
@@ -34,6 +31,7 @@ const EstabelecimentosScreen = () => {
             loading={loading}
             permissao="superadmin"
             empresaId={empresaId}
+            empresaNome={empresaNome}
             userId={null}
             toggleEstabelecimentoAtivo={toggleEstabelecimentoAtivo}
          />

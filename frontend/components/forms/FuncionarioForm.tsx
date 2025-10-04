@@ -8,14 +8,12 @@ import { TextInput, Button } from "react-native-paper";
 interface FuncionarioFormProps {
     funcionario?: ModelFuncionario;
     onSubmit: (data: ModelFuncionario) => void;
-    isLoading: boolean;
     submitButtonLabel?: string;
 }
 
 const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     funcionario,
     onSubmit,
-    isLoading,
     submitButtonLabel = 'Salvar',
 }) => {
     const [formData, setFormData] = useState<ModelFuncionario>({
@@ -109,8 +107,6 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
             <Button
                 mode="contained"
                 onPress={handleSubmit}
-                loading={isLoading}
-                disabled={isLoading}
             >
                 {submitButtonLabel}
             </Button>
@@ -119,15 +115,15 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
 }
 
 const styles = StyleSheet.create({
-   container: {
-      padding: 16,
-   },
-   input: {
-      marginBottom: 16,
-   },
-   button: {
-      marginTop: 8,
-   },
+    container: {
+        padding: 16,
+    },
+    input: {
+        marginBottom: 16,
+    },
+    button: {
+        marginTop: 8,
+    },
 });
 
 export default FuncionarioForm;
