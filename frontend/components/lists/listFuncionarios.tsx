@@ -71,9 +71,10 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                                     <IconButton
                                         icon="pencil"
                                         iconColor={iconColor}
-                                        onPress={() => {
-                                            // Implementar a navegação para a tela de edição
-                                        }}
+                                        onPress={() => router.push({
+                                            pathname: `/(${permissao})/funcionarios/edit-funcionario`,
+                                            params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, userId: userId}
+                                        })}
                                     />
                                 </Tooltip>
                             </View>

@@ -5,9 +5,8 @@ export interface ModelFuncionario {
     email: string;
     password?: string;
     cargo: string;
-    estabelecimentoId: string;
     role: string;
+    estabelecimentoId: string;
     horarioContratual?: string;
     ativo: boolean;
-    createdAt?: Date;
 }
