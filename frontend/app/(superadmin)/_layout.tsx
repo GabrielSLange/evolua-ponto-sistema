@@ -3,11 +3,14 @@ import { Drawer } from 'expo-router/drawer';
 import CustomDrawerContent from '../../components/navigation/CustomDrawerContent';
 import CustomHeader from '../../components/navigation/CustomHeader';
 import { useWindowDimensions } from 'react-native';
+import { useTheme } from 'react-native-paper';
 
 const breakpoint = 768;
 
 export default function SuperAdminLayout() {
    const { width } = useWindowDimensions();
+   const theme = useTheme();
+
    const isDesktop = width >= breakpoint;
 
    return (
@@ -23,6 +26,11 @@ export default function SuperAdminLayout() {
                width: isDesktop ? '30%' : '80%',
             },
             swipeEnabled: !isDesktop, // Desabilita o gesto de arrastar no desktop
+
+            drawerActiveTintColor: theme.colors.primary,
+            drawerInactiveTintColor: theme.colors.onSurface,
+            drawerLabelStyle: { fontSize: 15 },
+            drawerContentStyle: { backgroundColor: theme.colors.surface },
 
             // 6. Use o novo CustomHeader
             // Como você já tem um header customizado, a lógica de esconder o botão "sanduíche"
