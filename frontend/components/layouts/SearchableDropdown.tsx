@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, TouchableOpacity, FlatList, ListRenderItemInfo } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, FlatList, ListRenderItemInfo, useWindowDimensions } from 'react-native';
 import { Text, TextInput, Portal, Modal, List, IconButton, useTheme } from 'react-native-paper';
 
 interface SearchableDropdownProps {
@@ -25,6 +25,9 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
    const [open, setOpen] = useState(false);
    const [query, setQuery] = useState('');
    const theme = useTheme();
+   const { width } = useWindowDimensions();
+   const isDesktop = width > 768;
+
 
    // Filtra opções (case-insensitive)
    const filtered = useMemo(() => {
@@ -63,7 +66,7 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
             <Modal
                visible={open}
                onDismiss={() => { setOpen(false); setQuery(''); }}
-               contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.background }]}
+               contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.background, maxWidth: isDesktop ? '20%' : '80%' }]}
             >
                <View style={styles.header}>
                   <Text style={styles.title}>{label}</Text>
@@ -104,7 +107,6 @@ const styles = StyleSheet.create({
       backgroundColor: 'white',
       borderRadius: 8,
       maxHeight: '50%',
-      maxWidth: '20%',
       paddingBottom: 8,
    },
    header: {
