@@ -23,7 +23,7 @@ export default function SuperAdminLayout() {
             // 5. Ajuste de estilo e comportamento para desktop vs. mobile
             drawerStyle: {
                // Define uma largura fixa no desktop e percentual no mobile
-               width: isDesktop ? '30%' : '80%',
+               width: isDesktop ? '25%' : '80%',
             },
             swipeEnabled: !isDesktop, // Desabilita o gesto de arrastar no desktop
 
