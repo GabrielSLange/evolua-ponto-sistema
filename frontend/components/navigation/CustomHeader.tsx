@@ -7,9 +7,10 @@ import { View } from 'react-native';
 // O nome da tela será passado como propriedade (prop)
 interface CustomHeaderProps {
    title: string;
+   isDesktop?: boolean; // Nova prop para indicar se é desktop ou não
 }
 
-const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
+const CustomHeader: React.FC<CustomHeaderProps> = ({ title, isDesktop }: CustomHeaderProps) => {
    const navigation = useNavigation();
    const { theme, toggleTheme } = useAuth();
    const [menuVisible, setMenuVisible] = useState(false);
@@ -18,12 +19,14 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
    const closeMenu = () => setMenuVisible(false);
 
    return (
-      <Appbar.Header>
+      <Appbar.Header >
          {/* Ícone de Menu Lateral (Sanduíche) à Esquerda */}
-         <Appbar.Action
-            icon="menu"
-            onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-         />
+         {!isDesktop && (
+            <Appbar.Action
+               icon="menu"
+               onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+            />
+         )}
          {/* Título no Meio */}
          <Appbar.Content title={title} />
 

@@ -80,6 +80,7 @@ const ThemedApp = () => {
   return (
     // O PaperProvider agora recebe o tema correto e reage às mudanças
     <PaperProvider theme={currentTheme}>
+      
       <RootLayoutNav />
     </PaperProvider>
   );

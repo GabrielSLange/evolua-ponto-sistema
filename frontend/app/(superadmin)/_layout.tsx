@@ -1,16 +1,34 @@
 import 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
-// 1. Importe os componentes necessários
 import CustomDrawerContent from '../../components/navigation/CustomDrawerContent';
 import CustomHeader from '../../components/navigation/CustomHeader';
+import { useWindowDimensions } from 'react-native';
+
+const breakpoint = 768;
 
 export default function SuperAdminLayout() {
+   const { width } = useWindowDimensions();
+   const isDesktop = width >= breakpoint;
+
    return (
       <Drawer
          drawerContent={(props) => <CustomDrawerContent {...props} />}
          screenOptions={{
-            // 2. Use o novo CustomHeader
-            header: ({ options }) => <CustomHeader title={options.title || 'Painel Super Admin'} />,
+            // 4. A MÁGICA ACONTECE AQUI:
+            drawerType: isDesktop ? 'permanent' : 'front',
+
+            // 5. Ajuste de estilo e comportamento para desktop vs. mobile
+            drawerStyle: {
+               // Define uma largura fixa no desktop e percentual no mobile
+               width: isDesktop ? '30%' : '80%',
+            },
+            swipeEnabled: !isDesktop, // Desabilita o gesto de arrastar no desktop
+
+            // 6. Use o novo CustomHeader
+            // Como você já tem um header customizado, a lógica de esconder o botão "sanduíche"
+            // provavelmente precisará ser feita dentro do seu componente CustomHeader,
+            // passando 'isDesktop' como uma propriedade (prop) para ele.
+            header: ({ options }) => <CustomHeader title={options.title || 'Painel Super Admin'} isDesktop={isDesktop} />,
          }}
       >
          <Drawer.Screen

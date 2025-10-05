@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Platform, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, Platform, useWindowDimensions, ScrollView } from 'react-native';
 
 interface ScreenContainerProps {
    children: React.ReactNode;
@@ -13,33 +13,36 @@ const ScreenContainer: React.FC<ScreenContainerProps> = ({ children }) => {
    const isDesktop = Platform.OS === 'web' && width > 768;
 
    return (
-      <View style={styles.outerContainer}>
+      <ScrollView
+         style={styles.outerContainer}
+         contentContainerStyle={styles.scrollContentContainer}
+      >
          <View style={[styles.innerContainer, isDesktop && styles.desktopContainer]}>
             {children}
          </View>
-      </View>
+      </ScrollView>
    );
 };
 
 const styles = StyleSheet.create({
-   // Container externo que preenche a tela e pode ter uma cor de fundo
    outerContainer: {
-      flex: 1,
-      backgroundColor: '#f5f5f5', // Uma cor de fundo suave para o app web
+      flex: 1, // Garante que a área de rolagem ocupe a tela toda
    },
-   // Container interno que guarda o conteúdo
+   // 3. Este estilo controla o container *dentro* da área de rolagem
+   scrollContentContainer: {
+      alignItems: 'center', // Centraliza o innerContainer
+      flexGrow: 1,          // Garante que o conteúdo possa crescer
+   },
    innerContainer: {
-      flex: 1,
       width: '100%',
+      flex: 1, // Faz o conteúdo ocupar o espaço disponível dentro do container centralizado
    },
-   // Estilo extra que só é aplicado em modo desktop
    desktopContainer: {
-      maxWidth: '70%', // Largura máxima do conteúdo
-      alignSelf: 'center', // Centraliza o container na tela
-      backgroundColor: '#ffffff', // Fundo branco para a área de conteúdo
+      maxWidth: '70%', // A mesma lógica de antes para limitar a largura
       borderLeftWidth: 1,
       borderRightWidth: 1,
       borderColor: '#e0e0e0',
+      backgroundColor: 'white', // Adiciona um fundo branco para o conteúdo
    },
 });
 
