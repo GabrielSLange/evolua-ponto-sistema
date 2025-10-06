@@ -27,3 +27,65 @@
 .env.production
 
 backup_evolua_ponto.sql
+
+# Compilação
+bin/
+obj/
+out/
+Debug/
+Release/
+
+# Cache do Visual Studio e .NET
+*.nuget.cache
+*.nuget.props
+*.nuget.targets
+*.cache
+*.dll
+*.exe
+*.pdb
+*.mdb
+*.dbmdl
+*.log
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Arquivos de build gerados automaticamente
+*.AssemblyInfo.*
+*.GeneratedMSBuildEditorConfig.editorconfig
+*.g.cs
+*.g.props
+*.g.targets
+*.g.json
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*.DS_Store
+*.vspscc
+*.vssscc
+
+# Diretórios do Visual Studio
+.vs/
+.vscode/
+
+# Configurações específicas de usuário
+launchSettings.json
+
+# Cache do Rider / ReSharper
+.idea/
+*.DotSettings.user
+
+# Cache do sistema
+project.lock.json
+project.fragment.lock.json
+rpswa.dswa.cache.json
+
+# Pacotes e dependências
+packages/
+*.nupkg
+*.snupkg
