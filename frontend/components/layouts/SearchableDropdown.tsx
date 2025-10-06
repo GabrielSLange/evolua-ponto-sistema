@@ -131,6 +131,5 @@ const styles = StyleSheet.create({
    emptyText: {
       padding: 16,
       textAlign: 'center',
-      color: '#000000ff'
    }
 });
