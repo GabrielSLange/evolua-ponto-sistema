@@ -86,6 +86,14 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 onChangeText={(text) => handleChange('email', text)}
                 style={styles.input}
             />
+            {!funcionario?.id && (
+                <TextInput
+                    label="Senha"
+                    value={formData.password}
+                    onChangeText={(text) => handleChange('password', text)}
+                    style={styles.input}
+                />
+            )}
             <TextInput
                 label="Senha"
                 value={formData.password}
@@ -99,7 +107,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 style={styles.input}
             />
             <TextInput
-                label="Role"
+                label="Permissão"
                 value={formData.role}
                 onChangeText={(text) => handleChange('role', text)}
                 style={styles.input}
