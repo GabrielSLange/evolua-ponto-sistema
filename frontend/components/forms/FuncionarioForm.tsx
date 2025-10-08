@@ -1,4 +1,5 @@
 import { ModelFuncionario } from "@/models/ModelFuncionario";
+import { ModelEstabelecimento } from "@/models/ModelEstabelecimento";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useState, useCallback } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -11,12 +12,14 @@ interface FuncionarioFormProps {
     funcionario?: ModelFuncionario;
     onSubmit: (data: ModelFuncionario) => void;
     submitButtonLabel?: string;
+    estabelecimentos?: ModelEstabelecimento[]; // Lista de estabelecimentos para o dropdown
 }
 
 const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     funcionario,
     onSubmit,
     submitButtonLabel = 'Salvar',
+    estabelecimentos = [],
 }) => {
     // Opções para o dropdown de permissões
     const roleOptions = [
@@ -28,6 +31,11 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     const [menuVisible, setMenuVisible] = useState(false);
     const openMenu = () => setMenuVisible(true);
     const closeMenu = () => setMenuVisible(false);
+
+    // Estado para o dropdown de estabelecimentos
+    const [estabelecimentoMenuVisible, setEstabelecimentoMenuVisible] = useState(false);
+    const openEstabelecimentoMenu = () => setEstabelecimentoMenuVisible(true);
+    const closeEstabelecimentoMenu = () => setEstabelecimentoMenuVisible(false);
 
     const [formData, setFormData] = useState<ModelFuncionario>({
         id: null,
@@ -122,6 +130,34 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 onChangeText={(text) => handleChange('cargo', text)}
                 style={styles.input}
             />
+            {/* Campo de Estabelecimento - Visível apenas na edição */}
+            {funcionario?.id && (
+                <Menu
+                    visible={estabelecimentoMenuVisible}
+                    onDismiss={closeEstabelecimentoMenu}
+                    anchor={
+                        <TouchableOpacity onPress={openEstabelecimentoMenu}>
+                            <TextInput
+                                label="Estabelecimento"
+                                value={estabelecimentos.find(e => e.id === formData.estabelecimentoId)?.nomeFantasia || ''}
+                                style={styles.input}
+                                editable={false}
+                                right={<TextInput.Icon icon="menu-down" />}
+                            />
+                        </TouchableOpacity>
+                    }>
+                    {estabelecimentos.map((est) => (
+                        <Menu.Item
+                            key={est.id}
+                            onPress={() => {
+                                handleChange('estabelecimentoId', est.id as string);
+                                closeEstabelecimentoMenu();
+                            }}
+                            title={est.nomeFantasia}
+                        />
+                    ))}
+                </Menu>
+            )}
             <Menu
                 visible={menuVisible}
                 onDismiss={closeMenu}
