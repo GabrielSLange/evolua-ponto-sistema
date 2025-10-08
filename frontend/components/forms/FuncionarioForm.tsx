@@ -2,6 +2,7 @@ import { ModelFuncionario } from "@/models/ModelFuncionario";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useState, useCallback } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
+import { MaskedTextInput } from "react-native-mask-text";
 import { TextInput, Button } from "react-native-paper";
 
 // Props que o formulário recebe
@@ -77,8 +78,17 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
             <TextInput
                 label="CPF"
                 value={formData.cpf}
-                onChangeText={(text) => handleChange('cpf', text)}
+                keyboardType="number-pad"
                 style={styles.input}
+                render={props =>
+                    <MaskedTextInput
+                        {...props}
+                        mask="999.999.999-99"
+                        onChangeText={(text) => {
+                            handleChange('cpf', text);
+                        }}
+                    />
+                }
             />
             <TextInput
                 label="Email"
@@ -94,12 +104,6 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                     style={styles.input}
                 />
             )}
-            <TextInput
-                label="Senha"
-                value={formData.password}
-                onChangeText={(text) => handleChange('password', text)}
-                style={styles.input}
-            />
             <TextInput
                 label="Cargo"
                 value={formData.cargo}
