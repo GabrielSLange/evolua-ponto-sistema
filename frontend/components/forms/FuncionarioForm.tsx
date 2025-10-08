@@ -3,7 +3,8 @@ import { useFocusEffect, useRouter } from "expo-router";
 import React, { useState, useCallback } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
-import { TextInput, Button } from "react-native-paper";
+import { TextInput, Button, Menu } from "react-native-paper";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 // Props que o formulário recebe
 interface FuncionarioFormProps {
@@ -17,6 +18,17 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     onSubmit,
     submitButtonLabel = 'Salvar',
 }) => {
+    // Opções para o dropdown de permissões
+    const roleOptions = [
+        { label: 'Administrador', value: 'admin' },
+        { label: 'Funcionário', value: 'employee' },
+    ];
+
+    // Estado para controlar a visibilidade do dropdown
+    const [menuVisible, setMenuVisible] = useState(false);
+    const openMenu = () => setMenuVisible(true);
+    const closeMenu = () => setMenuVisible(false);
+
     const [formData, setFormData] = useState<ModelFuncionario>({
         id: null,
         estabelecimentoId: '',
@@ -110,12 +122,31 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 onChangeText={(text) => handleChange('cargo', text)}
                 style={styles.input}
             />
-            <TextInput
-                label="Permissão"
-                value={formData.role}
-                onChangeText={(text) => handleChange('role', text)}
-                style={styles.input}
-            />
+            <Menu
+                visible={menuVisible}
+                onDismiss={closeMenu}
+                anchor={
+                    <TouchableOpacity onPress={openMenu}>
+                        <TextInput
+                            label="Permissão"
+                            value={roleOptions.find(opt => opt.value === formData.role)?.label || ''}
+                            style={styles.input}
+                            editable={false}
+                            right={<TextInput.Icon icon="menu-down" />}
+                        />
+                    </TouchableOpacity>
+                }>
+                {roleOptions.map((option) => (
+                    <Menu.Item
+                        key={option.value}
+                        onPress={() => {
+                            handleChange('role', option.value);
+                            closeMenu();
+                        }}
+                        title={option.label}
+                    />
+                ))}
+            </Menu>
             <Button
                 mode="contained"
                 onPress={handleSubmit}
