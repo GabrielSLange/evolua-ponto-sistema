@@ -24,7 +24,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     // Opções para o dropdown de permissões
     const roleOptions = [
         { label: 'Administrador', value: 'admin' },
-        { label: 'Funcionário', value: 'employee' },
+        { label: 'Funcionário', value: 'normal' },
     ];
 
     // Estado para controlar a visibilidade do dropdown
