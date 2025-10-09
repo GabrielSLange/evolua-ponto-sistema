@@ -1,19 +1,39 @@
 // frontend/app.config.js
-require('dotenv').config({ path: '.env.local' });
-
 module.exports = {
-   // Você provavelmente já tem configurações como 'name', 'slug', 'version', etc.
-   // Pode mantê-las. A parte mais importante é adicionar o objeto 'extra'.
-   name: 'evolua-ponto-frontend', // Use o nome do seu app
+   name: 'evolua-ponto-frontend',
    slug: 'evolua-ponto-frontend',
    version: '1.0.0',
-
-   // ... outras configurações do seu app ...
-
-   // Adicione esta seção "extra":
+   platforms: ['ios', 'android', 'web'],
+   orientation: 'portrait',
+   icon: './assets/images/icon.png',
+   userInterfaceStyle: 'light',
+   splash: {
+      image: './assets/images/splash-icon.png',
+      resizeMode: 'contain',
+      backgroundColor: '#ffffff'
+   },
+   assetBundlePatterns: [
+      '**/*'
+   ],
+   ios: {
+      supportsTablet: true
+   },
+   android: {
+      adaptiveIcon: {
+         foregroundImage: './assets/images/adaptive-icon.png',
+         backgroundColor: '#ffffff'
+      },
+      permissions: [
+         'ACCESS_FINE_LOCATION',
+         'ACCESS_COARSE_LOCATION'
+      ]
+   },
+   web: {
+      bundler: 'metro',
+      output: 'static',
+      favicon: './assets/images/favicon.png'
+   },
    extra: {
-      // Esta é a parte importante.
-      // Ele pega a variável de ambiente do processo de build...
-      apiUrl: process.env.NEXT_PUBLIC_API_URL,
+      apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
    },
 };
