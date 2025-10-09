@@ -14,7 +14,7 @@ const EditFuncionarioScreen = () => {
 
     const { showNotification } = useNotification();
 
-    const { loading, funcionario, updateFuncionario } = useEditFuncionario(funcionarioId as string, estabelecimentoId as string, estabelecimentoNome as string, empresaNome as string);
+    const { loading, funcionario, estabelecimentos, updateFuncionario } = useEditFuncionario(funcionarioId as string, estabelecimentoId as string, estabelecimentoNome as string, empresaNome as string);
 
     const handleUpdate = async (funcionario: ModelFuncionario) => {
         try {
@@ -41,6 +41,7 @@ const EditFuncionarioScreen = () => {
                     onSubmit={handleUpdate}
                     funcionario={funcionario}
                     submitButtonLabel="Salvar Alterações"
+                    estabelecimentos={funcionario ? estabelecimentos : []}
                 />
             </View>
         </ScreenContainer>
