@@ -7,10 +7,12 @@ import CustomLoader from '../components/CustomLoader';
 import { Snackbar } from 'react-native-paper';
 import { NotificationProvider, NotificationStateContext } from '../contexts/NotificationContext';
 import { useContext } from 'react';
+import { useSegments } from 'expo-router';
 
 // NOVO: Componente que renderiza o Snackbar global
 const GlobalSnackbar = () => {
   const notificationState = useContext(NotificationStateContext);
+
 
   if (!notificationState) return null;
 
@@ -43,10 +45,14 @@ const RootLayoutNav = () => {
   const { isAuthenticated, isLoading, role, userId } = useAuth();
   const router = useRouter();
 
+  const segments = useSegments();
+
   useEffect(() => {
     if (isLoading) {
       return;
     }
+
+    if (segments.includes('bater-ponto')) return;
 
     if (isAuthenticated) {
       if (role === 'superadmin') {
@@ -54,7 +60,7 @@ const RootLayoutNav = () => {
       } else if (role === 'admin') {
         router.replace(`/(admin)/estabelecimentos?userId=${userId}`);
       } else if (role === 'normal') {
-        router.replace('/(employee)/home');
+        router.replace('/(employee)/');
       }
     }
     else {
@@ -80,7 +86,7 @@ const ThemedApp = () => {
   return (
     // O PaperProvider agora recebe o tema correto e reage às mudanças
     <PaperProvider theme={currentTheme}>
-      
+
       <RootLayoutNav />
     </PaperProvider>
   );
