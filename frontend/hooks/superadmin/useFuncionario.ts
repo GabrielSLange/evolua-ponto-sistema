@@ -3,6 +3,7 @@ import api from "../../services/api";
 import { ModelFuncionario } from "../../models/ModelFuncionario";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useNotification } from "@/contexts/NotificationContext";
+import { ModelEstabelecimento } from "@/models/ModelEstabelecimento";
 
 // Controller para a lógica de funcionários
 export const useFuncionarios = (estabelecimentoId: string | undefined) => {
@@ -83,30 +84,40 @@ export const useAddFuncionario = (estabelecimentoId: string, estabelecimentoNome
 export const useEditFuncionario = (funcionarioId: string | undefined, estabelecimentoId: string, estabelecimentoNome: string | undefined, empresaNome: string | undefined) => {
     const [loading, setLoading] = useState(false);
     const [funcionario, setFuncionario] = useState<ModelFuncionario>();
+    const [estabelecimentos, setEstabelecimentos] = useState<ModelEstabelecimento[]>([]);
     const router = useRouter();
     const { showNotification } = useNotification();
 
-    const carregarDadosFuncionario = useCallback(() => {
+    const carregarDadosFuncionario = useCallback(async () => {
         if (funcionarioId) {
             setLoading(true);
+            try {
+                // 1. Busca os dados do funcionário
+                const responseFuncionario = await api.get(`/funcionarios/Id?funcionarioId=${funcionarioId}`);
+                const dadosFuncionario = responseFuncionario.data;
 
-            api.get(`/funcionarios/Id?funcionarioId=${funcionarioId}`)
-                .then(response => {
-                    if (response.data && response.data) {
-                        setFuncionario(response.data);
+                if (dadosFuncionario) {
+                    setFuncionario(dadosFuncionario);
+
+                    // 2. Extrai o empresaId do estabelecimento do funcionário
+                    const empresaId = dadosFuncionario.estabelecimento?.empresaId;
+
+                    if (empresaId) {
+                        // 3. Busca todos os estabelecimentos daquela empresa
+                        const responseEstabelecimentos = await api.get(`/estabelecimento?empresaId=${empresaId}`);
+                        setEstabelecimentos(responseEstabelecimentos.data || []);
                     }
-                })
-                .catch(error => {
-                    console.error("Erro ao buscar dados do funcionário:", error);
-                    showNotification('Erro ao buscar dados do funcionário.', 'error');
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
+                }
+            } catch (error) {
+                console.error("Erro ao buscar dados do funcionário ou estabelecimentos:", error);
+                showNotification('Erro ao carregar dados para edição.', 'error');
+            } finally {
+                setLoading(false);
+            }
         }
     }, [funcionarioId]);
 
-    useFocusEffect(carregarDadosFuncionario);
+    useFocusEffect(useCallback(() => { carregarDadosFuncionario(); }, [carregarDadosFuncionario]));
 
     const updateFuncionario = async (funcionario: ModelFuncionario) => {
         setLoading(true);
@@ -124,5 +135,5 @@ export const useEditFuncionario = (funcionarioId: string | undefined, estabeleci
         }
     };
 
-    return { loading, funcionario, updateFuncionario };
+    return { loading, funcionario, estabelecimentos, updateFuncionario };
 };
