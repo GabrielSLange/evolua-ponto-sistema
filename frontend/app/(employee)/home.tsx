@@ -27,6 +27,9 @@ const EmployeeHomeScreen = () => {
    // Se não estiver carregando, mostra o conteúdo da página
    return (
       <View style={styles.container}>
+         <View >
+            <Text variant="headlineLarge">Área do Funcionário</Text>
+         </View>
          <Text variant="headlineLarge">Área do Funcionário</Text>
          <Text style={styles.subtitle}>Conteúdo carregado!</Text>
          <Button mode="contained" style={{ marginTop: 20 }}>
