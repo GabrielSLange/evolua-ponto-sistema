@@ -6,6 +6,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
 import { TextInput, Button, Menu } from "react-native-paper";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { Fieldset } from "../layouts/FieldSet";
 
 // Props que o formulário recebe
 interface FuncionarioFormProps {
@@ -88,101 +89,104 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     };
 
     return (
+
         <ScrollView contentContainerStyle={styles.container}>
-            <TextInput
-                label="Nome"
-                value={formData.nome}
-                onChangeText={(text) => handleChange('nome', text)}
-                style={styles.input}
-            />
-            <TextInput
-                label="CPF"
-                value={formData.cpf}
-                keyboardType="number-pad"
-                style={styles.input}
-                render={props =>
-                    <MaskedTextInput
-                        {...props}
-                        mask="999.999.999-99"
-                        onChangeText={(text) => {
-                            handleChange('cpf', text);
-                        }}
-                    />
-                }
-            />
-            <TextInput
-                label="Email"
-                value={formData.email}
-                onChangeText={(text) => handleChange('email', text)}
-                style={styles.input}
-            />
-            {!funcionario?.id && (
+            <Fieldset legend="Dados do Funcionário">
                 <TextInput
-                    label="Senha"
-                    value={formData.password}
-                    onChangeText={(text) => handleChange('password', text)}
+                    label="Nome"
+                    value={formData.nome}
+                    onChangeText={(text) => handleChange('nome', text)}
                     style={styles.input}
                 />
-            )}
-            <TextInput
-                label="Cargo"
-                value={formData.cargo}
-                onChangeText={(text) => handleChange('cargo', text)}
-                style={styles.input}
-            />
-            {/* Campo de Estabelecimento - Visível apenas na edição */}
-            {funcionario?.id && (
+                <TextInput
+                    label="CPF"
+                    value={formData.cpf}
+                    keyboardType="number-pad"
+                    style={styles.input}
+                    render={props =>
+                        <MaskedTextInput
+                            {...props}
+                            mask="999.999.999-99"
+                            onChangeText={(text) => {
+                                handleChange('cpf', text);
+                            }}
+                        />
+                    }
+                />
+                <TextInput
+                    label="Email"
+                    value={formData.email}
+                    onChangeText={(text) => handleChange('email', text)}
+                    style={styles.input}
+                />
+                {!funcionario?.id && (
+                    <TextInput
+                        label="Senha"
+                        value={formData.password}
+                        onChangeText={(text) => handleChange('password', text)}
+                        style={styles.input}
+                    />
+                )}
+                <TextInput
+                    label="Cargo"
+                    value={formData.cargo}
+                    onChangeText={(text) => handleChange('cargo', text)}
+                    style={styles.input}
+                />
+                {/* Campo de Estabelecimento - Visível apenas na edição */}
+                {funcionario?.id && (
+                    <Menu
+                        visible={estabelecimentoMenuVisible}
+                        onDismiss={closeEstabelecimentoMenu}
+                        anchor={
+                            <TouchableOpacity onPress={openEstabelecimentoMenu}>
+                                <TextInput
+                                    label="Estabelecimento"
+                                    value={estabelecimentos.find(e => e.id === formData.estabelecimentoId)?.nomeFantasia || ''}
+                                    style={styles.input}
+                                    editable={false}
+                                    right={<TextInput.Icon icon="menu-down" />}
+                                />
+                            </TouchableOpacity>
+                        }>
+                        {estabelecimentos.map((est) => (
+                            <Menu.Item
+                                key={est.id}
+                                onPress={() => {
+                                    handleChange('estabelecimentoId', est.id as string);
+                                    closeEstabelecimentoMenu();
+                                }}
+                                title={est.nomeFantasia}
+                            />
+                        ))}
+                    </Menu>
+                )}
                 <Menu
-                    visible={estabelecimentoMenuVisible}
-                    onDismiss={closeEstabelecimentoMenu}
+                    visible={menuVisible}
+                    onDismiss={closeMenu}
                     anchor={
-                        <TouchableOpacity onPress={openEstabelecimentoMenu}>
+                        <TouchableOpacity onPress={openMenu}>
                             <TextInput
-                                label="Estabelecimento"
-                                value={estabelecimentos.find(e => e.id === formData.estabelecimentoId)?.nomeFantasia || ''}
+                                label="Permissão"
+                                value={roleOptions.find(opt => opt.value === formData.role)?.label || ''}
                                 style={styles.input}
                                 editable={false}
                                 right={<TextInput.Icon icon="menu-down" />}
                             />
                         </TouchableOpacity>
                     }>
-                    {estabelecimentos.map((est) => (
+                    {roleOptions.map((option) => (
                         <Menu.Item
-                            key={est.id}
+                            key={option.value}
                             onPress={() => {
-                                handleChange('estabelecimentoId', est.id as string);
-                                closeEstabelecimentoMenu();
+                                handleChange('role', option.value);
+                                closeMenu();
                             }}
-                            title={est.nomeFantasia}
+                            title={option.label}
                         />
                     ))}
                 </Menu>
-            )}
-            <Menu
-                visible={menuVisible}
-                onDismiss={closeMenu}
-                anchor={
-                    <TouchableOpacity onPress={openMenu}>
-                        <TextInput
-                            label="Permissão"
-                            value={roleOptions.find(opt => opt.value === formData.role)?.label || ''}
-                            style={styles.input}
-                            editable={false}
-                            right={<TextInput.Icon icon="menu-down" />}
-                        />
-                    </TouchableOpacity>
-                }>
-                {roleOptions.map((option) => (
-                    <Menu.Item
-                        key={option.value}
-                        onPress={() => {
-                            handleChange('role', option.value);
-                            closeMenu();
-                        }}
-                        title={option.label}
-                    />
-                ))}
-            </Menu>
+            </Fieldset>
             <Button
                 mode="contained"
                 onPress={handleSubmit}
@@ -190,6 +194,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 {submitButtonLabel}
             </Button>
         </ScrollView>
+
     );
 }
 
