@@ -2,8 +2,10 @@
 
 namespace EvoluaPonto.Api.Dtos
 {
-    public class FuncionarioCreateDto
+    public class FuncionarioDto
     {
+        public Guid? Id { get; set; } // Opcional, se quiser definir um ID específico
+
         [Required] 
         public string Nome { get; set; }
 

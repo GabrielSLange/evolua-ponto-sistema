@@ -39,7 +39,7 @@ namespace EvoluaPonto.Api.Services
             return new ServiceResponse<ModelFuncionario> { Data = funcionario };
         }
 
-        public async Task<ServiceResponse<ModelFuncionario>> CreateFuncionario(FuncionarioCreateDto funcionarioDto)
+        public async Task<ServiceResponse<ModelFuncionario>> CreateFuncionario(FuncionarioDto funcionarioDto)
         {
             if (!await _context.Estabelecimentos.AsNoTracking().AnyAsync(tb => tb.Id == funcionarioDto.EstabelecimentoId))
                 return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = "O estabelecimento vinculado ao funcionário não existe" };
@@ -68,7 +68,7 @@ namespace EvoluaPonto.Api.Services
             return new ServiceResponse<ModelFuncionario> { Data = novoFuncionario };
         }
 
-        public async Task<ServiceResponse<ModelFuncionario>> UpdateFuncionario(ModelFuncionario funcionarioAtualizado)
+        public async Task<ServiceResponse<ModelFuncionario>> UpdateFuncionario(FuncionarioDto funcionarioAtualizado)
         {
             ModelFuncionario? funcionarioBanco = await _context.Funcionarios.FirstOrDefaultAsync(tb => tb.Id == funcionarioAtualizado.Id);
             if (funcionarioBanco is null)

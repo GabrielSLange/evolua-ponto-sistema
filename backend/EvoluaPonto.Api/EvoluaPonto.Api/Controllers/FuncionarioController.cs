@@ -52,7 +52,7 @@ namespace EvoluaPonto.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateFuncionario([FromBody] FuncionarioCreateDto novoFuncionario)
+        public async Task<IActionResult> CreateFuncionario([FromBody] FuncionarioDto novoFuncionario)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace EvoluaPonto.Api.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateFuncionario(ModelFuncionario funcionarioAtualizado)
+        public async Task<IActionResult> UpdateFuncionario([FromBody] FuncionarioDto funcionarioAtualizado)
         {
             try
             {
