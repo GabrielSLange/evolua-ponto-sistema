@@ -12,7 +12,7 @@ namespace EvoluaPonto.Api.Models
 
         [Required]
         [Column("nome_fantasia")]
-        public string NomeFantasia{ get; set; }
+        public string NomeFantasia { get; set; }
 
         [Required]
         [Column("logradouro")]
@@ -44,6 +44,12 @@ namespace EvoluaPonto.Api.Models
 
         [Column("ativo")]
         public bool Ativo { get; set; }
+
+        [Column("latitude")]
+        public decimal? Latitude { get; set; }
+
+        [Column("longitude")]
+        public decimal? Longitude { get; set; }
 
         // Relação com a Empresa
         [Required]

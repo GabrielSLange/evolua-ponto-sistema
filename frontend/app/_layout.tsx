@@ -60,7 +60,7 @@ const RootLayoutNav = () => {
       } else if (role === 'admin') {
         router.replace(`/(admin)/estabelecimentos?userId=${userId}`);
       } else if (role === 'normal') {
-        router.replace('/(employee)/');
+        router.replace('/(employee)/home');
       }
     }
     else {

@@ -1,6 +1,6 @@
 // frontend/app/(employee)/bater-ponto.tsx
 import React, { useEffect, useRef, useState, Suspense } from "react";
-import { Platform, StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
+import { Platform, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import * as Location from "expo-location";
 import haversine from "haversine-distance";
 import { format } from "date-fns";
@@ -15,8 +15,8 @@ import { ptBR } from "date-fns/locale";
 
 /* ---------- constants ---------- */
 const establishmentCoords = {
-   latitude: -16.6799,
-   longitude: -49.255,
+   latitude: -16.742492,
+   longitude: -49.277579,
 };
 const allowedRadius = 1000; // metros
 
@@ -172,10 +172,10 @@ export default function BaterPontoScreen() {
 
    const handleBaterPonto = () => {
       if (!isWithinRadius) {
-         Alert.alert("Fora do raio", "Você precisa estar mais próximo do local para bater o ponto.");
+         console.log("Fora do raio", "Você precisa estar mais próximo do local para bater o ponto.");
          return;
       }
-      Alert.alert("Sucesso", `Ponto batido às ${format(new Date(), "HH:mm:ss")}`);
+      console.log("Sucesso", `Ponto batido às ${format(new Date(), "HH:mm:ss")}`);
    };
 
    const statusText = errorMsg
@@ -311,13 +311,46 @@ function WebLeafletMap({ userLocation, establishmentCoords, allowedRadius }: any
 
 /* ---------- styles ---------- */
 const styles = StyleSheet.create({
-   container: { flex: 1 },
-   map: { width: "100%", height: "50%" },
-   bottomContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 20 },
-   statusText: { fontSize: 16, marginBottom: 12, textAlign: "center" },
-   clockText: { fontSize: 48, fontWeight: "bold" },
-   dateText: { fontSize: 18, marginBottom: 20 },
-   button: { width: "80%", padding: 16, borderRadius: 10, alignItems: "center" },
-   buttonText: { color: "white", fontSize: 18, fontWeight: "bold" },
-   center: { flex: 1, alignItems: "center", justifyContent: "center" },
+   container: {
+      flex: 1
+   },
+   map: {
+      width: "100%",
+      height: "50%"
+   },
+   bottomContainer: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 20
+   },
+   statusText: {
+      fontSize: 16,
+      marginBottom: 12,
+      textAlign: "center"
+   },
+   clockText: {
+      fontSize: 48,
+      fontWeight: "bold"
+   },
+   dateText: {
+      fontSize: 18,
+      marginBottom: 20
+   },
+   button: {
+      width: "80%",
+      padding: 16,
+      borderRadius: 10,
+      alignItems: "center"
+   },
+   buttonText: {
+      color: "white",
+      fontSize: 18,
+      fontWeight: "bold"
+   },
+   center: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center"
+   },
 });
