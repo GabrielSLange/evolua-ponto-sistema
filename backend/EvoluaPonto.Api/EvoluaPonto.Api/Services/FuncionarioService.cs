@@ -44,6 +44,10 @@ namespace EvoluaPonto.Api.Services
             if (!await _context.Estabelecimentos.AsNoTracking().AnyAsync(tb => tb.Id == funcionarioDto.EstabelecimentoId))
                 return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = "O estabelecimento vinculado ao funcionário não existe" };
 
+            // Validação: A senha é obrigatória apenas na criação de um novo funcionário.
+            if (string.IsNullOrWhiteSpace(funcionarioDto.Password))
+                return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = "A senha é obrigatória para criar um novo funcionário." };
+
             (SupabaseUserResponse? supabaseUser, string? error) = await _supabaseAdmin.CreateAuthUserAsync(funcionarioDto.Email, funcionarioDto.Password, funcionarioDto.Role);
 
             if (error != null || supabaseUser is null)
