@@ -56,7 +56,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         } else {
             // Limpa o formulário no modo de criação
             setFormData({
-                id: '',
+                id: null,
                 estabelecimentoId: '',
                 nome: '',
                 cpf: '',
