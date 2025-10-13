@@ -84,6 +84,13 @@ namespace EvoluaPonto.Api.Services
             if (!await _context.Estabelecimentos.AsNoTracking().AnyAsync(tb => tb.Id == funcionarioAtualizado.EstabelecimentoId))
                 return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = "O estabelecimento vinculado ao funcionário não existe" };
 
+            (SupabaseUserResponse? supabaseUser, string? error) = await _supabaseAdmin.UpdateAuthUserAsync(funcionarioAtualizado.Id.ToString(), funcionarioAtualizado.Email, funcionarioAtualizado.Role);
+
+            if (error != null || supabaseUser is null)
+            {
+                return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = $"Erro Supabase: {error}" };
+            }
+
             funcionarioBanco.Nome = funcionarioAtualizado.Nome;
             funcionarioBanco.Cpf = funcionarioAtualizado.Cpf;
             funcionarioBanco.Cargo = funcionarioAtualizado.Cargo;

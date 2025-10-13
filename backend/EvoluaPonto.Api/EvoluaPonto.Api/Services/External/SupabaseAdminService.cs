@@ -35,6 +35,21 @@ namespace EvoluaPonto.Api.Services.External
             return (supabaseUser, null);
         }
 
+        public async Task<(SupabaseUserResponse? User, string? Error)> UpdateAuthUserAsync(string userId,string email, string role)
+        {
+            var payload = new { email, app_metadata = new { role }, email_confirm = true };
+            var response = await _httpClient.PutAsJsonAsync($"admin/users/{userId}", payload);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                return (null, error);
+            }
+
+            var supabaseUser = await response.Content.ReadFromJsonAsync<SupabaseUserResponse>();
+            return (supabaseUser, null);
+        }
+
         /// <summary>
         /// Autentica um usuário na API do Supabase Auth usando email e senha.
         /// </summary>
