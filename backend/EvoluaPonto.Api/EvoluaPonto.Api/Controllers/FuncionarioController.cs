@@ -38,7 +38,7 @@ namespace EvoluaPonto.Api.Controllers
         {
             try
             {
-                ServiceResponse<ModelFuncionario> responseFuncionario = await _funcionarioService.GetFuncionarioById(funcionarioId);
+                ServiceResponse<FuncionarioDto> responseFuncionario = await _funcionarioService.GetFuncionarioById(funcionarioId);
 
                 if (!responseFuncionario.Success)
                     return Conflict(responseFuncionario.ErrorMessage);

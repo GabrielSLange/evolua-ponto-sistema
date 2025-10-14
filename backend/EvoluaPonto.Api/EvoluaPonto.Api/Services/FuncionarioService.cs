@@ -27,16 +27,37 @@ namespace EvoluaPonto.Api.Services
                     .ToListAsync()
             };
 
-        public async Task<ServiceResponse<ModelFuncionario>> GetFuncionarioById(Guid funcionarioId)
+        public async Task<ServiceResponse<FuncionarioDto>> GetFuncionarioById(Guid funcionarioId)
         {
             ModelFuncionario? funcionario = await _context.Funcionarios
                 .Include(tb => tb.Estabelecimento)
                 .FirstOrDefaultAsync(tb => tb.Id == funcionarioId);
 
             if (funcionario is null)
-                return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = "Não existe funcionário com esse ID" };
+                return new ServiceResponse<FuncionarioDto> { Success = false, ErrorMessage = "Não existe funcionário com esse ID" };
 
-            return new ServiceResponse<ModelFuncionario> { Data = funcionario };
+            (SupabaseUserResponse? supabaseUser, string? error) = await _supabaseAdmin.GetByIdAsync(funcionario.Id.ToString());
+
+            if (error != null || supabaseUser is null)
+            {                 
+                return new ServiceResponse<FuncionarioDto> { Success = false, ErrorMessage = $"Erro Supabase: {error}" };
+            }
+
+            FuncionarioDto funcionarioDto = new FuncionarioDto 
+            {
+                Id = funcionario.Id,
+                Nome = funcionario.Nome,
+                Cpf = funcionario.Cpf,
+                Cargo = funcionario.Cargo,
+                HorarioContratual = funcionario.HorarioContratual,
+                Ativo = funcionario.Ativo,
+                EstabelecimentoId = funcionario.EstabelecimentoId,
+                Estabelecimento = funcionario.Estabelecimento,
+                Email = supabaseUser.Email, 
+                Role = supabaseUser.App_Metadata["role"].ToString(),
+            };
+
+            return new ServiceResponse<FuncionarioDto> { Data = funcionarioDto };
         }
 
         public async Task<ServiceResponse<ModelFuncionario>> CreateFuncionario(FuncionarioDto funcionarioDto)

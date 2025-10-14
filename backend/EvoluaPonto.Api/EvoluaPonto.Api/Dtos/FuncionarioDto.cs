@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using EvoluaPonto.Api.Models;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EvoluaPonto.Api.Dtos
 {
@@ -18,12 +20,19 @@ namespace EvoluaPonto.Api.Dtos
 
         public string? Password { get; set; }
 
-        public string? Cargo { get; set; }
+        [Required]
+        public string Role { get; set; } // "admin" ou "normal"
+
+        [Required]
+        public string Cargo { get; set; }
+
+        public string? HorarioContratual { get; set; }
+
+        public bool Ativo { get; set; }
 
         [Required] 
         public Guid EstabelecimentoId { get; set; }
 
-        [Required]
-        public string Role { get; set; } // "admin" ou "normal"
+        public ModelEstabelecimento Estabelecimento { get; set; }
     }
 }
