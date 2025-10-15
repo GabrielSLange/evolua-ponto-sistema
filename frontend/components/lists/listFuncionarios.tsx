@@ -42,15 +42,17 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                 keyExtractor={(item) => item.id as string}
                 contentContainerStyle={styles.listContentContainer}
                 renderItem={({ item }: { item: ModelFuncionario }) => (
-                    <Card 
-                        style={styles.card}
-                        onPress={() => router.push({
-                            pathname: `/(superadmin)/funcionarios/details-funcionario`,
-                            params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
-                        })}
-                    >
+                    <Card style={styles.card}>
                         <View style={styles.cardHeader}>
-                            <Title>{item.nome}</Title>
+                            <Pressable
+                                style={styles.titleContainer}
+                                onPress={() => router.push({
+                                    pathname: `/(superadmin)/funcionarios/details-funcionario`,
+                                    params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+                                })}
+                            >
+                                <Title>{item.nome}</Title>
+                            </Pressable>
 
                             <View style={styles.switchContainer}>
                                 <Text style={{ marginRight: 8 }}>{item.ativo ? 'Ativo' : 'Inativo'}</Text>
@@ -62,10 +64,17 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
 
                         </View>
 
-                        <Card.Content>
-                            <Paragraph>CPF: {item.cpf}</Paragraph>
-                            <Paragraph>Cargo: {item.cargo}</Paragraph>
-                        </Card.Content>
+                        <Pressable
+                            onPress={() => router.push({
+                                pathname: `/(superadmin)/funcionarios/details-funcionario`,
+                                params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+                            })}
+                        >
+                            <Card.Content>
+                                <Paragraph>CPF: {item.cpf}</Paragraph>
+                                <Paragraph>Cargo: {item.cargo}</Paragraph>
+                            </Card.Content>
+                        </Pressable>
 
                         <Card.Actions style={styles.cardActions}>
                             <View style={{ flexDirection: 'row' }}>
@@ -113,6 +122,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingTop: 16,
     },
+    titleContainer: {
+      flex: 1, // Faz o título ocupar o espaço disponível
+   },
     switchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
