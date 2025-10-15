@@ -42,12 +42,15 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                 keyExtractor={(item) => item.id as string}
                 contentContainerStyle={styles.listContentContainer}
                 renderItem={({ item }: { item: ModelFuncionario }) => (
-                    <Card style={styles.card}>
+                    <Card 
+                        style={styles.card}
+                        onPress={() => router.push({
+                            pathname: `/(superadmin)/funcionarios/details-funcionario`,
+                            params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+                        })}
+                    >
                         <View style={styles.cardHeader}>
-                            <Pressable>
-                                {/* Ainda será implementado o clique para ver as informações do funcionário */}
-                                <Title>{item.nome}</Title>
-                            </Pressable>
+                            <Title>{item.nome}</Title>
 
                             <View style={styles.switchContainer}>
                                 <Text style={{ marginRight: 8 }}>{item.ativo ? 'Ativo' : 'Inativo'}</Text>
@@ -59,15 +62,10 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
 
                         </View>
 
-                        <Pressable
-                        /* Ainda será implementado o clique para ver as informações do funcionário */
-                        >
-
-                            <Card.Content>
-                                <Paragraph>CPF: {item.cpf}</Paragraph>
-                                <Paragraph>Cargo: {item.cargo}</Paragraph>
-                            </Card.Content>
-                        </Pressable>
+                        <Card.Content>
+                            <Paragraph>CPF: {item.cpf}</Paragraph>
+                            <Paragraph>Cargo: {item.cargo}</Paragraph>
+                        </Card.Content>
 
                         <Card.Actions style={styles.cardActions}>
                             <View style={{ flexDirection: 'row' }}>

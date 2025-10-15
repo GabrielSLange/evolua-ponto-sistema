@@ -26,13 +26,14 @@ namespace EvoluaPonto.Api.Dtos
         [Required]
         public string Cargo { get; set; }
 
-        public string? HorarioContratual { get; set; }
+        [Required]
+        public string HorarioContratual { get; set; }
 
         public bool Ativo { get; set; }
 
         [Required] 
         public Guid EstabelecimentoId { get; set; }
 
-        public ModelEstabelecimento Estabelecimento { get; set; }
+        public ModelEstabelecimento? Estabelecimento { get; set; }
     }
 }

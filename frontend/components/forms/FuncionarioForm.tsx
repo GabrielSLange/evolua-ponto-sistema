@@ -13,6 +13,7 @@ interface FuncionarioFormProps {
     onSubmit: (data: ModelFuncionario) => void;
     submitButtonLabel?: string;
     estabelecimentos?: ModelEstabelecimento[]; // Lista de estabelecimentos para o dropdown
+    isReadOnly?: boolean;
 }
 
 // Define a estrutura do objeto de erros
@@ -23,6 +24,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     onSubmit,
     submitButtonLabel = 'Salvar',
     estabelecimentos = [],
+    isReadOnly = false,
 }) => {
     // Opções para o dropdown de permissões
     const roleOptions = [
@@ -30,7 +32,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         { label: 'Funcionário', value: 'normal' },
     ];
 
-    // Estado para controlar a visibilidade do dropdown
+    // Estado para co dropdown de permissões
     const [menuVisible, setMenuVisible] = useState(false);
     const openMenu = () => setMenuVisible(true);
     const closeMenu = () => setMenuVisible(false);
@@ -48,6 +50,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         email: '',
         password: '',
         cargo: '',
+        horarioContratual: '',
         role: '',
         ativo: true,
     });
@@ -69,6 +72,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 email: '',
                 password: '',
                 cargo: '',
+                horarioContratual: '',
                 role: '',
                 ativo: true,
             });
@@ -96,6 +100,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         if (!formData.email) newErrors.email = "O e-mail é obrigatório.";
         if (!formData.cargo) newErrors.cargo = "O cargo é obrigatório.";
         if (!formData.role) newErrors.role = "A permissão é obrigatória.";
+        if (!formData.horarioContratual) newErrors.horarioContratual = "O horário contratual é obrigatório.";
 
         // Validação condicional da senha
         if (!formData.id && !formData.password) {
@@ -121,6 +126,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 onChangeText={(text) => handleChange('nome', text)}
                 style={styles.input}
                 error={!!errors.nome}
+                editable={!isReadOnly}
             />
             <HelperText type="error" visible={!!errors.nome}>
                 {errors.nome}
@@ -134,6 +140,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 render={props =>
                     <MaskedTextInput
                         {...props}
+                        editable={!isReadOnly}
                         mask="999.999.999-99"
                         onChangeText={(text) => {
                             handleChange('cpf', text);
@@ -154,6 +161,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 keyboardType="email-address"
                 autoCapitalize="none"
                 error={!!errors.email}
+                editable={!isReadOnly}
             />
             <HelperText type="error" visible={!!errors.email}>
                 {errors.email}
@@ -180,16 +188,38 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 onChangeText={(text) => handleChange('cargo', text)}
                 style={styles.input}
                 error={!!errors.cargo}
+                editable={!isReadOnly}
             />
             <HelperText type="error" visible={!!errors.cargo}>
                 {errors.cargo}
+            </HelperText>
+
+            <TextInput
+                label="Horário Contratual"
+                value={formData.horarioContratual}
+                keyboardType="number-pad"
+                style={styles.input}
+                render={props =>
+                    <MaskedTextInput
+                        {...props}
+                        editable={!isReadOnly}
+                        mask="99:99 - 99:99"
+                        onChangeText={(text) => {
+                            handleChange('horarioContratual', text);
+                        }}
+                    />
+                }
+                editable={!isReadOnly}
+            />
+            <HelperText type="error" visible={!!errors.horarioContratual}>
+                {errors.horarioContratual}
             </HelperText>
 
             <Menu
                 visible={menuVisible}
                 onDismiss={closeMenu}
                 anchor={
-                    <TouchableOpacity onPress={openMenu}>
+                    <TouchableOpacity onPress={openMenu} disabled={isReadOnly}>
                         <TextInput
                             label="Permissão"
                             value={roleOptions.find(opt => opt.value === formData.role)?.label || ''}
@@ -221,7 +251,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                     visible={estabelecimentoMenuVisible}
                     onDismiss={closeEstabelecimentoMenu}
                     anchor={
-                        <TouchableOpacity onPress={openEstabelecimentoMenu}>
+                        <TouchableOpacity onPress={openEstabelecimentoMenu} disabled={isReadOnly}>
                             <TextInput
                                 label="Estabelecimento"
                                 value={estabelecimentos.find(e => e.id === formData.estabelecimentoId)?.nomeFantasia || ''}
@@ -244,12 +274,14 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 </Menu>
             )}
 
-            <Button
-                mode="contained"
-                onPress={handleSubmit}
-            >
-                {submitButtonLabel}
-            </Button>
+            {!isReadOnly && (
+                <Button
+                    mode="contained"
+                    onPress={handleSubmit}
+                >
+                    {submitButtonLabel}
+                </Button>
+            )}
         </ScrollView>
     );
 }

@@ -82,6 +82,7 @@ namespace EvoluaPonto.Api.Services
                 Nome = funcionarioDto.Nome,
                 Cpf = funcionarioDto.Cpf,
                 Cargo = funcionarioDto.Cargo,
+                HorarioContratual = funcionarioDto.HorarioContratual,
                 EstabelecimentoId = funcionarioDto.EstabelecimentoId,
                 CreatedAt = DateTime.UtcNow,
                 Ativo = true
@@ -115,6 +116,7 @@ namespace EvoluaPonto.Api.Services
             funcionarioBanco.Nome = funcionarioAtualizado.Nome;
             funcionarioBanco.Cpf = funcionarioAtualizado.Cpf;
             funcionarioBanco.Cargo = funcionarioAtualizado.Cargo;
+            funcionarioBanco.HorarioContratual = funcionarioAtualizado.HorarioContratual;
             funcionarioBanco.EstabelecimentoId = funcionarioAtualizado.EstabelecimentoId;
 
             _context.Update(funcionarioBanco);

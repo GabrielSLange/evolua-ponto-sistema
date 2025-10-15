@@ -68,12 +68,13 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                         pathname: '/(superadmin)/funcionarios',
                         params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId, empresaNome: empresaNome }
                      })}
-                  />
+                  >
 
-                  <Card.Content>
-                     <Paragraph>{`${item.logradouro}, ${item.numero} - ${item.bairro}`}</Paragraph>
-                     <Paragraph>{`${item.cidade} / ${item.estado}`}</Paragraph>
-                  </Card.Content>
+                     <Card.Content>
+                        <Paragraph>{`${item.logradouro}, ${item.numero} - ${item.bairro}`}</Paragraph>
+                        <Paragraph>{`${item.cidade} / ${item.estado}`}</Paragraph>
+                     </Card.Content>
+                  </Pressable>
 
                   {/* As ações ficam separadas no final */}
                   <Card.Actions >
