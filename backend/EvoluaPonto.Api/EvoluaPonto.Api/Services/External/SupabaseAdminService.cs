@@ -20,10 +20,37 @@ namespace EvoluaPonto.Api.Services.External
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _supabaseServiceKey);
         }
 
+        public async Task<(SupabaseUserResponse? User, string? Error)> GetByIdAsync(string userId)
+        {
+            var response = await _httpClient.GetAsync($"admin/users/{userId}");
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                return (null, error);
+            }
+            var supabaseUser = await response.Content.ReadFromJsonAsync<SupabaseUserResponse>();
+            return (supabaseUser, null);
+        }
+        
         public async Task<(SupabaseUserResponse? User, string? Error)> CreateAuthUserAsync(string email, string password, string role)
         {
             var payload = new { email, password, app_metadata = new { role }, email_confirm = true };
             var response = await _httpClient.PostAsJsonAsync("admin/users", payload);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                return (null, error);
+            }
+
+            var supabaseUser = await response.Content.ReadFromJsonAsync<SupabaseUserResponse>();
+            return (supabaseUser, null);
+        }
+
+        public async Task<(SupabaseUserResponse? User, string? Error)> UpdateAuthUserAsync(string userId,string email, string role)
+        {
+            var payload = new { email, app_metadata = new { role }, email_confirm = true };
+            var response = await _httpClient.PutAsJsonAsync($"admin/users/{userId}", payload);
 
             if (!response.IsSuccessStatusCode)
             {

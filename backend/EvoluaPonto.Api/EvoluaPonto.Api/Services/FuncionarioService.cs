@@ -27,22 +27,47 @@ namespace EvoluaPonto.Api.Services
                     .ToListAsync()
             };
 
-        public async Task<ServiceResponse<ModelFuncionario>> GetFuncionarioById(Guid funcionarioId)
+        public async Task<ServiceResponse<FuncionarioDto>> GetFuncionarioById(Guid funcionarioId)
         {
             ModelFuncionario? funcionario = await _context.Funcionarios
                 .Include(tb => tb.Estabelecimento)
                 .FirstOrDefaultAsync(tb => tb.Id == funcionarioId);
 
             if (funcionario is null)
-                return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = "Não existe funcionário com esse ID" };
+                return new ServiceResponse<FuncionarioDto> { Success = false, ErrorMessage = "Não existe funcionário com esse ID" };
 
-            return new ServiceResponse<ModelFuncionario> { Data = funcionario };
+            (SupabaseUserResponse? supabaseUser, string? error) = await _supabaseAdmin.GetByIdAsync(funcionario.Id.ToString());
+
+            if (error != null || supabaseUser is null)
+            {                 
+                return new ServiceResponse<FuncionarioDto> { Success = false, ErrorMessage = $"Erro Supabase: {error}" };
+            }
+
+            FuncionarioDto funcionarioDto = new FuncionarioDto 
+            {
+                Id = funcionario.Id,
+                Nome = funcionario.Nome,
+                Cpf = funcionario.Cpf,
+                Cargo = funcionario.Cargo,
+                HorarioContratual = funcionario.HorarioContratual,
+                Ativo = funcionario.Ativo,
+                EstabelecimentoId = funcionario.EstabelecimentoId,
+                Estabelecimento = funcionario.Estabelecimento,
+                Email = supabaseUser.Email, 
+                Role = supabaseUser.App_Metadata["role"].ToString(),
+            };
+
+            return new ServiceResponse<FuncionarioDto> { Data = funcionarioDto };
         }
 
-        public async Task<ServiceResponse<ModelFuncionario>> CreateFuncionario(FuncionarioCreateDto funcionarioDto)
+        public async Task<ServiceResponse<ModelFuncionario>> CreateFuncionario(FuncionarioDto funcionarioDto)
         {
             if (!await _context.Estabelecimentos.AsNoTracking().AnyAsync(tb => tb.Id == funcionarioDto.EstabelecimentoId))
                 return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = "O estabelecimento vinculado ao funcionário não existe" };
+
+            // Validação: A senha é obrigatória apenas na criação de um novo funcionário.
+            if (string.IsNullOrWhiteSpace(funcionarioDto.Password))
+                return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = "A senha é obrigatória para criar um novo funcionário." };
 
             (SupabaseUserResponse? supabaseUser, string? error) = await _supabaseAdmin.CreateAuthUserAsync(funcionarioDto.Email, funcionarioDto.Password, funcionarioDto.Role);
 
@@ -57,6 +82,7 @@ namespace EvoluaPonto.Api.Services
                 Nome = funcionarioDto.Nome,
                 Cpf = funcionarioDto.Cpf,
                 Cargo = funcionarioDto.Cargo,
+                HorarioContratual = funcionarioDto.HorarioContratual,
                 EstabelecimentoId = funcionarioDto.EstabelecimentoId,
                 CreatedAt = DateTime.UtcNow,
                 Ativo = true
@@ -68,7 +94,7 @@ namespace EvoluaPonto.Api.Services
             return new ServiceResponse<ModelFuncionario> { Data = novoFuncionario };
         }
 
-        public async Task<ServiceResponse<ModelFuncionario>> UpdateFuncionario(ModelFuncionario funcionarioAtualizado)
+        public async Task<ServiceResponse<ModelFuncionario>> UpdateFuncionario(FuncionarioDto funcionarioAtualizado)
         {
             ModelFuncionario? funcionarioBanco = await _context.Funcionarios.FirstOrDefaultAsync(tb => tb.Id == funcionarioAtualizado.Id);
             if (funcionarioBanco is null)
@@ -80,9 +106,17 @@ namespace EvoluaPonto.Api.Services
             if (!await _context.Estabelecimentos.AsNoTracking().AnyAsync(tb => tb.Id == funcionarioAtualizado.EstabelecimentoId))
                 return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = "O estabelecimento vinculado ao funcionário não existe" };
 
+            (SupabaseUserResponse? supabaseUser, string? error) = await _supabaseAdmin.UpdateAuthUserAsync(funcionarioAtualizado.Id.ToString(), funcionarioAtualizado.Email, funcionarioAtualizado.Role);
+
+            if (error != null || supabaseUser is null)
+            {
+                return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = $"Erro Supabase: {error}" };
+            }
+
             funcionarioBanco.Nome = funcionarioAtualizado.Nome;
             funcionarioBanco.Cpf = funcionarioAtualizado.Cpf;
             funcionarioBanco.Cargo = funcionarioAtualizado.Cargo;
+            funcionarioBanco.HorarioContratual = funcionarioAtualizado.HorarioContratual;
             funcionarioBanco.EstabelecimentoId = funcionarioAtualizado.EstabelecimentoId;
 
             _context.Update(funcionarioBanco);

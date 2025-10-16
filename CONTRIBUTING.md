@@ -204,7 +204,7 @@ import { Text, Button } from 'react-native-paper';
 
 interface FuncionarioFormProps {
   initialData?: ModelFuncionario;
-  onSubmit: (data: FuncionarioCreateDto) => Promise<void>;
+  onSubmit: (data: FuncionarioDto) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -213,7 +213,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
   onSubmit,
   isLoading = false
 }) => {
-  const [formData, setFormData] = useState<FuncionarioCreateDto>({
+  const [formData, setFormData] = useState<FuncionarioDto>({
     nome: initialData?.nome || '',
     cpf: initialData?.cpf || '',
     // ... outros campos
@@ -262,8 +262,8 @@ interface UseFuncionarioReturn {
   funcionarios: ModelFuncionario[];
   loading: boolean;
   error: string | null;
-  createFuncionario: (data: FuncionarioCreateDto) => Promise<void>;
-  updateFuncionario: (id: string, data: FuncionarioCreateDto) => Promise<void>;
+  createFuncionario: (data: FuncionarioDto) => Promise<void>;
+  updateFuncionario: (id: string, data: FuncionarioDto) => Promise<void>;
   deleteFuncionario: (id: string) => Promise<void>;
 }
 
