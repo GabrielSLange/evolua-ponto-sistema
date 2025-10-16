@@ -3,7 +3,7 @@ import { ModelEstabelecimento } from "@/models/ModelEstabelecimento";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useState, useCallback } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { MaskedTextInput } from "react-native-mask-text"; 
+import { MaskedTextInput } from "react-native-mask-text";
 import { TextInput, Button, Menu, HelperText } from "react-native-paper";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Fieldset } from "../layouts/FieldSet";
