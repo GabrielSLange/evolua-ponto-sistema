@@ -47,7 +47,7 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                             <Pressable
                                 style={styles.titleContainer}
                                 onPress={() => router.push({
-                                    pathname: `/(superadmin)/funcionarios/details-funcionario`,
+                                    pathname: `/(${permissao})/funcionarios/details-funcionario`,
                                     params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
                                 })}
                             >
@@ -66,7 +66,7 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
 
                         <Pressable
                             onPress={() => router.push({
-                                pathname: `/(superadmin)/funcionarios/details-funcionario`,
+                                pathname: `/(${permissao})/funcionarios/details-funcionario`,
                                 params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
                             })}
                         >

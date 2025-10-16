@@ -46,7 +46,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                      <Pressable
                         style={styles.titleContainer}
                         onPress={() => router.push({
-                           pathname: '/(superadmin)/funcionarios',
+                           pathname: `/(${permissao})/funcionarios`,
                            params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId, empresaNome: empresaNome }
                         })}
                      >
@@ -65,7 +65,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
 
                   <Pressable
                      onPress={() => router.push({
-                        pathname: '/(superadmin)/funcionarios',
+                        pathname: `/(${permissao})/funcionarios`,
                         params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId, empresaNome: empresaNome }
                      })}
                   >
@@ -84,7 +84,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                               icon="account-group"
                               iconColor={iconColor}
                               onPress={() => router.push({
-                                 pathname: '/(superadmin)/funcionarios',
+                                 pathname: `/(${permissao})/funcionarios`,
                                  params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId, empresaNome: empresaNome }
                               })}
                            />
