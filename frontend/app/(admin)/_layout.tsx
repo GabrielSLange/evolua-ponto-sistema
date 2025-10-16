@@ -60,6 +60,34 @@ export default function AdminLayout() {
                title: 'Editar Estabelecimento',
             }}
          />
+         <Drawer.Screen
+            name='funcionarios/index'
+            options={{
+               drawerItemStyle: { display: 'none' },
+               title: 'Funcionários',
+            }}
+         />
+         <Drawer.Screen
+            name='funcionarios/add-funcionario'
+            options={{
+               drawerItemStyle: { display: 'none' },
+               title: 'Adicionar Funcionário',
+            }}
+         />
+         <Drawer.Screen
+            name='funcionarios/edit-funcionario'
+            options={{
+               drawerItemStyle: { display: 'none' },
+               title: 'Editar Funcionário',
+            }}
+         />
+         <Drawer.Screen
+            name='funcionarios/details-funcionario'
+            options={{
+               drawerItemStyle: { display: 'none' },
+               title: 'Detalhes do Funcionário',
+            }}
+         />
          <Drawer.Screen name="relatorios" options={{ drawerLabel: 'Relatórios', title: 'Relatórios' }} />
       </Drawer>
    );
