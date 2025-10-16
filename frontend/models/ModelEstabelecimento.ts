@@ -10,4 +10,6 @@ export interface ModelEstabelecimento {
    estado: string;
    ativo: boolean;
    empresaId: string;
+   latitude: number;
+   longitude: number;
 }
