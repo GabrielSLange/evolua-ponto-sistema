@@ -12,7 +12,7 @@ const EmployeeHomeScreen = () => {
       // Simula uma chamada de API que demora 3 segundos
       const timer = setTimeout(() => {
          setPageLoading(false); // Após 3 segundos, para de carregar
-      }, 10000);
+      }, 20);
 
       // Limpa o timer se o componente for desmontado (boa prática)
       return () => clearTimeout(timer);
