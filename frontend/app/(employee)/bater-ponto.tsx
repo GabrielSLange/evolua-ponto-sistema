@@ -72,9 +72,94 @@ export default function BaterPontoScreen() {
 
    const watchRef = useRef<any>(null);
    const mapRefNative = useRef<any>(null);
+   const recoveryTimer = useRef<any>(null);
 
    useEffect(() => {
       let mounted = true;
+
+      function startLocationWatch(tryHighAccuracy: boolean) {
+         // Limpa qualquer watch anterior
+         if (watchRef.current != null) {
+            navigator.geolocation.clearWatch(watchRef.current);
+            watchRef.current = null;
+         }
+
+         // Limpa qualquer timer de recuperação pendente
+         if (recoveryTimer.current) {
+            clearTimeout(recoveryTimer.current);
+            recoveryTimer.current = null;
+         }
+
+         const options = {
+            enableHighAccuracy: tryHighAccuracy,
+            maximumAge: 2000,
+            timeout: 5000 // 5 segundos de timeout
+         };
+
+         watchRef.current = navigator.geolocation.watchPosition(
+            (pos) => {
+               // SUCESSO
+               if (!mounted) return;
+
+               const location = {
+                  coords: {
+                     latitude: pos.coords.latitude,
+                     longitude: pos.coords.longitude,
+                     altitude: pos.coords.altitude ?? 0,
+                     accuracy: pos.coords.accuracy ?? 0,
+                  },
+                  timestamp: pos.timestamp,
+               } as Location.LocationObject;
+
+               setUserLocation(location);
+               setLocationPermissionGranted(true);
+               setErrorMsg(null); // Limpa qualquer erro anterior
+
+               // Define as coordenadas iniciais do mapa na primeira vez
+               if (!initialCenterCoords) {
+                  setInitialCenterCoords({ latitude: location.coords.latitude, longitude: location.coords.longitude });
+               }
+
+               calcDistanceAndState(location);
+
+               // Se tivemos sucesso com BAIXA precisão, tenta "recuperar" a ALTA após 30s
+               if (!tryHighAccuracy && !recoveryTimer.current) {
+                  recoveryTimer.current = setTimeout(() => {
+                     if (mounted) {
+                        // console.log("Tentando recuperar alta precisão...");
+                        startLocationWatch(true); // Tenta voltar para alta precisão
+                     }
+                  }, 30000); // 30 segundos
+               }
+            },
+            (err) => {
+               // ERRO
+               if (!mounted) return;
+
+               if (err.code === err.PERMISSION_DENIED) {
+                  setErrorMsg("Permissão de localização negada.");
+                  setLocationPermissionGranted(false);
+                  // Centraliza no estabelecimento se a permissão for negada
+                  if (establishmentCoords) {
+                     setInitialCenterCoords({ latitude: establishmentCoords.latitude, longitude: establishmentCoords.longitude });
+                  }
+               } else if (tryHighAccuracy) {
+                  // Falhou na ALTA precisão (kCLErrorDomain, timeout, etc.)
+                  // console.warn("Falha na alta precisão, caindo para baixa precisão.");
+                  setErrorMsg("GPS indisponível, usando localização aproximada.");
+                  startLocationWatch(false); // <-- O FALLBACK
+               } else {
+                  // Falhou ATÉ MESMO na baixa precisão.
+                  setErrorMsg("GPS indisponível, usando localização aproximada.");
+                  if (establishmentCoords) {
+                     setInitialCenterCoords({ latitude: establishmentCoords.latitude, longitude: establishmentCoords.longitude });
+                  }
+               }
+            },
+            options
+         );
+      }
+
 
       async function setup() {
          try {
@@ -85,39 +170,7 @@ export default function BaterPontoScreen() {
                   return;
                }
 
-               navigator.geolocation.getCurrentPosition(
-                  (pos) => {
-                     if (!mounted) return;
-                     permissionGranted = true;
-                     const location = {
-                        coords: {
-                           latitude: pos.coords.latitude,
-                           longitude: pos.coords.longitude,
-                           altitude: pos.coords.altitude ?? 0,
-                           accuracy: pos.coords.accuracy ?? 0,
-                        },
-                        timestamp: pos.timestamp,
-                     } as Location.LocationObject;
-                     setUserLocation(location);
-                     setLocationPermissionGranted(true);
-                     setInitialCenterCoords({ latitude: location.coords.latitude, longitude: location.coords.longitude });
-                     console.log(`Objeto Initial Location: ${JSON.stringify(initialCenterCoords)}`)
-                     calcDistanceAndState(location);
-                  },
-                  (err) => {
-                     // Se o erro for de permissão negada, definimos como false
-                     if (err.code === err.PERMISSION_DENIED) {
-                        setErrorMsg("Permissão de localização negada.");
-                        setLocationPermissionGranted(false);
-                        if (locationPermissionGranted && userLocation && establishmentCoords) { // Prioridade 1
-                           setInitialCenterCoords({ latitude: establishmentCoords.latitude, longitude: establishmentCoords.longitude });
-                        }
-                     } else {
-                        setErrorMsg(err.message ?? "Erro ao obter localização.");
-                     }
-                  },
-                  { enableHighAccuracy: true, maximumAge: 10000 }
-               );
+               startLocationWatch(true);
 
                watchRef.current = navigator.geolocation.watchPosition(
                   (pos) => {
@@ -134,10 +187,15 @@ export default function BaterPontoScreen() {
                      setUserLocation(location);
                      calcDistanceAndState(location);
                   },
-                  () => {
-
+                  (err) => { // <--- ADICIONE O TRATAMENTO DE ERRO AQUI
+                     if (!mounted) return;
+                     if (err.code === err.PERMISSION_DENIED) {
+                        setErrorMsg("Permissão de localização negada.");
+                     } else {
+                        setErrorMsg(err.message ?? "Erro ao atualizar localização.");
+                     }
                   },
-                  { enableHighAccuracy: true, maximumAge: 2000, timeout: 5000 }
+                  { enableHighAccuracy: false, maximumAge: 2000, timeout: 5000 }
                );
             } else {
                const { status } = await Location.requestForegroundPermissionsAsync();
@@ -173,6 +231,11 @@ export default function BaterPontoScreen() {
 
       return () => {
          mounted = false;
+         // Limpa o timer de recuperação
+         if (recoveryTimer.current) {
+            clearTimeout(recoveryTimer.current);
+            recoveryTimer.current = null;
+         }
          try {
             if (Platform.OS === "web" && watchRef.current != null) {
                navigator.geolocation.clearWatch(watchRef.current);
