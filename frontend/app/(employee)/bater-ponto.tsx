@@ -8,8 +8,7 @@ import { ptBR } from "date-fns/locale";
 import { baterPonto } from "@/hooks/employee/useBaterPonto";
 import { useFocusEffect } from "expo-router";
 import CustomLoader from "@/components/CustomLoader";
-
-const DEFAULT_MAP_ZOOM = 15;
+import api from "@/services/api";
 
 const allowedRadius = 1000; // metros
 
@@ -263,12 +262,38 @@ export default function BaterPontoScreen() {
       setIsWithinRadius(dist <= allowedRadius);
    }
 
-   const handleBaterPonto = () => {
-      if (!isWithinRadius) {
-         console.log("Fora do raio", "Você precisa estar mais próximo do local para bater o ponto.");
-         return;
+   const handleBaterPonto = async () => { // <--- Mudei para async/await, é mais limpo
+      console.log(`Tentando bater ponto: funcionárioId=${funcionario?.id}`);
+      console.log(`URL da API: ${api.defaults.baseURL}api/RegistroPonto`);
+
+      // 1. Crie um objeto FormData
+      const formData = new FormData();
+
+      // 2. Adicione os campos de texto.
+      // Os nomes ("Tipo", "FuncionarioId") devem ser IDÊNTICOS aos do seu DTO C#.
+      formData.append('Tipo', 'ENTRADA');
+      formData.append('FuncionarioId', `${funcionario?.id}`);
+
+      // 3. E a Foto?
+      // O campo 'Foto' é 'IFormFile?' (opcional).
+      // Se você não tem uma foto para enviar, simplesmente NÃO adicione o campo.
+      // O C# vai receber como 'null'.
+      // Não faça: formData.append('Foto', "");
+
+      // Se você TIVESSE um arquivo de foto (ex: da câmera), seria assim:
+      // formData.append('Foto', arquivoDaFoto);
+
+      try {
+         // 4. Envie o FormData, não o objeto {}.
+         // O Axios vai definir o 'Content-Type: multipart/form-data' automaticamente.
+         const response = await api.post("api/RegistroPonto", formData);
+
+         console.log("Ponto batido com sucesso!", response.data);
+
+      } catch (error) {
+         console.error("Erro ao bater ponto:", error);
+
       }
-      console.log("Sucesso", `Ponto batido às ${format(new Date(), "HH:mm:ss")}`);
    };
 
    const statusText = errorMsg
@@ -322,9 +347,8 @@ export default function BaterPontoScreen() {
             </Text>
 
             <TouchableOpacity
-               style={[styles.button, { backgroundColor: isWithinRadius ? "#4CAF50" : "#CCCCCC" }]}
+               style={[styles.button, { backgroundColor: "#4CAF50" }]}
                onPress={handleBaterPonto}
-               disabled={!isWithinRadius}
             >
                <Text style={styles.buttonText}>Bater Ponto</Text>
             </TouchableOpacity>
