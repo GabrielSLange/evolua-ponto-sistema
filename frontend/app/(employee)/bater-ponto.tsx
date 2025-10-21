@@ -264,7 +264,7 @@ export default function BaterPontoScreen() {
 
    const handleBaterPonto = async () => { // <--- Mudei para async/await, é mais limpo
       console.log(`Tentando bater ponto: funcionárioId=${funcionario?.id}`);
-      console.log(`URL da API: ${api.defaults.baseURL}api/RegistroPonto`);
+      console.log(`URL da API: ${api.defaults.baseURL}RegistroPonto`);
 
       // 1. Crie um objeto FormData
       const formData = new FormData();
@@ -286,7 +286,7 @@ export default function BaterPontoScreen() {
       try {
          // 4. Envie o FormData, não o objeto {}.
          // O Axios vai definir o 'Content-Type: multipart/form-data' automaticamente.
-         const response = await api.post("api/RegistroPonto", formData);
+         const response = await api.post("RegistroPonto", formData);
 
          console.log("Ponto batido com sucesso!", response.data);
 
