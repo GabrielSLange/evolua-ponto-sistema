@@ -1,23 +1,15 @@
 // frontend/app/(employee)/bater-ponto.tsx
-import React, { useEffect, useRef, useState, Suspense } from "react";
+import React, { useEffect, useRef, useState, Suspense, useCallback } from "react";
 import { Platform, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import * as Location from "expo-location";
 import haversine from "haversine-distance";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { baterPonto } from "@/hooks/employee/useBaterPonto";
+import { useFocusEffect } from "expo-router";
+import CustomLoader from "@/components/CustomLoader";
+import api from "@/services/api";
 
-/**
- * IMPORTANT:
- * - DO NOT import 'react-native-maps' at top-level (it breaks web).
- * - We'll require it dynamically for native only.
- * - For web, we'll use react-leaflet loaded dynamically.
- */
-
-/* ---------- constants ---------- */
-const establishmentCoords = {
-   latitude: -16.742492,
-   longitude: -49.277579,
-};
 const allowedRadius = 1000; // metros
 
 /* ---------- helper: inject leaflet CSS via CDN (web only) ---------- */
@@ -57,43 +49,127 @@ if (Platform.OS === "web") {
 
 export default function BaterPontoScreen() {
    const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
+   const [establishmentCoords, setEstablishmentCoords] = useState<{ latitude: number; longitude: number; } | null>(null);
    const [distance, setDistance] = useState<number | null>(null);
    const [isWithinRadius, setIsWithinRadius] = useState(false);
    const [currentTime, setCurrentTime] = useState(new Date());
    const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+   const { loading, funcionario } = baterPonto();
+   const [locationPermissionGranted, setLocationPermissionGranted] = useState(false);
+   const [initialCenterCoords, setInitialCenterCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+
+
+   const fetchCarregarLocalizaçãoEstabelecimento = useCallback(() => {
+      setEstablishmentCoords({
+         latitude: funcionario?.estabelecimento?.latitude ?? 0,
+         longitude: funcionario?.estabelecimento?.longitude ?? 0
+      });
+   }, [funcionario]);
+
+   useFocusEffect(fetchCarregarLocalizaçãoEstabelecimento);
+
    const watchRef = useRef<any>(null);
    const mapRefNative = useRef<any>(null);
+   const recoveryTimer = useRef<any>(null);
 
    useEffect(() => {
       let mounted = true;
 
+      function startLocationWatch(tryHighAccuracy: boolean) {
+         // Limpa qualquer watch anterior
+         if (watchRef.current != null) {
+            navigator.geolocation.clearWatch(watchRef.current);
+            watchRef.current = null;
+         }
+
+         // Limpa qualquer timer de recuperação pendente
+         if (recoveryTimer.current) {
+            clearTimeout(recoveryTimer.current);
+            recoveryTimer.current = null;
+         }
+
+         const options = {
+            enableHighAccuracy: tryHighAccuracy,
+            maximumAge: 2000,
+            timeout: 5000 // 5 segundos de timeout
+         };
+
+         watchRef.current = navigator.geolocation.watchPosition(
+            (pos) => {
+               // SUCESSO
+               if (!mounted) return;
+
+               const location = {
+                  coords: {
+                     latitude: pos.coords.latitude,
+                     longitude: pos.coords.longitude,
+                     altitude: pos.coords.altitude ?? 0,
+                     accuracy: pos.coords.accuracy ?? 0,
+                  },
+                  timestamp: pos.timestamp,
+               } as Location.LocationObject;
+
+               setUserLocation(location);
+               setLocationPermissionGranted(true);
+               setErrorMsg(null); // Limpa qualquer erro anterior
+
+               // Define as coordenadas iniciais do mapa na primeira vez
+               if (!initialCenterCoords) {
+                  setInitialCenterCoords({ latitude: location.coords.latitude, longitude: location.coords.longitude });
+               }
+
+               calcDistanceAndState(location);
+
+               // Se tivemos sucesso com BAIXA precisão, tenta "recuperar" a ALTA após 30s
+               if (!tryHighAccuracy && !recoveryTimer.current) {
+                  recoveryTimer.current = setTimeout(() => {
+                     if (mounted) {
+                        // console.log("Tentando recuperar alta precisão...");
+                        startLocationWatch(true); // Tenta voltar para alta precisão
+                     }
+                  }, 30000); // 30 segundos
+               }
+            },
+            (err) => {
+               // ERRO
+               if (!mounted) return;
+
+               if (err.code === err.PERMISSION_DENIED) {
+                  setErrorMsg("Permissão de localização negada.");
+                  setLocationPermissionGranted(false);
+                  // Centraliza no estabelecimento se a permissão for negada
+                  if (establishmentCoords) {
+                     setInitialCenterCoords({ latitude: establishmentCoords.latitude, longitude: establishmentCoords.longitude });
+                  }
+               } else if (tryHighAccuracy) {
+                  // Falhou na ALTA precisão (kCLErrorDomain, timeout, etc.)
+                  // console.warn("Falha na alta precisão, caindo para baixa precisão.");
+                  setErrorMsg("GPS indisponível, usando localização aproximada.");
+                  startLocationWatch(false); // <-- O FALLBACK
+               } else {
+                  // Falhou ATÉ MESMO na baixa precisão.
+                  setErrorMsg("GPS indisponível, usando localização aproximada.");
+                  if (establishmentCoords) {
+                     setInitialCenterCoords({ latitude: establishmentCoords.latitude, longitude: establishmentCoords.longitude });
+                  }
+               }
+            },
+            options
+         );
+      }
+
+
       async function setup() {
          try {
+            let permissionGranted = false;
             if (Platform.OS === "web") {
                if (!("geolocation" in navigator)) {
                   setErrorMsg("Geolocalização não disponível no navegador.");
                   return;
                }
 
-               navigator.geolocation.getCurrentPosition(
-                  (pos) => {
-                     if (!mounted) return;
-                     const location = {
-                        coords: {
-                           latitude: pos.coords.latitude,
-                           longitude: pos.coords.longitude,
-                           altitude: pos.coords.altitude ?? 0,
-                           accuracy: pos.coords.accuracy ?? 0,
-                        },
-                        timestamp: pos.timestamp,
-                     } as Location.LocationObject;
-                     setUserLocation(location);
-                     calcDistanceAndState(location);
-                  },
-                  (err) => setErrorMsg(err.message ?? "Erro ao obter localização (web)."),
-                  { enableHighAccuracy: true, maximumAge: 10000 }
-               );
+               startLocationWatch(true);
 
                watchRef.current = navigator.geolocation.watchPosition(
                   (pos) => {
@@ -110,15 +186,25 @@ export default function BaterPontoScreen() {
                      setUserLocation(location);
                      calcDistanceAndState(location);
                   },
-                  () => { },
-                  { enableHighAccuracy: true, maximumAge: 2000, timeout: 5000 }
+                  (err) => { // <--- ADICIONE O TRATAMENTO DE ERRO AQUI
+                     if (!mounted) return;
+                     if (err.code === err.PERMISSION_DENIED) {
+                        setErrorMsg("Permissão de localização negada.");
+                     } else {
+                        setErrorMsg(err.message ?? "Erro ao atualizar localização.");
+                     }
+                  },
+                  { enableHighAccuracy: false, maximumAge: 2000, timeout: 5000 }
                );
             } else {
                const { status } = await Location.requestForegroundPermissionsAsync();
                if (status !== "granted") {
                   setErrorMsg("Permissão para acessar a localização foi negada.");
+                  setLocationPermissionGranted(false);
                   return;
                }
+               permissionGranted = true;
+               setLocationPermissionGranted(true)
 
                const last = await Location.getLastKnownPositionAsync();
                if (mounted && last) {
@@ -144,6 +230,11 @@ export default function BaterPontoScreen() {
 
       return () => {
          mounted = false;
+         // Limpa o timer de recuperação
+         if (recoveryTimer.current) {
+            clearTimeout(recoveryTimer.current);
+            recoveryTimer.current = null;
+         }
          try {
             if (Platform.OS === "web" && watchRef.current != null) {
                navigator.geolocation.clearWatch(watchRef.current);
@@ -156,7 +247,7 @@ export default function BaterPontoScreen() {
             // ignore cleanup errors
          }
       };
-   }, []);
+   }, [establishmentCoords, initialCenterCoords]);
 
    useEffect(() => {
       const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -164,18 +255,45 @@ export default function BaterPontoScreen() {
    }, []);
 
    function calcDistanceAndState(location: Location.LocationObject) {
+      if (!establishmentCoords) return;
       const userCoords = { latitude: location.coords.latitude, longitude: location.coords.longitude };
       const dist = haversine(userCoords, establishmentCoords); // metros
       setDistance(dist);
       setIsWithinRadius(dist <= allowedRadius);
    }
 
-   const handleBaterPonto = () => {
-      if (!isWithinRadius) {
-         console.log("Fora do raio", "Você precisa estar mais próximo do local para bater o ponto.");
-         return;
+   const handleBaterPonto = async () => { // <--- Mudei para async/await, é mais limpo
+      console.log(`Tentando bater ponto: funcionárioId=${funcionario?.id}`);
+      console.log(`URL da API: ${api.defaults.baseURL}RegistroPonto`);
+
+      // 1. Crie um objeto FormData
+      const formData = new FormData();
+
+      // 2. Adicione os campos de texto.
+      // Os nomes ("Tipo", "FuncionarioId") devem ser IDÊNTICOS aos do seu DTO C#.
+      formData.append('Tipo', 'ENTRADA');
+      formData.append('FuncionarioId', `${funcionario?.id}`);
+
+      // 3. E a Foto?
+      // O campo 'Foto' é 'IFormFile?' (opcional).
+      // Se você não tem uma foto para enviar, simplesmente NÃO adicione o campo.
+      // O C# vai receber como 'null'.
+      // Não faça: formData.append('Foto', "");
+
+      // Se você TIVESSE um arquivo de foto (ex: da câmera), seria assim:
+      // formData.append('Foto', arquivoDaFoto);
+
+      try {
+         // 4. Envie o FormData, não o objeto {}.
+         // O Axios vai definir o 'Content-Type: multipart/form-data' automaticamente.
+         const response = await api.post("RegistroPonto", formData);
+
+         console.log("Ponto batido com sucesso!", response.data);
+
+      } catch (error) {
+         console.error("Erro ao bater ponto:", error);
+
       }
-      console.log("Sucesso", `Ponto batido às ${format(new Date(), "HH:mm:ss")}`);
    };
 
    const statusText = errorMsg
@@ -187,6 +305,12 @@ export default function BaterPontoScreen() {
             : `Você está a ${Math.round(distance)} m do local. Aproxime-se para bater o ponto.`;
 
    /* ---------- RENDER ---------- */
+
+   if (loading) {
+      return <CustomLoader />;
+   }
+
+
    return (
       <View style={styles.container}>
          {Platform.OS === "web" ? (
@@ -195,6 +319,7 @@ export default function BaterPontoScreen() {
                {WebMapModule ? (
                   <Suspense fallback={<View style={styles.center}><Text>Carregando mapa web...</Text></View>}>
                      <WebLeafletMap
+                        initialCenter={initialCenterCoords}
                         userLocation={userLocation}
                         establishmentCoords={establishmentCoords}
                         allowedRadius={allowedRadius}
@@ -222,9 +347,8 @@ export default function BaterPontoScreen() {
             </Text>
 
             <TouchableOpacity
-               style={[styles.button, { backgroundColor: isWithinRadius ? "#4CAF50" : "#CCCCCC" }]}
+               style={[styles.button, { backgroundColor: "#4CAF50" }]}
                onPress={handleBaterPonto}
-               disabled={!isWithinRadius}
             >
                <Text style={styles.buttonText}>Bater Ponto</Text>
             </TouchableOpacity>
@@ -283,22 +407,33 @@ function NativeMap({ refMap, establishmentCoords, allowedRadius }: any) {
 }
 
 /* ---------- Web Leaflet map component (kept inside same file) ---------- */
-function WebLeafletMap({ userLocation, establishmentCoords, allowedRadius }: any) {
-   if (!WebMapModule) return null;
+function WebLeafletMap({ initialCenter, establishmentCoords, userLocation, allowedRadius }: any) {
    const { MapContainer, TileLayer, Marker, Circle } = WebMapModule;
-   const center = userLocation
-      ? [userLocation.coords.latitude, userLocation.coords.longitude]
-      : [establishmentCoords.latitude, establishmentCoords.longitude];
-   const zoom = 15;
 
-   // react-leaflet expects DOM elements, so render a div wrapper
+   // Evita erro de acesso se ainda não houver coordenadas válidas
+   const lat = initialCenter?.latitude ?? establishmentCoords?.latitude ?? 0;
+   const lng = initialCenter?.longitude ?? establishmentCoords?.longitude ?? 0;
+
+   const mapInitialCenter: [number, number] = [lat, lng];
+   const mapInitialZoom = 15;
+
+   // Se ainda não houver coordenadas válidas, mostra mensagem
+   if (!lat || !lng) {
+      return (
+         <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <p>Obtendo coordenadas...</p>
+         </div>
+      );
+   }
+
    return (
       <div style={{ width: "100%", height: "100%" }}>
-         <MapContainer center={center} zoom={zoom} style={{ width: "100%", height: "100%" }}>
-            <TileLayer
-               attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
+         <MapContainer
+            center={mapInitialCenter}
+            zoom={mapInitialZoom}
+            style={{ width: "100%", height: "100%" }}
+         >
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <Marker position={[establishmentCoords.latitude, establishmentCoords.longitude]} />
             <Circle center={[establishmentCoords.latitude, establishmentCoords.longitude]} radius={allowedRadius} />
             {userLocation && (
@@ -308,7 +443,6 @@ function WebLeafletMap({ userLocation, establishmentCoords, allowedRadius }: any
       </div>
    );
 }
-
 /* ---------- styles ---------- */
 const styles = StyleSheet.create({
    container: {

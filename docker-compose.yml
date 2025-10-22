@@ -11,25 +11,29 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   backend:
-    image: gabriellange/evolua-ponto-backend:latest 
+    image: gabriellange/evolua-ponto-backend:latest
     build:
       context: .
       dockerfile: backend/Dockerfile
     container_name: backend_service
     restart: always
+    env_file:
+      - ./.env
     environment:
       # Passando a string de conexão para a API .NET
       ConnectionStrings__DefaultConnection: "Host=database;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};"
       Jwt__Secret: ${JWT_SECRET}
       Jwt__Audience: ${JWT_AUDIENCE}
       Jwt__Issuer: ${JWT_ISSUER}
-      Supabase__Url: ${SUPABASE_URL} 
+      Supabase__Url: ${SUPABASE_URL}
       Supabase__ServiceRoleKey: ${SUPABASE_KEY}
+      Certificate__Base64: ${CERTIFICATE_BASE64}
+      Certificate__Password: ${CERTIFICATE_PASSWORD}
     depends_on:
       - database
 
   frontend:
-    image: gabriellange/evolua-ponto-frontend:latest 
+    image: gabriellange/evolua-ponto-frontend:latest
     build:
       context: .
       dockerfile: frontend/Dockerfile
