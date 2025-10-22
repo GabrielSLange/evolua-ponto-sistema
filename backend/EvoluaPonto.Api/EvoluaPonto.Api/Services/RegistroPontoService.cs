@@ -26,12 +26,12 @@ namespace EvoluaPonto.Api.Services
 
         }
 
-        public async Task<ServiceResponse<ModelRegistroPonto>> RegistrarPontoAsync(RegistroPontoDto pontoDto, Guid funcionarioId)
+        public async Task<ServiceResponse<ModelRegistroPonto>> RegistrarPontoAsync(RegistroPontoDto pontoDto)
         {
             ModelFuncionario? funcionarioBanco = await _context.Funcionarios
                                                                 .Include(f => f.Estabelecimento)
                                                                 .ThenInclude(est => est.Empresa)
-                                                                .FirstOrDefaultAsync(tb => tb.Id == funcionarioId);
+                                                                .FirstOrDefaultAsync(tb => tb.Id == pontoDto.FuncionarioId);
 
             if (funcionarioBanco is null)
                 return new ServiceResponse<ModelRegistroPonto> { Success = false, ErrorMessage = "Funcionário não encontrado com o ID informado" };
@@ -49,7 +49,7 @@ namespace EvoluaPonto.Api.Services
 
             if (pontoDto.Foto != null)
             {
-                fotoUrl = await _storageService.UploadAsync(pontoDto.Foto, funcionarioId);
+                fotoUrl = await _storageService.UploadAsync(pontoDto.Foto, pontoDto.FuncionarioId);
             }
 
             DateTime timestamp = DateTime.UtcNow;
@@ -65,7 +65,7 @@ namespace EvoluaPonto.Api.Services
 
             ModelRegistroPonto novoRegistro = new ModelRegistroPonto
             {
-                FuncionarioId = funcionarioId,
+                FuncionarioId = pontoDto.FuncionarioId,
                 TimestampMarcacao = timestamp,
                 Tipo = pontoDto.Tipo,
                 FotoUrl = fotoUrl,
@@ -86,7 +86,7 @@ namespace EvoluaPonto.Api.Services
 
             // 9. Salvar o PDF no Storage
             var nomeArquivoPdf = $"comprovante_{novoRegistro.Nsr}.pdf";
-            var comprovanteUrl = await _storageService.UploadBytesAsync(pdfAssinadoBytes, funcionarioId, nomeArquivoPdf, "application/pdf");
+            var comprovanteUrl = await _storageService.UploadBytesAsync(pdfAssinadoBytes, pontoDto.FuncionarioId, nomeArquivoPdf, "application/pdf");
 
             // 10. Atualizar o registro de ponto com a URL do comprovante
             novoRegistro.ComprovanteUrl = comprovanteUrl;

@@ -1,0 +1,490 @@
+// frontend/app/(employee)/bater-ponto.tsx
+import React, { useEffect, useRef, useState, Suspense, useCallback } from "react";
+import { Platform, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import * as Location from "expo-location";
+import haversine from "haversine-distance";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { baterPonto } from "@/hooks/employee/useBaterPonto";
+import { useFocusEffect } from "expo-router";
+import CustomLoader from "@/components/CustomLoader";
+import api from "@/services/api";
+
+const allowedRadius = 1000; // metros
+
+/* ---------- helper: inject leaflet CSS via CDN (web only) ---------- */
+function ensureLeafletCss() {
+   if (typeof document === "undefined") return;
+   const id = "leaflet-css-cdn";
+   if (document.getElementById(id)) return;
+   const link = document.createElement("link");
+   link.id = id;
+   link.rel = "stylesheet";
+   // CDN link avoids bundling image urls from node_modules CSS
+   link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+   document.head.appendChild(link);
+}
+
+/* ---------- Web map module loader (dynamic) ---------- */
+let WebMapModule: any = null;
+if (Platform.OS === "web") {
+   try {
+      // inject CSS from CDN
+      ensureLeafletCss();
+      WebMapModule = require("react-leaflet");
+      // fix icon paths if needed (leaflet images will be loaded from CDN CSS so this is optional)
+      const L = require("leaflet");
+      // @ts-ignore
+      delete L.Icon.Default.prototype._getIconUrl;
+      L.Icon.Default.mergeOptions({
+         iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+         iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+         shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+      });
+   } catch (e) {
+      // ignore; errors will surface later if user opens web map
+      // console.warn("Failed to load react-leaflet (web):", e);
+   }
+}
+
+export default function BaterPontoScreen() {
+   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
+   const [establishmentCoords, setEstablishmentCoords] = useState<{ latitude: number; longitude: number; } | null>(null);
+   const [distance, setDistance] = useState<number | null>(null);
+   const [isWithinRadius, setIsWithinRadius] = useState(false);
+   const [currentTime, setCurrentTime] = useState(new Date());
+   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+   const { loading, funcionario } = baterPonto();
+   const [locationPermissionGranted, setLocationPermissionGranted] = useState(false);
+   const [initialCenterCoords, setInitialCenterCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+
+
+   const fetchCarregarLocalizaçãoEstabelecimento = useCallback(() => {
+      setEstablishmentCoords({
+         latitude: funcionario?.estabelecimento?.latitude ?? 0,
+         longitude: funcionario?.estabelecimento?.longitude ?? 0
+      });
+   }, [funcionario]);
+
+   useFocusEffect(fetchCarregarLocalizaçãoEstabelecimento);
+
+   const watchRef = useRef<any>(null);
+   const mapRefNative = useRef<any>(null);
+   const recoveryTimer = useRef<any>(null);
+
+   useEffect(() => {
+      let mounted = true;
+
+      function startLocationWatch(tryHighAccuracy: boolean) {
+         // Limpa qualquer watch anterior
+         if (watchRef.current != null) {
+            navigator.geolocation.clearWatch(watchRef.current);
+            watchRef.current = null;
+         }
+
+         // Limpa qualquer timer de recuperação pendente
+         if (recoveryTimer.current) {
+            clearTimeout(recoveryTimer.current);
+            recoveryTimer.current = null;
+         }
+
+         const options = {
+            enableHighAccuracy: tryHighAccuracy,
+            maximumAge: 2000,
+            timeout: 5000 // 5 segundos de timeout
+         };
+
+         watchRef.current = navigator.geolocation.watchPosition(
+            (pos) => {
+               // SUCESSO
+               if (!mounted) return;
+
+               const location = {
+                  coords: {
+                     latitude: pos.coords.latitude,
+                     longitude: pos.coords.longitude,
+                     altitude: pos.coords.altitude ?? 0,
+                     accuracy: pos.coords.accuracy ?? 0,
+                  },
+                  timestamp: pos.timestamp,
+               } as Location.LocationObject;
+
+               setUserLocation(location);
+               setLocationPermissionGranted(true);
+               setErrorMsg(null); // Limpa qualquer erro anterior
+
+               // Define as coordenadas iniciais do mapa na primeira vez
+               if (!initialCenterCoords) {
+                  setInitialCenterCoords({ latitude: location.coords.latitude, longitude: location.coords.longitude });
+               }
+
+               calcDistanceAndState(location);
+
+               // Se tivemos sucesso com BAIXA precisão, tenta "recuperar" a ALTA após 30s
+               if (!tryHighAccuracy && !recoveryTimer.current) {
+                  recoveryTimer.current = setTimeout(() => {
+                     if (mounted) {
+                        // console.log("Tentando recuperar alta precisão...");
+                        startLocationWatch(true); // Tenta voltar para alta precisão
+                     }
+                  }, 30000); // 30 segundos
+               }
+            },
+            (err) => {
+               // ERRO
+               if (!mounted) return;
+
+               if (err.code === err.PERMISSION_DENIED) {
+                  setErrorMsg("Permissão de localização negada.");
+                  setLocationPermissionGranted(false);
+                  // Centraliza no estabelecimento se a permissão for negada
+                  if (establishmentCoords) {
+                     setInitialCenterCoords({ latitude: establishmentCoords.latitude, longitude: establishmentCoords.longitude });
+                  }
+               } else if (tryHighAccuracy) {
+                  // Falhou na ALTA precisão (kCLErrorDomain, timeout, etc.)
+                  // console.warn("Falha na alta precisão, caindo para baixa precisão.");
+                  setErrorMsg("GPS indisponível, usando localização aproximada.");
+                  startLocationWatch(false); // <-- O FALLBACK
+               } else {
+                  // Falhou ATÉ MESMO na baixa precisão.
+                  setErrorMsg("GPS indisponível, usando localização aproximada.");
+                  if (establishmentCoords) {
+                     setInitialCenterCoords({ latitude: establishmentCoords.latitude, longitude: establishmentCoords.longitude });
+                  }
+               }
+            },
+            options
+         );
+      }
+
+
+      async function setup() {
+         try {
+            let permissionGranted = false;
+            if (Platform.OS === "web") {
+               if (!("geolocation" in navigator)) {
+                  setErrorMsg("Geolocalização não disponível no navegador.");
+                  return;
+               }
+
+               startLocationWatch(true);
+
+               watchRef.current = navigator.geolocation.watchPosition(
+                  (pos) => {
+                     if (!mounted) return;
+                     const location = {
+                        coords: {
+                           latitude: pos.coords.latitude,
+                           longitude: pos.coords.longitude,
+                           altitude: pos.coords.altitude ?? 0,
+                           accuracy: pos.coords.accuracy ?? 0,
+                        },
+                        timestamp: pos.timestamp,
+                     } as Location.LocationObject;
+                     setUserLocation(location);
+                     calcDistanceAndState(location);
+                  },
+                  (err) => { // <--- ADICIONE O TRATAMENTO DE ERRO AQUI
+                     if (!mounted) return;
+                     if (err.code === err.PERMISSION_DENIED) {
+                        setErrorMsg("Permissão de localização negada.");
+                     } else {
+                        setErrorMsg(err.message ?? "Erro ao atualizar localização.");
+                     }
+                  },
+                  { enableHighAccuracy: false, maximumAge: 2000, timeout: 5000 }
+               );
+            } else {
+               const { status } = await Location.requestForegroundPermissionsAsync();
+               if (status !== "granted") {
+                  setErrorMsg("Permissão para acessar a localização foi negada.");
+                  setLocationPermissionGranted(false);
+                  return;
+               }
+               permissionGranted = true;
+               setLocationPermissionGranted(true)
+
+               const last = await Location.getLastKnownPositionAsync();
+               if (mounted && last) {
+                  setUserLocation(last);
+                  calcDistanceAndState(last);
+               }
+
+               watchRef.current = await Location.watchPositionAsync(
+                  { accuracy: Location.Accuracy.High, timeInterval: 2000, distanceInterval: 1 },
+                  (loc) => {
+                     if (!mounted) return;
+                     setUserLocation(loc);
+                     calcDistanceAndState(loc);
+                  }
+               );
+            }
+         } catch (err: any) {
+            setErrorMsg(err?.message ?? "Erro ao obter localização");
+         }
+      }
+
+      setup();
+
+      return () => {
+         mounted = false;
+         // Limpa o timer de recuperação
+         if (recoveryTimer.current) {
+            clearTimeout(recoveryTimer.current);
+            recoveryTimer.current = null;
+         }
+         try {
+            if (Platform.OS === "web" && watchRef.current != null) {
+               navigator.geolocation.clearWatch(watchRef.current);
+               watchRef.current = null;
+            } else if (watchRef.current && typeof watchRef.current.remove === "function") {
+               watchRef.current.remove();
+               watchRef.current = null;
+            }
+         } catch {
+            // ignore cleanup errors
+         }
+      };
+   }, [establishmentCoords, initialCenterCoords]);
+
+   useEffect(() => {
+      const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+      return () => clearInterval(timer);
+   }, []);
+
+   function calcDistanceAndState(location: Location.LocationObject) {
+      if (!establishmentCoords) return;
+      const userCoords = { latitude: location.coords.latitude, longitude: location.coords.longitude };
+      const dist = haversine(userCoords, establishmentCoords); // metros
+      setDistance(dist);
+      setIsWithinRadius(dist <= allowedRadius);
+   }
+
+   const handleBaterPonto = async () => { // <--- Mudei para async/await, é mais limpo
+      console.log(`Tentando bater ponto: funcionárioId=${funcionario?.id}`);
+      console.log(`URL da API: ${api.defaults.baseURL}RegistroPonto`);
+
+      // 1. Crie um objeto FormData
+      const formData = new FormData();
+
+      // 2. Adicione os campos de texto.
+      // Os nomes ("Tipo", "FuncionarioId") devem ser IDÊNTICOS aos do seu DTO C#.
+      formData.append('Tipo', 'ENTRADA');
+      formData.append('FuncionarioId', `${funcionario?.id}`);
+
+      // 3. E a Foto?
+      // O campo 'Foto' é 'IFormFile?' (opcional).
+      // Se você não tem uma foto para enviar, simplesmente NÃO adicione o campo.
+      // O C# vai receber como 'null'.
+      // Não faça: formData.append('Foto', "");
+
+      // Se você TIVESSE um arquivo de foto (ex: da câmera), seria assim:
+      // formData.append('Foto', arquivoDaFoto);
+
+      try {
+         // 4. Envie o FormData, não o objeto {}.
+         // O Axios vai definir o 'Content-Type: multipart/form-data' automaticamente.
+         const response = await api.post("RegistroPonto", formData);
+
+         console.log("Ponto batido com sucesso!", response.data);
+
+      } catch (error) {
+         console.error("Erro ao bater ponto:", error);
+
+      }
+   };
+
+   const statusText = errorMsg
+      ? errorMsg
+      : distance === null
+         ? "Verificando localização..."
+         : isWithinRadius
+            ? `Você está a ${Math.round(distance)} m do local.`
+            : `Você está a ${Math.round(distance)} m do local. Aproxime-se para bater o ponto.`;
+
+   /* ---------- RENDER ---------- */
+
+   if (loading) {
+      return <CustomLoader />;
+   }
+
+
+   return (
+      <View style={styles.container}>
+         {Platform.OS === "web" ? (
+            <View style={styles.map}>
+               {/* render web map (leaflet) */}
+               {WebMapModule ? (
+                  <Suspense fallback={<View style={styles.center}><Text>Carregando mapa web...</Text></View>}>
+                     <WebLeafletMap
+                        initialCenter={initialCenterCoords}
+                        userLocation={userLocation}
+                        establishmentCoords={establishmentCoords}
+                        allowedRadius={allowedRadius}
+                     />
+                  </Suspense>
+               ) : (
+                  <View style={styles.center}>
+                     <Text>Mapa web indisponível (react-leaflet não carregado).</Text>
+                  </View>
+               )}
+            </View>
+         ) : (
+            <NativeMap
+               refMap={mapRefNative}
+               establishmentCoords={establishmentCoords}
+               allowedRadius={allowedRadius}
+            />
+         )}
+
+         <View style={styles.bottomContainer}>
+            <Text style={styles.statusText}>{statusText}</Text>
+            <Text style={styles.clockText}>{format(currentTime, "HH:mm:ss", { locale: ptBR })}</Text>
+            <Text style={styles.dateText}>
+               {format(currentTime, "eeee, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+            </Text>
+
+            <TouchableOpacity
+               style={[styles.button, { backgroundColor: "#4CAF50" }]}
+               onPress={handleBaterPonto}
+            >
+               <Text style={styles.buttonText}>Bater Ponto</Text>
+            </TouchableOpacity>
+         </View>
+      </View>
+   );
+}
+
+/* ---------- Native map (dynamically require react-native-maps) ---------- */
+function NativeMap({ refMap, establishmentCoords, allowedRadius }: any) {
+   // require only on native to prevent web bundler from resolving native-only modules
+   let MapView: any = null;
+   let Marker: any = null;
+   let Circle: any = null;
+   try {
+      // dynamic require: only executed on native
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const RNM = eval("require")("react-native-maps");
+      MapView = RNM.default ?? RNM;
+      Marker = RNM.Marker ?? RNM.Marker;
+      Circle = RNM.Circle ?? RNM.Circle;
+   } catch (e) {
+      // if require fails, render fallback
+      return (
+         <View style={styles.map}>
+            <Text>Mapa nativo não disponível</Text>
+         </View>
+      );
+   }
+
+   const initialRegion = {
+      latitude: establishmentCoords.latitude,
+      longitude: establishmentCoords.longitude,
+      latitudeDelta: 0.02,
+      longitudeDelta: 0.02,
+   };
+
+   return (
+      <MapView
+         ref={(r: any) => (refMap.current = r)}
+         style={styles.map}
+         initialRegion={initialRegion}
+         showsUserLocation
+         showsMyLocationButton
+         loadingEnabled
+      >
+         <Marker coordinate={establishmentCoords} title="Seu Local de Trabalho" pinColor="blue" />
+         <Circle
+            center={establishmentCoords}
+            radius={allowedRadius}
+            strokeColor="rgba(0,0,255,0.5)"
+            fillColor="rgba(0,0,255,0.12)"
+         />
+      </MapView>
+   );
+}
+
+/* ---------- Web Leaflet map component (kept inside same file) ---------- */
+function WebLeafletMap({ initialCenter, establishmentCoords, userLocation, allowedRadius }: any) {
+   const { MapContainer, TileLayer, Marker, Circle } = WebMapModule;
+
+   // Evita erro de acesso se ainda não houver coordenadas válidas
+   const lat = initialCenter?.latitude ?? establishmentCoords?.latitude ?? 0;
+   const lng = initialCenter?.longitude ?? establishmentCoords?.longitude ?? 0;
+
+   const mapInitialCenter: [number, number] = [lat, lng];
+   const mapInitialZoom = 15;
+
+   // Se ainda não houver coordenadas válidas, mostra mensagem
+   if (!lat || !lng) {
+      return (
+         <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <p>Obtendo coordenadas...</p>
+         </div>
+      );
+   }
+
+   return (
+      <div style={{ width: "100%", height: "100%" }}>
+         <MapContainer
+            center={mapInitialCenter}
+            zoom={mapInitialZoom}
+            style={{ width: "100%", height: "100%" }}
+         >
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <Marker position={[establishmentCoords.latitude, establishmentCoords.longitude]} />
+            <Circle center={[establishmentCoords.latitude, establishmentCoords.longitude]} radius={allowedRadius} />
+            {userLocation && (
+               <Marker position={[userLocation.coords.latitude, userLocation.coords.longitude]} />
+            )}
+         </MapContainer>
+      </div>
+   );
+}
+/* ---------- styles ---------- */
+const styles = StyleSheet.create({
+   container: {
+      flex: 1
+   },
+   map: {
+      width: "100%",
+      height: "50%"
+   },
+   bottomContainer: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 20
+   },
+   statusText: {
+      fontSize: 16,
+      marginBottom: 12,
+      textAlign: "center"
+   },
+   clockText: {
+      fontSize: 48,
+      fontWeight: "bold"
+   },
+   dateText: {
+      fontSize: 18,
+      marginBottom: 20
+   },
+   button: {
+      width: "80%",
+      padding: 16,
+      borderRadius: 10,
+      alignItems: "center"
+   },
+   buttonText: {
+      color: "white",
+      fontSize: 18,
+      fontWeight: "bold"
+   },
+   center: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center"
+   },
+});

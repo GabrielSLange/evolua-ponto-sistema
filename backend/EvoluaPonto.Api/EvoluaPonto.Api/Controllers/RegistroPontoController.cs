@@ -25,22 +25,17 @@ namespace EvoluaPonto.Api.Controllers
         {
             try
             {
-                string? funcionarioIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                //if (!ModelState.IsValid)
+                //{
+                //    return BadRequest(ModelState);
+                //}
 
-                if (string.IsNullOrEmpty(funcionarioIdString))
-                    return Unauthorized("ID do funcionário não encontrado no Token");
-
-                if (!Guid.TryParse(funcionarioIdString, out Guid funcionarioId))
-                {
-                    return BadRequest("O ID do funcionário no token é inválido.");
-                }
-
-                ServiceResponse<ModelRegistroPonto> responseFuncionario = await _registroPontoService.RegistrarPontoAsync(pontoDto, funcionarioId);
+                ServiceResponse<ModelRegistroPonto> responseFuncionario = await _registroPontoService.RegistrarPontoAsync(pontoDto);
 
                 if (!responseFuncionario.Success)
                     return BadRequest(responseFuncionario.ErrorMessage);
 
-                return Ok(responseFuncionario.Data);
+                return Ok();
             }
             catch (Exception ex)
             {

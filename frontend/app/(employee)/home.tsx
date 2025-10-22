@@ -12,7 +12,7 @@ const EmployeeHomeScreen = () => {
       // Simula uma chamada de API que demora 3 segundos
       const timer = setTimeout(() => {
          setPageLoading(false); // Após 3 segundos, para de carregar
-      }, 10000);
+      }, 20);
 
       // Limpa o timer se o componente for desmontado (boa prática)
       return () => clearTimeout(timer);
@@ -27,14 +27,14 @@ const EmployeeHomeScreen = () => {
    // Se não estiver carregando, mostra o conteúdo da página
    return (
       <View style={styles.container}>
-         <View >
+         {/* <View >
             <Text variant="headlineLarge">Área do Funcionário</Text>
          </View>
          <Text variant="headlineLarge">Área do Funcionário</Text>
          <Text style={styles.subtitle}>Conteúdo carregado!</Text>
          <Button mode="contained" style={{ marginTop: 20 }}>
             Registrar Ponto
-         </Button>
+         </Button> */}
       </View>
    );
 };

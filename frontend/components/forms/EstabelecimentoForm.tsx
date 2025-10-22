@@ -5,6 +5,8 @@ import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import { Fieldset } from '../layouts/FieldSet';
 import { SearchableDropdown } from '../layouts/SearchableDropdown';
+import { InteractiveMap } from '../maps/InteractiveMap';
+import { Text } from '../Themed';
 
 // Props que o formulário recebe
 interface EstabelecimentoFormProps {
@@ -12,6 +14,13 @@ interface EstabelecimentoFormProps {
    onSubmit: (data: ModelEstabelecimento) => void;
    submitButtonLabel?: string;
 }
+
+const defaultRegion = {
+   latitude: -15.7801, // Centro do Brasil
+   longitude: -47.9292,
+   latitudeDelta: 10, // Zoom para ver o país todo
+   longitudeDelta: 10,
+};
 
 const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
    estabelecimento,
@@ -34,9 +43,61 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
       complemento: '',
       estado: '',
       ativo: true,
+      latitude: 0,
+      longitude: 0
+   });
+
+   const [mapRegion, setMapRegion] = useState(() => {
+      if (estabelecimento?.latitude && estabelecimento?.longitude) {
+         return {
+            latitude: estabelecimento.latitude,
+            longitude: estabelecimento.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+         };
+      }
+      return defaultRegion;
    });
    const [cidades, setCidades] = useState<string[]>([]);
    const [estados, setEstados] = useState<string[]>([]);
+
+   const atualizaRegiaoMapa = async (logradouro: string, cidade: string, estado: string) => {
+
+      const addressString = `${logradouro}, ${cidade}, ${estado}, Brazil`;
+      const geoResponse = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addressString)}&format=json&limit=1`);
+      const geoData = await geoResponse.json();
+
+      if (geoData && geoData.length > 0) {
+         const { lat, lon } = geoData[0];
+         // 3. Atualiza a região do mapa
+         setMapRegion({
+            latitude: parseFloat(lat),
+            longitude: parseFloat(lon),
+            latitudeDelta: 0.01, // Zoom mais próximo
+            longitudeDelta: 0.01,
+         });
+      }
+   }
+
+
+
+   const handleMapPress = (coords: { latitude: number; longitude: number }) => {
+      const { latitude, longitude } = coords;
+
+      // 1. Atualiza a localização do pin no formulário
+      setFormData(prevState => ({
+         ...prevState,
+         latitude,
+         longitude,
+      }));
+
+      // 2. ATUALIZA A VISÃO DO MAPA para centralizar no novo pin
+      setMapRegion(prevRegion => ({
+         ...prevRegion, // Mantém o nível de zoom (delta)
+         latitude,
+         longitude,
+      }));
+   };
 
    const BuscarEstados = async () => {
       const response = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados`);
@@ -83,6 +144,7 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
             estado: data.state,
          }));
 
+         atualizaRegiaoMapa(data.street, data.city, data.state);
       }
    };
 
@@ -115,7 +177,6 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
 
    const verificarDadosFormulario = useCallback(() => {
       BuscarEstados();
-
       if (estabelecimento?.id) {
          const cepFormatado = estabelecimento.cep ? formatarCep(estabelecimento.cep) : '';
          setFormData({ ...estabelecimento, cep: cepFormatado });
@@ -133,10 +194,14 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
             complemento: '',
             estado: '',
             ativo: true,
+            latitude: 0,
+            longitude: 0
          });
       }
    }, [estabelecimento]);
    useFocusEffect(verificarDadosFormulario);
+
+
 
    return (
       <View style={styles.container}>
@@ -205,7 +270,31 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
                   style={styles.input}
                />
             </View>
+            <Text style={{ fontWeight: 'bold' }}>Clique no Mapa para definir a localização:</Text>
+            <View
+               style={{
+                  borderBottomColor: '#ccc', // Cor da linha
+                  borderBottomWidth: 1,      // Espessura da linha
+                  marginVertical: 10,        // Espaçamento acima e abaixo da linha
+               }}
+            />
+
+            <InteractiveMap
+               region={mapRegion} // Passamos a região controlada pelo estado
+               onMapPress={handleMapPress}
+               markerCoordinate={
+                  formData.latitude && formData.longitude
+                     ? { latitude: formData.latitude, longitude: formData.longitude }
+                     : null
+               }
+            />
+            <Text>Latitude: {formData.latitude} Longitude: {formData.longitude}</Text>
+
+
+
          </Fieldset>
+
+
          <Button
             mode="contained"
             onPress={handleSubmit}

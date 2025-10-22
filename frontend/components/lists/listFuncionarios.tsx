@@ -44,8 +44,13 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                 renderItem={({ item }: { item: ModelFuncionario }) => (
                     <Card style={styles.card}>
                         <View style={styles.cardHeader}>
-                            <Pressable>
-                                {/* Ainda será implementado o clique para ver as informações do funcionário */}
+                            <Pressable
+                                style={styles.titleContainer}
+                                onPress={() => router.push({
+                                    pathname: `/(${permissao})/funcionarios/details-funcionario`,
+                                    params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+                                })}
+                            >
                                 <Title>{item.nome}</Title>
                             </Pressable>
 
@@ -60,9 +65,11 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                         </View>
 
                         <Pressable
-                        /* Ainda será implementado o clique para ver as informações do funcionário */
+                            onPress={() => router.push({
+                                pathname: `/(${permissao})/funcionarios/details-funcionario`,
+                                params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+                            })}
                         >
-
                             <Card.Content>
                                 <Paragraph>CPF: {item.cpf}</Paragraph>
                                 <Paragraph>Cargo: {item.cargo}</Paragraph>
@@ -115,6 +122,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingTop: 16,
     },
+    titleContainer: {
+      flex: 1, // Faz o título ocupar o espaço disponível
+   },
     switchContainer: {
         flexDirection: 'row',
         alignItems: 'center',

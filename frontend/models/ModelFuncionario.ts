@@ -1,3 +1,4 @@
+import { ModelEstabelecimento } from './ModelEstabelecimento';
 export interface ModelFuncionario {
     id: string | null;
     nome: string;
@@ -7,6 +8,7 @@ export interface ModelFuncionario {
     cargo: string;
     role: string;
     estabelecimentoId: string;
+    estabelecimento?: ModelEstabelecimento;
     horarioContratual?: string;
     ativo: boolean;
 }

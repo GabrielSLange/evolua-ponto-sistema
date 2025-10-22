@@ -46,7 +46,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                      <Pressable
                         style={styles.titleContainer}
                         onPress={() => router.push({
-                           pathname: '/(superadmin)/funcionarios',
+                           pathname: `/(${permissao})/funcionarios`,
                            params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId, empresaNome: empresaNome }
                         })}
                      >
@@ -65,15 +65,16 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
 
                   <Pressable
                      onPress={() => router.push({
-                        pathname: '/(superadmin)/funcionarios',
+                        pathname: `/(${permissao})/funcionarios`,
                         params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId, empresaNome: empresaNome }
                      })}
-                  />
+                  >
 
-                  <Card.Content>
-                     <Paragraph>{`${item.logradouro}, ${item.numero} - ${item.bairro}`}</Paragraph>
-                     <Paragraph>{`${item.cidade} / ${item.estado}`}</Paragraph>
-                  </Card.Content>
+                     <Card.Content>
+                        <Paragraph>{`${item.logradouro}, ${item.numero} - ${item.bairro}`}</Paragraph>
+                        <Paragraph>{`${item.cidade} / ${item.estado}`}</Paragraph>
+                     </Card.Content>
+                  </Pressable>
 
                   {/* As ações ficam separadas no final */}
                   <Card.Actions >
@@ -83,7 +84,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                               icon="account-group"
                               iconColor={iconColor}
                               onPress={() => router.push({
-                                 pathname: '/(superadmin)/funcionarios',
+                                 pathname: `/(${permissao})/funcionarios`,
                                  params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId, empresaNome: empresaNome }
                               })}
                            />
