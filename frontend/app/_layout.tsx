@@ -8,6 +8,7 @@ import { Snackbar } from 'react-native-paper';
 import { NotificationProvider, NotificationStateContext } from '../contexts/NotificationContext';
 import { useContext } from 'react';
 import { useSegments } from 'expo-router';
+import { Text, View, StyleSheet } from 'react-native';
 
 // NOVO: Componente que renderiza o Snackbar global
 const GlobalSnackbar = () => {
@@ -29,14 +30,18 @@ const GlobalSnackbar = () => {
   };
 
   return (
-    <Snackbar
-      visible={notificationState.visible}
-      onDismiss={notificationState.onDismiss}
-      duration={4000}
-      style={{ backgroundColor: getBackgroundColor() }}
-    >
-      {notificationState.message}
-    </Snackbar>
+    <View style={styles.snackbarContainer}>
+      <Snackbar
+        visible={notificationState.visible}
+        onDismiss={notificationState.onDismiss}
+        duration={4000}
+        style={{ backgroundColor: getBackgroundColor() }}
+      >
+        <Text style={styles.snackbarText}>
+          {notificationState.message}
+        </Text>
+      </Snackbar>
+    </View>
   );
 }
 
@@ -52,21 +57,41 @@ const RootLayoutNav = () => {
       return;
     }
 
-    if (segments.includes('bater-ponto')) return;
+    const inAuthGroup = segments[0] === '(auth)';
 
-    if (isAuthenticated) {
+    // --- Lógica para usuário NÃO autenticado ---
+    if (!isAuthenticated) {
+      // Se não está na tela de (auth), redireciona para login
+      if (!inAuthGroup) {
+        router.replace('/(auth)/login');
+      }
+      return; // Para a execução
+    }
+
+    const currentRouteGroup = segments[0];
+
+    // 1. Se o usuário está em uma rota de (auth) mas já está logado, redireciona
+    if (inAuthGroup) {
       if (role === 'superadmin') {
-        router.replace(`/(superadmin)/empresas`);
+        router.replace('/(superadmin)/empresas');
       } else if (role === 'admin') {
         router.replace(`/(admin)/estabelecimentos?userId=${userId}`);
       } else if (role === 'normal') {
         router.replace('/(employee)/home');
       }
+      return;
     }
-    else {
-      router.replace('/(auth)/login');
+
+    // 2. Proteção de Rota por Role
+    // Verifica se a rota atual é diferente da permitida para a role
+    if (role === 'normal' && currentRouteGroup !== '(employee)') {
+      router.replace('/(employee)/home');
+    } else if (role === 'admin' && currentRouteGroup !== '(admin)') {
+      router.replace(`/(admin)/estabelecimentos?userId=${userId}`);
+    } else if (role === 'superadmin' && currentRouteGroup !== '(superadmin)') {
+      router.replace('/(superadmin)/empresas');
     }
-  }, [isAuthenticated, isLoading, role]);
+  }, [isAuthenticated, isLoading, role, segments, userId]);
 
   if (isLoading) {
     return <CustomLoader />;
@@ -103,3 +128,28 @@ export default function RootLayout() {
     </AuthProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  // ... (outros estilos que você possa ter, como 'center')
+
+  // ADICIONE ESTE ESTILO
+  snackbarContainer: {
+    // Posiciona o container de forma absoluta
+    position: 'absolute',
+
+    // Alinha no topo da tela
+    top: 80, // <-- Ajuste essa distância do topo (ex: 50 ou 80)
+
+    // Garante que ocupe toda a largura
+    left: 8,
+    right: 8,
+
+    // Garante que fique "em cima" de todo o resto
+    zIndex: 1000,
+  },
+  snackbarText: {
+    textAlign: 'center', // Centraliza o texto horizontalmente
+    color: '#FFFFFF',      // Cor do texto (branco)
+    width: '100%',         // Garante que o texto ocupe toda a largura
+  }
+});

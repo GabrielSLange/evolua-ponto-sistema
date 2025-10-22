@@ -32,6 +32,6 @@ export const baterPonto = () => {
 
    useFocusEffect(fetchFuncionario);
 
-   return { loading, funcionario };
+   return { loading, funcionario, SetLoading };
 
 }

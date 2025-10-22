@@ -3,6 +3,7 @@ import api from '../services/api';
 import { jwtDecode } from 'jwt-decode';
 import { saveAuthData, loadAuthData, clearAuthData } from '../services/storage';
 import { useColorScheme } from 'react-native';
+import { eventBus } from '../services/eventBus';
 
 // --- Nossos tipos de dados ---
 interface DecodedToken {
@@ -50,6 +51,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
    };
 
+   const signOut = async () => {
+      await clearAuthData();
+      setToken(null);
+      setRole(null);
+      setUserId(null);
+      delete api.defaults.headers.common['Authorization'];
+   };
+
+   useEffect(() => {
+      // Define a função que será chamada quando o alarme disparar
+      const handleUnauthorized = () => {
+         signOut();
+      };
+
+      // Adiciona o "ouvinte" ao nosso event bus
+      eventBus.on('auth-unauthorized', handleUnauthorized);
+
+      // Função de limpeza: remove o "ouvinte" quando o componente for desmontado
+      return () => {
+         eventBus.off('auth-unauthorized', handleUnauthorized);
+      };
+   }, [signOut]);
+
    useEffect(() => {
       async function loadStoragedData() {
          const authData = await loadAuthData();
@@ -96,14 +120,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       finally {
          setIsLoading(false);
       }
-   };
-
-   const signOut = async () => {
-      await clearAuthData();
-      setToken(null);
-      setRole(null);
-      setUserId(null);
-      delete api.defaults.headers.common['Authorization'];
    };
 
    return (

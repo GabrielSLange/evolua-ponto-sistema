@@ -1,6 +1,6 @@
 // frontend/app/(employee)/bater-ponto.tsx
 import React, { useEffect, useRef, useState, Suspense, useCallback } from "react";
-import { Platform, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { Platform, StyleSheet, Text, View, TouchableOpacity, Modal } from "react-native";
 import * as Location from "expo-location";
 import haversine from "haversine-distance";
 import { format } from "date-fns";
@@ -9,6 +9,10 @@ import { baterPonto } from "@/hooks/employee/useBaterPonto";
 import { useFocusEffect } from "expo-router";
 import CustomLoader from "@/components/CustomLoader";
 import api from "@/services/api";
+import { useNotification } from "@/contexts/NotificationContext";
+
+
+
 
 const allowedRadius = 1000; // metros
 
@@ -54,8 +58,9 @@ export default function BaterPontoScreen() {
    const [isWithinRadius, setIsWithinRadius] = useState(false);
    const [currentTime, setCurrentTime] = useState(new Date());
    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+   const { showNotification } = useNotification();
 
-   const { loading, funcionario } = baterPonto();
+   const { loading, funcionario, SetLoading } = baterPonto();
    const [locationPermissionGranted, setLocationPermissionGranted] = useState(false);
    const [initialCenterCoords, setInitialCenterCoords] = useState<{ latitude: number; longitude: number } | null>(null);
 
@@ -262,9 +267,7 @@ export default function BaterPontoScreen() {
       setIsWithinRadius(dist <= allowedRadius);
    }
 
-   const handleBaterPonto = async () => { // <--- Mudei para async/await, é mais limpo
-      console.log(`Tentando bater ponto: funcionárioId=${funcionario?.id}`);
-      console.log(`URL da API: ${api.defaults.baseURL}RegistroPonto`);
+   const handleBaterPonto = async () => {
 
       // 1. Crie um objeto FormData
       const formData = new FormData();
@@ -274,25 +277,18 @@ export default function BaterPontoScreen() {
       formData.append('Tipo', 'ENTRADA');
       formData.append('FuncionarioId', `${funcionario?.id}`);
 
-      // 3. E a Foto?
-      // O campo 'Foto' é 'IFormFile?' (opcional).
-      // Se você não tem uma foto para enviar, simplesmente NÃO adicione o campo.
-      // O C# vai receber como 'null'.
-      // Não faça: formData.append('Foto', "");
-
-      // Se você TIVESSE um arquivo de foto (ex: da câmera), seria assim:
-      // formData.append('Foto', arquivoDaFoto);
-
       try {
-         // 4. Envie o FormData, não o objeto {}.
-         // O Axios vai definir o 'Content-Type: multipart/form-data' automaticamente.
+         SetLoading(true);
          const response = await api.post("RegistroPonto", formData);
 
-         console.log("Ponto batido com sucesso!", response.data);
+         showNotification("Ponto batido com sucesso!", "success");
 
       } catch (error) {
          console.error("Erro ao bater ponto:", error);
 
+      }
+      finally {
+         SetLoading(false);
       }
    };
 
@@ -304,11 +300,7 @@ export default function BaterPontoScreen() {
             ? `Você está a ${Math.round(distance)} m do local.`
             : `Você está a ${Math.round(distance)} m do local. Aproxime-se para bater o ponto.`;
 
-   /* ---------- RENDER ---------- */
 
-   if (loading) {
-      return <CustomLoader />;
-   }
 
 
    return (
@@ -353,6 +345,16 @@ export default function BaterPontoScreen() {
                <Text style={styles.buttonText}>Bater Ponto</Text>
             </TouchableOpacity>
          </View>
+
+         <Modal
+            transparent={true}
+            animationType="fade"
+            visible={loading}
+         >
+            <View style={styles.loaderOverlay}>
+               <CustomLoader />
+            </View>
+         </Modal>
       </View>
    );
 }
@@ -486,5 +488,11 @@ const styles = StyleSheet.create({
       flex: 1,
       alignItems: "center",
       justifyContent: "center"
+   },
+   loaderOverlay: {
+      flex: 1, // O Modal precisa que o 'flex: 1' preencha a tela
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      alignItems: 'center',
+      justifyContent: 'center',
    },
 });
