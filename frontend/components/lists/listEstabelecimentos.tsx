@@ -3,11 +3,9 @@ import { View, FlatList, StyleSheet, Pressable } from 'react-native';
 import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { ModelEstabelecimento } from '../../models/ModelEstabelecimento';
-import CustomLoader from '@/components/CustomLoader';
 
 interface ListEstabelcimentosProps {
    estabelecimentos: ModelEstabelecimento[];
-   loading: boolean;
    permissao: string;
    userId: string | null;
    empresaId?: string;
@@ -17,7 +15,6 @@ interface ListEstabelcimentosProps {
 
 const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
    estabelecimentos,
-   loading,
    permissao,
    userId,
    empresaId,
@@ -28,10 +25,6 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
    const theme = useTheme();
    const iconColor = theme.colors.secondary;
    // Pega o ID da empresa e o nome da empresa passados na navegação
-
-   if (loading) {
-      return <CustomLoader />;
-   }
 
 
    return (

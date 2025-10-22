@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { Modal, View, StyleSheet } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useNotification } from '../../../contexts/NotificationContext';
@@ -25,7 +25,6 @@ const EditEstabelecimentoScreen = () => {
       }
    };
 
-   if (loading) return <CustomLoader />;
 
    return (
       <ScreenContainer>
@@ -39,9 +38,27 @@ const EditEstabelecimentoScreen = () => {
                estabelecimento={estabelecimento}
                submitButtonLabel="Salvar Alterações"
             />
+            <Modal
+               transparent={true}
+               animationType="fade"
+               visible={loading}
+            >
+               <View style={styles.loaderOverlay}>
+                  <CustomLoader />
+               </View>
+            </Modal>
          </View>
       </ScreenContainer>
    );
 };
+
+const styles = StyleSheet.create({
+   loaderOverlay: {
+      flex: 1, // O Modal precisa que o 'flex: 1' preencha a tela
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      alignItems: 'center',
+      justifyContent: 'center',
+   },
+});
 
 export default EditEstabelecimentoScreen;

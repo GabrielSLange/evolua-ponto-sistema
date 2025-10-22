@@ -1,5 +1,5 @@
 import React, { } from 'react';
-import { View } from 'react-native';
+import { Modal, View, StyleSheet } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import EmpresaForm from '../../../components/forms/EmpresaForm';
@@ -38,9 +38,27 @@ const EditEmpresaScreen = () => {
                empresa={empresa || undefined}
                submitButtonLabel="Salvar Alterações"
             />
+            <Modal
+               transparent={true}
+               animationType="fade"
+               visible={loading}
+            >
+               <View style={styles.loaderOverlay}>
+                  <CustomLoader />
+               </View>
+            </Modal>
          </View>
       </ScreenContainer>
    );
 };
+
+const styles = StyleSheet.create({
+   loaderOverlay: {
+      flex: 1, // O Modal precisa que o 'flex: 1' preencha a tela
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      alignItems: 'center',
+      justifyContent: 'center',
+   },
+});
 
 export default EditEmpresaScreen;

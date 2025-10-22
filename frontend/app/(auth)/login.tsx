@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Modal } from 'react-native';
 import { TextInput, Button, Text, useTheme } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import ScreenContainer from '../../components/layouts/ScreenContainer';
+import CustomLoader from '@/components/CustomLoader';
 
 const LoginScreen = () => {
    const [email, setEmail] = useState('');
@@ -59,6 +60,15 @@ const LoginScreen = () => {
             >
                Entrar
             </Button>
+            <Modal
+               transparent={true}
+               animationType="fade"
+               visible={loading}
+            >
+               <View style={styles.loaderOverlay}>
+                  <CustomLoader />
+               </View>
+            </Modal>
          </View>
       </ScreenContainer>
    );
@@ -93,6 +103,12 @@ const getStyles = (theme: any) =>
          color: theme.colors.error,
          textAlign: 'center',
          marginBottom: 12,
+      },
+      loaderOverlay: {
+         flex: 1, // O Modal precisa que o 'flex: 1' preencha a tela
+         backgroundColor: 'rgba(0, 0, 0, 0.3)',
+         alignItems: 'center',
+         justifyContent: 'center',
       },
    });
 

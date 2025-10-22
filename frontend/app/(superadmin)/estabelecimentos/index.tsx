@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { Modal, StyleSheet, View } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import ScreenContainer from '../../../components/layouts/ScreenContainer';
@@ -15,26 +15,34 @@ const EstabelecimentosScreen = () => {
    // Usa o nosso hook (Controller) para buscar os dados
    const { estabelecimentos, loading, toggleEstabelecimentoAtivo } = useEstabelecimentos(empresaId);
 
-   if (loading) {
-      return <CustomLoader />;
-   }
+
 
 
    return (
       <ScreenContainer>
-         <Appbar.Header>
-            <Appbar.BackAction onPress={() => router.back()} />
-            <Appbar.Content title={`Estabelecimentos de ${empresaNome}`} />
-         </Appbar.Header>
-         <ListEstabelcimentos
-            estabelecimentos={estabelecimentos}
-            loading={loading}
-            permissao="superadmin"
-            empresaId={empresaId}
-            empresaNome={empresaNome}
-            userId={null}
-            toggleEstabelecimentoAtivo={toggleEstabelecimentoAtivo}
-         />
+         <View style={{ flex: 1 }}>
+            <Appbar.Header>
+               <Appbar.BackAction onPress={() => router.back()} />
+               <Appbar.Content title={`Estabelecimentos de ${empresaNome}`} />
+            </Appbar.Header>
+            <ListEstabelcimentos
+               estabelecimentos={estabelecimentos}
+               permissao="superadmin"
+               empresaId={empresaId}
+               empresaNome={empresaNome}
+               userId={null}
+               toggleEstabelecimentoAtivo={toggleEstabelecimentoAtivo}
+            />
+            <Modal
+               transparent={true}
+               animationType="fade"
+               visible={loading}
+            >
+               <View style={styles.loaderOverlay}>
+                  <CustomLoader />
+               </View>
+            </Modal>
+         </View>
       </ScreenContainer>
    );
 };
@@ -68,6 +76,12 @@ const styles = StyleSheet.create({
       margin: 16,
       right: 0,
       bottom: 0,
+   },
+   loaderOverlay: {
+      flex: 1, // O Modal precisa que o 'flex: 1' preencha a tela
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      alignItems: 'center',
+      justifyContent: 'center',
    },
 });
 

@@ -1,13 +1,11 @@
 import React from "react";
 import { View, FlatList, StyleSheet, Pressable } from 'react-native';
 import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme } from 'react-native-paper';
-import { usePathname, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { ModelFuncionario } from '../../models/ModelFuncionario';
-import CustomLoader from '@/components/CustomLoader';
 
 interface ListFuncionariosProps {
     funcionarios: ModelFuncionario[];
-    loading: boolean;
     permissao: string;
     userId: string | null;
     estabelecimentoId?: string;
@@ -18,7 +16,6 @@ interface ListFuncionariosProps {
 
 const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
     funcionarios,
-    loading,
     permissao,
     userId,
     estabelecimentoId,
@@ -31,9 +28,6 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
     const iconColor = theme.colors.secondary;
     // Pega o ID da empresa e o nome da empresa passados na navegação
 
-    if (loading) {
-        return <CustomLoader />;
-    }
 
     return (
         <View style={styles.container}>
@@ -123,8 +117,8 @@ const styles = StyleSheet.create({
         paddingTop: 16,
     },
     titleContainer: {
-      flex: 1, // Faz o título ocupar o espaço disponível
-   },
+        flex: 1, // Faz o título ocupar o espaço disponível
+    },
     switchContainer: {
         flexDirection: 'row',
         alignItems: 'center',

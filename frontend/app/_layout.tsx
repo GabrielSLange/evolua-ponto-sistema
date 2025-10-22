@@ -8,7 +8,7 @@ import { Snackbar } from 'react-native-paper';
 import { NotificationProvider, NotificationStateContext } from '../contexts/NotificationContext';
 import { useContext } from 'react';
 import { useSegments } from 'expo-router';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet, Modal } from 'react-native';
 
 // NOVO: Componente que renderiza o Snackbar global
 const GlobalSnackbar = () => {
@@ -93,9 +93,15 @@ const RootLayoutNav = () => {
     }
   }, [isAuthenticated, isLoading, role, segments, userId]);
 
-  if (isLoading) {
-    return <CustomLoader />;
-  }
+  <Modal
+    transparent={true}
+    animationType="fade"
+    visible={isLoading}
+  >
+    <View style={styles.loaderOverlay}>
+      <CustomLoader />
+    </View>
+  </Modal>
 
   return <Slot />;
 };
@@ -151,5 +157,11 @@ const styles = StyleSheet.create({
     textAlign: 'center', // Centraliza o texto horizontalmente
     color: '#FFFFFF',      // Cor do texto (branco)
     width: '100%',         // Garante que o texto ocupe toda a largura
-  }
+  },
+  loaderOverlay: {
+    flex: 1, // O Modal precisa que o 'flex: 1' preencha a tela
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

@@ -1,4 +1,4 @@
-import { View, FlatList, StyleSheet, Pressable } from 'react-native';
+import { View, FlatList, StyleSheet, Pressable, Modal } from 'react-native';
 import { Text, Card, Title, Paragraph, FAB, IconButton, Switch, Tooltip, useTheme } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import CustomLoader from '../../../components/CustomLoader';
@@ -12,10 +12,6 @@ const SuperAdminScreen = () => {
    const router = useRouter();
    const theme = useTheme();
    const iconColor = theme.colors.secondary;
-
-   if (loading) {
-      return <CustomLoader />;
-   }
 
    return (
       <ScreenContainer>
@@ -99,6 +95,15 @@ const SuperAdminScreen = () => {
                   router.push('/(superadmin)/empresas/add-empresa');
                }}
             />
+            <Modal
+               transparent={true}
+               animationType="fade"
+               visible={loading}
+            >
+               <View style={styles.loaderOverlay}>
+                  <CustomLoader />
+               </View>
+            </Modal>
          </View>
       </ScreenContainer>
    );
@@ -145,7 +150,13 @@ const styles = StyleSheet.create({
    },
    listContentContainer: {
       paddingBottom: 80,
-   }
+   },
+   loaderOverlay: {
+      flex: 1, // O Modal precisa que o 'flex: 1' preencha a tela
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      alignItems: 'center',
+      justifyContent: 'center',
+   },
 });
 
 export default SuperAdminScreen;
