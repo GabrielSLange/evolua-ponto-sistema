@@ -7,12 +7,26 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using QuestPDF.Infrastructure;
 using System.Text;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
 QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services.AddControllers();
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+    // IMPORTANTE: Diga ao .NET para confiar no seu proxy.
+    // Como sua API (Kestrel) não está exposta publicamente 
+    // (só o Nginx está), é seguro limpar as redes conhecidas.
+    // Isso diz: "Qualquer IP que me enviar esses headers, eu confio".
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -109,6 +123,8 @@ builder.Services.AddScoped<AejService>();
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 app.UsePathBase("/api");
 // Configure the HTTP request pipeline.
