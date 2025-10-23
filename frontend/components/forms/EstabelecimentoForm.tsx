@@ -2,7 +2,7 @@ import { ModelEstabelecimento } from '@/models/ModelEstabelecimento';
 import { useFocusEffect } from 'expo-router';
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
+import { TextInput, Button, useTheme } from 'react-native-paper';
 import { Fieldset } from '../layouts/FieldSet';
 import { SearchableDropdown } from '../layouts/SearchableDropdown';
 import { InteractiveMap } from '../maps/InteractiveMap';
@@ -60,6 +60,8 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
    });
    const [cidades, setCidades] = useState<string[]>([]);
    const [estados, setEstados] = useState<string[]>([]);
+
+   const theme = useTheme();
 
    const atualizaRegiaoMapa = async (logradouro: string, cidade: string, estado: string) => {
 
@@ -270,7 +272,7 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
                   style={styles.input}
                />
             </View>
-            <Text style={{ fontWeight: 'bold' }}>Clique no Mapa para definir a localização:</Text>
+            <Text style={{ fontWeight: 'bold', color: theme.colors.onSurface }}>Clique no Mapa para definir a localização:</Text>
             <View
                style={{
                   borderBottomColor: '#ccc', // Cor da linha
@@ -288,7 +290,7 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
                      : null
                }
             />
-            <Text>Latitude: {formData.latitude} Longitude: {formData.longitude}</Text>
+            <Text style={{ color: theme.colors.onSurface }}>Latitude: {formData.latitude} Longitude: {formData.longitude}</Text>
 
 
 
