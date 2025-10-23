@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { Modal, View, StyleSheet } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useNotification } from '../../../contexts/NotificationContext';
@@ -15,8 +15,6 @@ const EditEstabelecimentoScreen = () => {
 
    const { loading, estabelecimento, updateEstabelecimento } = useEditEstabelecimento(estabelecimentoId as string, userId as string);
 
-
-
    const handleUpdate = async (estabalecimento: ModelEstabelecimento) => {
       try {
          await updateEstabelecimento(estabalecimento);
@@ -24,8 +22,6 @@ const EditEstabelecimentoScreen = () => {
          showNotification('Erro ao atualizar estabelecimento.', 'error');
       }
    };
-
-   if (loading && !estabelecimento) return <CustomLoader />;
 
    return (
       <ScreenContainer>
@@ -35,14 +31,31 @@ const EditEstabelecimentoScreen = () => {
                <Appbar.Content title="Editar Estabelecimento" />
             </Appbar.Header>
             <EstabelecimentoForm
-               isLoading={loading}
                onSubmit={handleUpdate}
                estabelecimento={estabelecimento}
                submitButtonLabel="Salvar Alterações"
             />
+            <Modal
+               transparent={true}
+               animationType="fade"
+               visible={loading}
+            >
+               <View style={styles.loaderOverlay}>
+                  <CustomLoader />
+               </View>
+            </Modal>
          </View>
       </ScreenContainer>
    );
 };
+
+const styles = StyleSheet.create({
+   loaderOverlay: {
+      flex: 1, // O Modal precisa que o 'flex: 1' preencha a tela
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      alignItems: 'center',
+      justifyContent: 'center',
+   },
+});
 
 export default EditEstabelecimentoScreen;

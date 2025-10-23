@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, FlatList, StyleSheet, Pressable } from 'react-native';
-import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme } from 'react-native-paper';
+import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme, Icon } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { ModelEstabelecimento } from '../../models/ModelEstabelecimento';
 
@@ -64,8 +64,12 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                   >
 
                      <Card.Content>
-                        <Paragraph>{`${item.logradouro}, ${item.numero} - ${item.bairro}`}</Paragraph>
-                        <Paragraph>{`${item.cidade} / ${item.estado}`}</Paragraph>
+                        <Paragraph>
+                           <Icon source="map-marker" size={18} color=""></Icon> {`${item.logradouro}, ${item.numero} - ${item.bairro}`}
+                        </Paragraph>
+                        <Paragraph>
+                           <Icon source="city" size={18} color=""></Icon>{`${item.cidade} / ${item.estado}`}
+                        </Paragraph>
                      </Card.Content>
                   </Pressable>
 

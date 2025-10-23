@@ -1,11 +1,10 @@
 import { ModelFuncionario } from "@/models/ModelFuncionario";
 import { ModelEstabelecimento } from "@/models/ModelEstabelecimento";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect } from "expo-router";
 import React, { useState, useCallback } from "react";
 import { ScrollView, StyleSheet, View, TouchableOpacity } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
-import { TextInput, Button, Menu, HelperText } from "react-native-paper";
-import { Fieldset } from "../layouts/FieldSet";
+import { TextInput, Button, Menu, HelperText, useTheme } from "react-native-paper";
 
 // Props que o formulário recebe
 interface FuncionarioFormProps {
@@ -41,6 +40,8 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     const [estabelecimentoMenuVisible, setEstabelecimentoMenuVisible] = useState(false);
     const openEstabelecimentoMenu = () => setEstabelecimentoMenuVisible(true);
     const closeEstabelecimentoMenu = () => setEstabelecimentoMenuVisible(false);
+
+    const theme = useTheme();
 
     const [formData, setFormData] = useState<ModelFuncionario>({
         id: null,
@@ -118,9 +119,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     };
 
     return (
-
-        <ScrollView contentContainerStyle={styles.container}>
-            {/* 3. Conecta o estado de erro aos componentes de input */}
+        <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
             <TextInput
                 label="Nome"
                 value={formData.nome}

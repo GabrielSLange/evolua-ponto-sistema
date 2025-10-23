@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
-import { Divider, Button, useTheme } from 'react-native-paper';
+import { Button, useTheme } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 
 // Este componente recebe todas as props do Drawer e as repassa para o DrawerItemList
@@ -18,7 +18,6 @@ const CustomDrawerContent = (props: any) => {
 
          {/* Seção inferior do menu */}
          <View style={[styles.bottomSection, { borderTopColor: theme.colors.outlineVariant }]}>
-            <Divider />
             <Button
                icon="logout"
                onPress={() => signOut()}
@@ -40,6 +39,7 @@ const styles = StyleSheet.create({
    },
    logoutButton: {
       marginTop: 10,
+      backgroundColor: '#E57373',
    },
 });
 

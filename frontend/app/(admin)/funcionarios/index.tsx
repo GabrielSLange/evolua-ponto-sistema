@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet } from "react-native";
+import { Modal, StyleSheet, View } from "react-native";
 import { Appbar } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import CustomLoader from '@/components/CustomLoader';
@@ -13,29 +13,35 @@ const FuncionariosAdminScreen = () => {
 
    const { funcionarios, loading, toggleFuncionarioAtivo } = useFuncionarios(estabelecimentoId);
 
-   if (loading) {
-      return <CustomLoader />;
-   }
-
    return (
       <ScreenContainer>
-         <Appbar.Header>
-            <Appbar.BackAction onPress={() => router.push({
-               pathname: `/estabelecimentos`,
-               params: { estabelecimentoId: estabelecimentoId, estabelecimentoNome: estabelecimentoNome, empresaId: empresaId, empresaNome: empresaNome }
-            })} />
-            <Appbar.Content title={`Funcionários de ${estabelecimentoNome}`} />
-         </Appbar.Header>
-         <ListFuncionarios
-            funcionarios={funcionarios}
-            loading={loading}
-            permissao="admin"
-            estabelecimentoId={estabelecimentoId}
-            estabelecimentoNome={estabelecimentoNome}
-            empresaNome={empresaNome}
-            userId={null}
-            toggleFuncionarioAtivo={toggleFuncionarioAtivo}
-         />
+         <View style={{ flex: 1 }}>
+            <Appbar.Header>
+               <Appbar.BackAction onPress={() => router.push({
+                  pathname: `/estabelecimentos`,
+                  params: { estabelecimentoId: estabelecimentoId, estabelecimentoNome: estabelecimentoNome, empresaId: empresaId, empresaNome: empresaNome }
+               })} />
+               <Appbar.Content title={`Funcionários de ${estabelecimentoNome}`} />
+            </Appbar.Header>
+            <ListFuncionarios
+               funcionarios={funcionarios}
+               permissao="admin"
+               estabelecimentoId={estabelecimentoId}
+               estabelecimentoNome={estabelecimentoNome}
+               empresaNome={empresaNome}
+               userId={null}
+               toggleFuncionarioAtivo={toggleFuncionarioAtivo}
+            />
+            <Modal
+               transparent={true}
+               animationType="fade"
+               visible={loading}
+            >
+               <View style={styles.loaderOverlay}>
+                  <CustomLoader />
+               </View>
+            </Modal>
+         </View>
       </ScreenContainer>
    );
 };
@@ -70,6 +76,14 @@ const styles = StyleSheet.create({
       right: 0,
       bottom: 0,
    },
+   loaderOverlay: {
+      flex: 1, // O Modal precisa que o 'flex: 1' preencha a tela
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      alignItems: 'center',
+      justifyContent: 'center',
+   },
 });
+
+
 
 export default FuncionariosAdminScreen;

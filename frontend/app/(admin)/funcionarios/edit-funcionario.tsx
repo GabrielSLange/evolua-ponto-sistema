@@ -7,6 +7,7 @@ import CustomLoader from "../../../components/CustomLoader";
 import { ModelFuncionario } from "../../../models/ModelFuncionario";
 import ScreenContainer from "@/components/layouts/ScreenContainer";
 import { useEditFuncionario } from "@/hooks/superadmin/useFuncionario";
+import { Modal, StyleSheet } from "react-native";
 
 const EditFuncionarioAdminScreen = () => {
     const router = useRouter();
@@ -25,8 +26,6 @@ const EditFuncionarioAdminScreen = () => {
         }
     };
 
-    if (loading) return <CustomLoader />;
-
     return (
         <ScreenContainer>
             <View style={{ flex: 1 }}>
@@ -41,11 +40,29 @@ const EditFuncionarioAdminScreen = () => {
                     onSubmit={handleUpdate}
                     funcionario={funcionario}
                     submitButtonLabel="Salvar Alterações"
-                    estabelecimentos={funcionario? estabelecimentos : []}
+                    estabelecimentos={funcionario ? estabelecimentos : []}
                 />
+                <Modal
+                    transparent={true}
+                    animationType="fade"
+                    visible={loading}
+                >
+                    <View style={styles.loaderOverlay}>
+                        <CustomLoader />
+                    </View>
+                </Modal>
             </View>
         </ScreenContainer>
     );
 };
+
+const styles = StyleSheet.create({
+    loaderOverlay: {
+        flex: 1, // O Modal precisa que o 'flex: 1' preencha a tela
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+});
 
 export default EditFuncionarioAdminScreen;

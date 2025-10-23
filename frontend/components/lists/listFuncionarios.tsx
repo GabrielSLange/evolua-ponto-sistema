@@ -1,6 +1,6 @@
 import React from "react";
 import { View, FlatList, StyleSheet, Pressable } from 'react-native';
-import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme } from 'react-native-paper';
+import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme, Icon } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { ModelFuncionario } from '../../models/ModelFuncionario';
 
@@ -30,7 +30,7 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
 
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <FlatList
                 data={funcionarios}
                 keyExtractor={(item) => item.id as string}
@@ -65,8 +65,12 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                             })}
                         >
                             <Card.Content>
-                                <Paragraph>CPF: {item.cpf}</Paragraph>
-                                <Paragraph>Cargo: {item.cargo}</Paragraph>
+                                <Paragraph>
+                                    <Icon source="card-account-details-outline" size={18} color=""></Icon> CPF: {item.cpf}
+                                </Paragraph>
+                                <Paragraph>
+                                    <Icon source="briefcase-outline" size={18} color=""></Icon> Cargo: {item.cargo}
+                                </Paragraph>
                             </Card.Content>
                         </Pressable>
 
