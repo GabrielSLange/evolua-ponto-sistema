@@ -105,7 +105,7 @@ export default function SuperAdminLayout() {
             name='funcionarios/edit-funcionario'
             options={{
                drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
-               title: 'Editar Funcionário',
+               title: 'Funcionários',
             }}
          />
       </Drawer>
