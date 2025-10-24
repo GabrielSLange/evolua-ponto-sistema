@@ -33,7 +33,7 @@ export default function AdminLayout() {
             drawerLabelStyle: { fontSize: 15 },
             drawerContentStyle: { backgroundColor: theme.colors.surface },
             // 2. Use o novo CustomHeader, passando o título da tela
-            header: ({ options }) => <CustomHeader title={options.title || 'Painel Admin'} />,
+            header: ({ options }) => <CustomHeader title={options.title || 'Painel Admin'} isDesktop={isDesktop} />,
          }}
       >
          <Drawer.Screen
