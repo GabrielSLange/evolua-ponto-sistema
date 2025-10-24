@@ -10,10 +10,10 @@ import { useEditEstabelecimento } from '@/hooks/superadmin/useEstabelecimento';
 
 const EditEstabelecimentoScreen = () => {
    const router = useRouter();
-   const { estabelecimentoId, empresaId, empresaNome } = useLocalSearchParams();
+   const { estabelecimentoId, empresaId } = useLocalSearchParams();
    const { showNotification } = useNotification();
 
-   const { loading, estabelecimento, updateEstabelecimento } = useEditEstabelecimento(estabelecimentoId as string, empresaId as string, empresaNome as string);
+   const { loading, estabelecimento, updateEstabelecimento } = useEditEstabelecimento(estabelecimentoId as string, empresaId as string);
 
 
 
@@ -30,7 +30,11 @@ const EditEstabelecimentoScreen = () => {
       <ScreenContainer>
          <View style={{ flex: 1 }}>
             <Appbar.Header>
-               <Appbar.BackAction onPress={() => router.push(`/estabelecimentos?empresaId=${empresaId}&empresaNome=${empresaNome}`)} />
+               <Appbar.BackAction onPress={() => router.push({
+                  pathname: '/(superadmin)/estabelecimentos',
+                  params: { empresaId: empresaId }
+               })}
+               />
                <Appbar.Content title="Editar Estabelecimento" />
             </Appbar.Header>
             <EstabelecimentoForm

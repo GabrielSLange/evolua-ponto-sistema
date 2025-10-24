@@ -54,7 +54,7 @@ export const useEstabelecimentos = (empresaId: string | undefined) => {
 };
 
 // Controller para adicionar um novo estabelecimento
-export const useAddEstabelecimento = (empresaId: string, empresaNome: string) => {
+export const useAddEstabelecimento = (empresaId: string) => {
    const [loading, setLoading] = useState(false);
    const [estabelecimento] = useState<ModelEstabelecimento>();
    const router = useRouter();
@@ -67,7 +67,10 @@ export const useAddEstabelecimento = (empresaId: string, empresaNome: string) =>
          estabelecimento.empresaId = String(empresaId);
          await api.post('/Estabelecimento', { ...estabelecimento });
          showNotification('Estabelecimento cadastrado com sucesso!', 'success');
-         router.push(`/estabelecimentos?empresaId=${empresaId}&empresaNome=${empresaNome}`);
+         router.replace({ // Alterado de push para replace
+            pathname: '/(superadmin)/estabelecimentos',
+            params: { empresaId: empresaId }
+         });
       } catch (error) {
          console.error("Erro ao cadastrar estabelecimento:", error);
          showNotification('Erro ao cadastrar estabelecimento.', 'error');
@@ -80,7 +83,7 @@ export const useAddEstabelecimento = (empresaId: string, empresaNome: string) =>
 };
 
 // Controller para editar um estabelecimento existente
-export const useEditEstabelecimento = (estabelecimentoId: string | undefined, empresaId: string, empresaNome: string) => {
+export const useEditEstabelecimento = (estabelecimentoId: string | undefined, empresaId: string) => {
    const [loading, setLoading] = useState(false);
    const [estabelecimento, setEstabelecimento] = useState<ModelEstabelecimento>();
    const router = useRouter();
@@ -113,7 +116,10 @@ export const useEditEstabelecimento = (estabelecimentoId: string | undefined, em
       try {
          await api.put('/estabelecimento', estabelecimento);
          showNotification('Estabelecimento atualizado com sucesso!', 'success');
-         router.push(`/estabelecimentos?empresaId=${empresaId}&empresaNome=${empresaNome}`);
+         router.replace({ // Alterado de push para replace
+            pathname: '/(superadmin)/estabelecimentos',
+            params: { empresaId: empresaId }
+         });
       } catch (error) {
          showNotification('Erro ao atualizar estabelecimento.', 'error');
       } finally {

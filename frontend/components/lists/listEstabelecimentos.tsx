@@ -40,7 +40,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                         style={styles.titleContainer}
                         onPress={() => router.push({
                            pathname: `/(${permissao})/funcionarios`,
-                           params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId, empresaNome: empresaNome }
+                           params: { estabelecimentoId: item.id }
                         })}
                      >
                         <Title>{item.nomeFantasia}</Title>
@@ -59,7 +59,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                   <Pressable
                      onPress={() => router.push({
                         pathname: `/(${permissao})/funcionarios`,
-                        params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId, empresaNome: empresaNome }
+                        params: { estabelecimentoId: item.id }
                      })}
                   >
 
@@ -82,7 +82,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                               iconColor={iconColor}
                               onPress={() => router.push({
                                  pathname: `/(${permissao})/funcionarios`,
-                                 params: { estabelecimentoId: item.id, estabelecimentoNome: item.nomeFantasia, empresaId: empresaId, empresaNome: empresaNome }
+                                 params: { estabelecimentoId: item.id }
                               })}
                            />
                         </Tooltip>
@@ -92,7 +92,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                               iconColor={iconColor}
                               onPress={() => router.push({
                                  pathname: `/(${permissao})/estabelecimentos/edit-estabelecimento`,
-                                 params: { estabelecimentoId: item.id, userId: userId, empresaId: empresaId, empresaNome: item.nomeFantasia }
+                                 params: { estabelecimentoId: item.id, userId: userId, empresaId: empresaId }
                               })}
                            />
                         </Tooltip>
@@ -155,4 +155,3 @@ const styles = StyleSheet.create({
 });
 
 export default ListEstabelcimentos;
-

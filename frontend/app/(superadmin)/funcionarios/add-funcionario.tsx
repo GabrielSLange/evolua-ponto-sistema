@@ -9,9 +9,9 @@ import CustomLoader from "@/components/CustomLoader";
 
 const AddFuncionarioScreen = () => {
     const router = useRouter();
-    const { estabelecimentoId, estabelecimentoNome, empresaNome } = useLocalSearchParams<{ estabelecimentoId: string; estabelecimentoNome: string; empresaNome: string }>(); // Pega o ID do estabelecimento-mãe
+    const { estabelecimentoId } = useLocalSearchParams<{ estabelecimentoId: string }>(); // Pega o ID do estabelecimento-mãe
 
-    const { loading, addFuncionario } = useAddFuncionario(estabelecimentoId as string, estabelecimentoNome as string, empresaNome as string);
+    const { loading, addFuncionario } = useAddFuncionario(estabelecimentoId as string);
 
 
     return (
@@ -19,8 +19,8 @@ const AddFuncionarioScreen = () => {
             <View style={{ flex: 1 }}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={() => router.push({
-                        pathname: `/funcionarios`,
-                        params: { estabelecimentoId: estabelecimentoId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+                        pathname: '/(superadmin)/funcionarios',
+                        params: { estabelecimentoId: estabelecimentoId }
                     })} />
                     <Appbar.Content title="Novo Funcionário" />
                 </Appbar.Header>
