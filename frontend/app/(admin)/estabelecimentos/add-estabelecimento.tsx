@@ -9,7 +9,7 @@ import CustomLoader from '@/components/CustomLoader';
 
 const AddEstabelecimentoScreen = () => {
    const router = useRouter();
-   const { empresaId, userId } = useLocalSearchParams(); // Pega o ID da empresa-mãe
+   const { empresaId, userId } = useLocalSearchParams<{ empresaId: string, userId: string }>();
 
    const { loading, addEstabelecimento } = useAddEstabelecimento(userId as string, empresaId as string);
 
@@ -17,7 +17,11 @@ const AddEstabelecimentoScreen = () => {
       <ScreenContainer>
          <View style={{ flex: 1 }}>
             <Appbar.Header>
-               <Appbar.BackAction onPress={() => router.push(`/estabelecimentos?userId=${userId}`)} />
+               <Appbar.BackAction onPress={() => router.push({
+                  pathname: '/(admin)/estabelecimentos',
+                  params: { userId: userId }
+               })}
+               />
                <Appbar.Content title="Novo Estabelecimento" />
             </Appbar.Header>
             <EstabelecimentoForm
