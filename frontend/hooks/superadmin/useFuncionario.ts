@@ -52,7 +52,7 @@ export const useFuncionarios = (estabelecimentoId: string | undefined) => {
 }
 
 // Controller para adicionar um novo funcionário
-export const useAddFuncionario = (estabelecimentoId: string, estabelecimentoNome: string, empresaNome: string) => {
+export const useAddFuncionario = (estabelecimentoId: string) => {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const { showNotification } = useNotification();
@@ -65,9 +65,9 @@ export const useAddFuncionario = (estabelecimentoId: string, estabelecimentoNome
             funcionario.estabelecimentoId = estabelecimentoId;
             await api.post('/funcionarios', { ...funcionario });
             showNotification('Funcionário cadastrado com sucesso!', 'success');
-            router.push({
-                pathname: `/funcionarios`,
-                params: { estabelecimentoId: estabelecimentoId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+            router.replace({
+                pathname: '/(superadmin)/funcionarios',
+                params: { estabelecimentoId: estabelecimentoId }
             });
         } catch (error) {
             console.error("Erro ao cadastrar funcionário:", error);
@@ -81,7 +81,7 @@ export const useAddFuncionario = (estabelecimentoId: string, estabelecimentoNome
 };
 
 // Controller para editar um funcionário existente
-export const useEditFuncionario = (funcionarioId: string | undefined, estabelecimentoId: string, estabelecimentoNome: string | undefined, empresaNome: string | undefined) => {
+export const useEditFuncionario = (funcionarioId: string | undefined, estabelecimentoId: string) => {
     const [loading, setLoading] = useState(false);
     const [funcionario, setFuncionario] = useState<ModelFuncionario>();
     const [estabelecimentos, setEstabelecimentos] = useState<ModelEstabelecimento[]>([]);
@@ -124,9 +124,9 @@ export const useEditFuncionario = (funcionarioId: string | undefined, estabeleci
         try {
             await api.put('/funcionarios', funcionario);
             showNotification('Funcionário atualizado com sucesso!', 'success');
-            router.push({
-                pathname: `/funcionarios`,
-                params: { estabelecimentoId: estabelecimentoId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+            router.replace({
+                pathname: '/(superadmin)/funcionarios',
+                params: { estabelecimentoId: estabelecimentoId }
             });
         } catch (error) {
             showNotification('Erro ao atualizar funcionário.', 'error');

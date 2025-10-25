@@ -78,14 +78,7 @@ export default function AdminLayout() {
             name='funcionarios/edit-funcionario'
             options={{
                drawerItemStyle: { display: 'none' },
-               title: 'Editar Funcionário',
-            }}
-         />
-         <Drawer.Screen
-            name='funcionarios/details-funcionario'
-            options={{
-               drawerItemStyle: { display: 'none' },
-               title: 'Detalhes do Funcionário',
+               title: 'Funcionários', // Título genérico, pois pode ser edição ou detalhes
             }}
          />
          <Drawer.Screen name="relatorios" options={{ drawerLabel: 'Relatórios', title: 'Relatórios' }} />

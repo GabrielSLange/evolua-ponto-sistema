@@ -9,8 +9,6 @@ interface ListFuncionariosProps {
     permissao: string;
     userId: string | null;
     estabelecimentoId?: string;
-    estabelecimentoNome?: string;
-    empresaNome?: string;
     toggleFuncionarioAtivo: (id: string) => void;
 }
 
@@ -19,8 +17,6 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
     permissao,
     userId,
     estabelecimentoId,
-    estabelecimentoNome,
-    empresaNome,
     toggleFuncionarioAtivo,
 }) => {
     const router = useRouter();
@@ -41,8 +37,8 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                             <Pressable
                                 style={styles.titleContainer}
                                 onPress={() => router.push({
-                                    pathname: `/(${permissao})/funcionarios/details-funcionario`,
-                                    params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+                                    pathname: `/(${permissao})/funcionarios/edit-funcionario`,
+                                    params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, isReadOnly: 'true' }
                                 })}
                             >
                                 <Title>{item.nome}</Title>
@@ -60,8 +56,8 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
 
                         <Pressable
                             onPress={() => router.push({
-                                pathname: `/(${permissao})/funcionarios/details-funcionario`,
-                                params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+                                pathname: `/(${permissao})/funcionarios/edit-funcionario`,
+                                params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, isReadOnly: 'true' }
                             })}
                         >
                             <Card.Content>
@@ -82,7 +78,7 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                                         iconColor={iconColor}
                                         onPress={() => router.push({
                                             pathname: `/(${permissao})/funcionarios/edit-funcionario`,
-                                            params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+                                            params: { funcionarioId: item.id, estabelecimentoId: estabelecimentoId, isReadOnly: 'false' }
                                         })}
                                     />
                                 </Tooltip>
@@ -98,7 +94,7 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                 onPress={() => {
                     router.push({
                         pathname: `/(${permissao})/funcionarios/add-funcionario`,
-                        params: { estabelecimentoId: estabelecimentoId, userId: userId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+                        params: { estabelecimentoId: estabelecimentoId }
                     });
                 }}
             />

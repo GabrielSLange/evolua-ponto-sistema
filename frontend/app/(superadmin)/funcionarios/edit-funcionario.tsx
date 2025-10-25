@@ -1,4 +1,3 @@
-import { View } from "@/components/Themed";
 import { Appbar } from "react-native-paper";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useNotification } from "../../../contexts/NotificationContext";
@@ -7,16 +6,17 @@ import CustomLoader from "../../../components/CustomLoader";
 import { ModelFuncionario } from "../../../models/ModelFuncionario";
 import ScreenContainer from "@/components/layouts/ScreenContainer";
 import { useEditFuncionario } from "@/hooks/superadmin/useFuncionario";
-import { Modal, StyleSheet } from "react-native";
+import { Modal, StyleSheet, View } from "react-native";
 
 const EditFuncionarioScreen = () => {
     const router = useRouter();
-    const { funcionarioId, estabelecimentoId, estabelecimentoNome, empresaNome } = useLocalSearchParams<{ funcionarioId: string; estabelecimentoId: string; estabelecimentoNome: string, empresaNome: string }>();
+    const { funcionarioId, estabelecimentoId, isReadOnly: isReadOnlyParam } = useLocalSearchParams<{ funcionarioId: string, estabelecimentoId: string, isReadOnly: string }>();
 
     const { showNotification } = useNotification();
+    const isReadOnly = isReadOnlyParam === 'true';
 
-    const { loading, funcionario, estabelecimentos, updateFuncionario } = useEditFuncionario(funcionarioId as string, estabelecimentoId as string, estabelecimentoNome as string, empresaNome as string);
-
+    const { loading, funcionario, estabelecimentos, updateFuncionario } = useEditFuncionario(funcionarioId as string, estabelecimentoId as string);
+    
     const handleUpdate = async (funcionario: ModelFuncionario) => {
         try {
             await updateFuncionario(funcionario);
@@ -32,16 +32,17 @@ const EditFuncionarioScreen = () => {
             <View style={{ flex: 1 }}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={() => router.push({
-                        pathname: `/funcionarios`,
-                        params: { estabelecimentoId: estabelecimentoId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+                        pathname: '/(superadmin)/funcionarios',
+                        params: { estabelecimentoId: estabelecimentoId }
                     })} />
-                    <Appbar.Content title="Editar Funcionário" />
+                    <Appbar.Content title={isReadOnly ? "Detalhes do Funcionário" : "Editar Funcionário"} />
                 </Appbar.Header>
                 <FuncionarioForm
-                    onSubmit={handleUpdate}
+                    onSubmit={isReadOnly ? () => { } : handleUpdate}
                     funcionario={funcionario}
-                    submitButtonLabel="Salvar Alterações"
                     estabelecimentos={funcionario ? estabelecimentos : []}
+                    submitButtonLabel={isReadOnly ? "" : "Salvar Alterações"}
+                    isReadOnly={isReadOnly}
                 />
                 <Modal
                     transparent={true}

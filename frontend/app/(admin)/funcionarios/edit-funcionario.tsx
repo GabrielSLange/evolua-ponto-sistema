@@ -11,11 +11,12 @@ import { Modal, StyleSheet } from "react-native";
 
 const EditFuncionarioAdminScreen = () => {
     const router = useRouter();
-    const { funcionarioId, estabelecimentoId, estabelecimentoNome, empresaNome } = useLocalSearchParams<{ funcionarioId: string; estabelecimentoId: string; estabelecimentoNome: string, empresaNome: string }>();
+    const { funcionarioId, estabelecimentoId, isReadOnly: isReadOnlyParam } = useLocalSearchParams<{ funcionarioId: string; estabelecimentoId: string; isReadOnly: string }>();
 
     const { showNotification } = useNotification();
+    const isReadOnly = isReadOnlyParam === 'true';
 
-    const { loading, funcionario, estabelecimentos, updateFuncionario } = useEditFuncionario(funcionarioId as string, estabelecimentoId as string, estabelecimentoNome as string, empresaNome as string);
+    const { loading, funcionario, estabelecimentos, updateFuncionario } = useEditFuncionario(funcionarioId as string, estabelecimentoId as string);
 
     const handleUpdate = async (funcionario: ModelFuncionario) => {
         try {
@@ -31,16 +32,17 @@ const EditFuncionarioAdminScreen = () => {
             <View style={{ flex: 1 }}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={() => router.push({
-                        pathname: `/funcionarios`,
-                        params: { estabelecimentoId: estabelecimentoId, estabelecimentoNome: estabelecimentoNome, empresaNome: empresaNome }
+                        pathname: '/(admin)/funcionarios', // Caminho para o admin
+                        params: { estabelecimentoId: estabelecimentoId }
                     })} />
-                    <Appbar.Content title="Editar Funcionário" />
+                    <Appbar.Content title={isReadOnly ? "Detalhes do Funcionário" : "Editar Funcionário"} />
                 </Appbar.Header>
                 <FuncionarioForm
-                    onSubmit={handleUpdate}
+                    onSubmit={isReadOnly ? () => { } : handleUpdate}
                     funcionario={funcionario}
-                    submitButtonLabel="Salvar Alterações"
+                    submitButtonLabel={isReadOnly ? "" : "Salvar Alterações"}
                     estabelecimentos={funcionario ? estabelecimentos : []}
+                    isReadOnly={isReadOnly}
                 />
                 <Modal
                     transparent={true}

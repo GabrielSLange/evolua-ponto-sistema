@@ -10,10 +10,10 @@ import { useEditEstabelecimento } from '@/hooks/admin/useEstabelecimento';
 
 const EditEstabelecimentoScreen = () => {
    const router = useRouter();
-   const { estabelecimentoId, userId } = useLocalSearchParams();
+   const { estabelecimentoId, userId } = useLocalSearchParams<{ estabelecimentoId: string, userId: string }>();
    const { showNotification } = useNotification();
 
-   const { loading, estabelecimento, updateEstabelecimento } = useEditEstabelecimento(estabelecimentoId as string, userId as string);
+   const { loading, estabelecimento, updateEstabelecimento } = useEditEstabelecimento(estabelecimentoId, userId);
 
    const handleUpdate = async (estabalecimento: ModelEstabelecimento) => {
       try {
@@ -27,7 +27,11 @@ const EditEstabelecimentoScreen = () => {
       <ScreenContainer>
          <View style={{ flex: 1 }}>
             <Appbar.Header>
-               <Appbar.BackAction onPress={() => router.push(`/(admin)/estabelecimentos?userId=${userId}`)} />
+               <Appbar.BackAction onPress={() => router.push({
+                  pathname: '/(admin)/estabelecimentos',
+                  params: { userId: userId }
+               })}
+               />
                <Appbar.Content title="Editar Estabelecimento" />
             </Appbar.Header>
             <EstabelecimentoForm

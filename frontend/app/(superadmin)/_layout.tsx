@@ -105,14 +105,7 @@ export default function SuperAdminLayout() {
             name='funcionarios/edit-funcionario'
             options={{
                drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
-               title: 'Editar Funcionário',
-            }}
-         />
-         <Drawer.Screen
-            name='funcionarios/details-funcionario'
-            options={{
-               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
-               title: 'Detalhes do Funcionário',
+               title: 'Funcionários',
             }}
          />
       </Drawer>

@@ -91,7 +91,10 @@ export const useAddEstabelecimento = (userId: string, empresaId: string) => {
          estabelecimento.empresaId = String(empresaId);
          await api.post('/Estabelecimento', { ...estabelecimento });
          showNotification('Estabelecimento cadastrado com sucesso!', 'success');
-         router.push(`/(admin)/estabelecimentos?userId=${userId}`);
+         router.replace({
+            pathname: '/(admin)/estabelecimentos',
+            params: { userId: userId }
+         });
       } catch (error) {
          console.error("Erro ao cadastrar estabelecimento:", error);
          showNotification('Erro ao cadastrar estabelecimento.', 'error');
@@ -135,7 +138,10 @@ export const useEditEstabelecimento = (estabelecimentoId: string | undefined, us
       try {
          await api.put('/estabelecimento', estabelecimento);
          showNotification('Estabelecimento atualizado com sucesso!', 'success');
-         router.push(`/(admin)/estabelecimentos?userId=${userId}`);
+         router.replace({ // Alterado para replace para melhor UX
+            pathname: '/(admin)/estabelecimentos',
+            params: { userId: userId }
+         });
       } catch (error) {
          showNotification('Erro ao atualizar estabelecimento.', 'error');
       } finally {
