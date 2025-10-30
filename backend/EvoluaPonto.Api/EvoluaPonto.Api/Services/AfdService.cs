@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 
+using EvoluaPonto.Api.Models.Enums;
+
 namespace EvoluaPonto.Api.Services
 {
     public class AfdService
@@ -28,7 +30,8 @@ namespace EvoluaPonto.Api.Services
                 .Include(r => r.Funcionario)
                 .Where(r => r.Funcionario.EstabelecimentoId == estabelecimentoId &&
                             r.TimestampMarcacao >= dataInicio.ToUniversalTime() &&
-                            r.TimestampMarcacao <= dataFim.ToUniversalTime())
+                            r.TimestampMarcacao <= dataFim.ToUniversalTime() &&
+                            (r.RegistroManual == false || r.Status == StatusSolicitacao.Aprovado))
                 .OrderBy(r => r.TimestampMarcacao)
                 .ToListAsync();
 
@@ -55,7 +58,7 @@ namespace EvoluaPonto.Api.Services
                 var timestampGravacao = registro.CreatedAt.ToUniversalTime();
 
                 string marcacao =
-                    FormatNumeric(registro.Nsr, 9) +
+                    FormatNumeric(registro.Nsr.Value, 9) +
                     "7" +
                     registro.TimestampMarcacao.ToUniversalTime().ToString("ddMMyyyyHHmmss") +
                     FormatString(registro.Funcionario.Cpf, 12) +
