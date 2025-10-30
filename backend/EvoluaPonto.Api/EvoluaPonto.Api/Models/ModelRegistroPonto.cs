@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using EvoluaPonto.Api.Models.Enums;
 
 namespace EvoluaPonto.Api.Models
 {
@@ -11,9 +12,10 @@ namespace EvoluaPonto.Api.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
-        [Required]
+        // Tornamos Nulo (long?) e removemos [Required]
+        // Ele só será preenchido quando for uma batida original ou uma solicitação APROVADA.
         [Column("nsr")]
-        public long Nsr { get; set; }
+        public long? Nsr { get; set; }
 
         [Required]
         [Column("timestamp_marcacao")]
@@ -29,9 +31,10 @@ namespace EvoluaPonto.Api.Models
         [Column("geolocalizacao_ip")]
         public string? GeolocalizacaoIp { get; set; }
 
-        [Required]
+        // Tornamos Nulo (string?) e removemos [Required]
+        // Só será preenchido quando for uma batida original ou uma solicitação APROVADA.
         [Column("hash_sha256")]
-        public string HashSha256 { get; set; }
+        public string? HashSha256 { get; set; }
 
         [Column("comprovante_url")]
         public string? ComprovanteUrl { get; set; }
@@ -47,5 +50,32 @@ namespace EvoluaPonto.Api.Models
 
         public ModelFuncionario Funcionario { get; set; }
 
+        // Relação com Solicitação de Registro de Ponto
+
+        /// Identifica se é uma batida original (false) ou uma solicitação manual (true).
+        [Required]
+        [Column("registro_manual")]
+        public bool RegistroManual { get; set; } = false; // Valor padrão é 'false'
+
+        /// Status da solicitação (Pendente, Aprovado, Rejeitado).
+        /// Será nulo se 'RegistroManual' for 'false'.
+        [Column("status_solicitacao")]
+        public StatusSolicitacao? Status { get; set; }
+
+        /// Justificativa escrita pelo funcionário ao solicitar o ajuste.
+        [Column("justificativa_funcionario")]
+        public string? JustificativaFuncionario { get; set; }
+
+        /// Justificativa do admin (obrigatória em caso de rejeição).
+        [Column("justificativa_admin")]
+        public string? JustificativaAdmin { get; set; }
+
+        /// ID do usuário (admin/gestor) que analisou a solicitação.
+        [Column("admin_id_analise")]
+        public Guid? AdminIdAnalise { get; set; } // Assumindo que o ID do admin é um Guid, como o do funcionário
+
+        /// Data e hora em que a análise (aprovação/rejeição) foi feita.
+        [Column("data_analise")]
+        public DateTime? DataAnalise { get; set; }
     }
 }
