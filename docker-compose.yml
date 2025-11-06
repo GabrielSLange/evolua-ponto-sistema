@@ -56,6 +56,9 @@ services:
     depends_on:
       - backend
       - frontend
+    networks:
+      - default
+      - nginx-proxy-net
 
   pgadmin:
     image: dpage/pgadmin4
@@ -74,3 +77,9 @@ services:
 volumes:
   postgres_data:
   pgadmin_data:
+
+networks:
+  default:
+    driver: bridge
+  nginx-proxy-net:
+    external: true
