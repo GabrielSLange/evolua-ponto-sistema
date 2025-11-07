@@ -56,9 +56,6 @@ services:
     depends_on:
       - backend
       - frontend
-    networks:
-      - default
-      - nginx-proxy-net
 
   pgadmin:
     image: dpage/pgadmin4
