@@ -43,5 +43,25 @@ namespace EvoluaPonto.Api.Controllers
             }
 
         }
+
+        [HttpGet("comprovantes")]
+        public async Task<IActionResult> GetComprovantes([FromQuery] Guid funcionarioId, [FromQuery] DateTime dataInicio, [FromQuery] DateTime dataFim)
+        {
+            // Validação simples das datas
+            if (dataFim < dataInicio)
+            {
+                return BadRequest(new ServiceResponse<object> { Success = false, ErrorMessage = "Data final não pode ser anterior à data inicial." });
+            }
+
+            // Chama o serviço que criamos
+            var response = await _registroPontoService.GetComprovantesPorFuncionarioAsync(funcionarioId, dataInicio, dataFim);
+
+            if (!response.Success)
+            {
+                return BadRequest(response); // Retorna a mensagem de erro do serviço
+            }
+
+            return Ok(response); // Retorna a lista de comprovantes
+        }
     }
 }
