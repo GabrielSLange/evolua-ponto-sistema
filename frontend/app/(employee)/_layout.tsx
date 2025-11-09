@@ -32,8 +32,8 @@ export default function EmployeeLayout() {
             drawerInactiveTintColor: theme.colors.onSurface,
             drawerLabelStyle: { fontSize: 15 },
             drawerContentStyle: { backgroundColor: theme.colors.surface },
-            // 2. Use o novo CustomHeader
-            header: ({ options }) => <CustomHeader title={options.title || 'Área do Funcionário'} />,
+            // 2. Use o novo CustomHeader, passando a informação se é desktop
+            header: ({ options }) => <CustomHeader title={options.title || 'Área do Funcionário'} isDesktop={isDesktop} />,
          }}
       >
          <Drawer.Screen 
