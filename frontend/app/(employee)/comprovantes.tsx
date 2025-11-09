@@ -1,211 +1,284 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Button } from 'react-native';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { View, SectionList, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Platform, Text } from 'react-native';
+import { Button, useTheme, Text as PaperText, List, Avatar } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext'; // Ajuste o caminho se necessário
 import api from "@/services/api"; // Sua instância do Axios
 import { ComprovanteDto } from '../../models/Dtos/ComprovanteDto'; // Nosso novo tipo
 import { useFocusEffect } from 'expo-router';
 import * as Linking from 'expo-linking';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { Platform } from 'react-native';
-import { set } from 'date-fns';
-import Colors from '@/constants/Colors';
+import ScreenContainer from '@/components/layouts/ScreenContainer';
+
 
 // Função helper para formatar a data YYYY-MM-DD
 const toISODateString = (date: Date) => {
   return date.toISOString().split('T')[0];
 };
 
+// Helper para obter o ícone com base no tipo de marcação
+const getIconForType = (type: string) => {
+  if (type.startsWith('ENTRADA')) {
+    return { icon: 'login-variant', color: '#4CAF50' }; // Verde para entradas
+  }
+  if (type.startsWith('SAIDA')) {
+    return { icon: 'logout-variant', color: '#F44336' }; // Vermelho para saídas
+  }
+  return { icon: 'clock-outline', color: '#607D8B' }; // Padrão
+};
+
+const EmptyState = ({ message }: { message: string }) => (
+  <View style={{ alignItems: 'center', marginTop: 60, paddingHorizontal: 20 }}>
+    <Avatar.Icon icon="file-document-outline" size={80} style={{ backgroundColor: 'transparent' }} />
+    <PaperText style={{ textAlign: 'center', marginTop: 16, fontSize: 16, color: '#777' }}>{message}</PaperText>
+  </View>
+);
+
 export default function ComprovanteScreen() {
-  const { userId } = useAuth(); // Pegamos o ID do funcionário logado
+  const { userId, theme } = useAuth(); // Pegamos o ID do funcionário logado e o tema
+  const paperTheme = useTheme();
 
-    // Estado para as datas
-    const [dataInicio, setDataInicio] = useState(new Date(new Date().setDate(1))); // Padrão: dia 1 do mês atual
-    const [dataFim, setDataFim] = useState(new Date()); // Padrão: hoje
+  // Cria os estilos dinamicamente com base no tema
+  const styles = getStyles(paperTheme);
 
-    // Estado para os seletores de data
-    const [showPickerInicio, setShowPickerInicio] = useState(false);
-    const [showPickerFim, setShowPickerFim] = useState(false);
+  // Estado para as datas - Inicializando em UTC para evitar problemas de fuso horário
+  const hoje = new Date();
+  const inicioDoMes = new Date(Date.UTC(hoje.getFullYear(), hoje.getMonth(), 1));
+  const hojeUtc = new Date(Date.UTC(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()));
 
-    // Estado da tela
-    const [comprovantes, setComprovantes] = useState<ComprovanteDto[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [mensagem, setMensagem] = useState('');
+  const [dataInicio, setDataInicio] = useState(inicioDoMes); // Padrão: dia 1 do mês atual em UTC
+  const [dataFim, setDataFim] = useState(hojeUtc); // Padrão: hoje em UTC
 
-    // Função para buscar os dados na API
-    const fetchComprovantes = async () => {
+  // Estado para os seletores de data
+  const [showPickerInicio, setShowPickerInicio] = useState(false);
+  const [showPickerFim, setShowPickerFim] = useState(false);
+
+  // Estado da tela
+  const [comprovantes, setComprovantes] = useState<ComprovanteDto[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Função para buscar os dados na API
+  const fetchComprovantes = async () => {
     const funcionarioId = userId; //Pega o ID do funcionário logado
-        if (!funcionarioId) {
-            Alert.alert('Erro', 'Não foi possível identificar o funcionário.');
-            return;
+    if (!funcionarioId) {
+      Alert.alert('Erro', 'Não foi possível identificar o funcionário.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setComprovantes([]);
+
+    try {
+      const response = await api.get('/RegistroPonto/comprovantes', {
+        params: {
+          funcionarioId: funcionarioId,
+          dataInicio: toISODateString(dataInicio),
+          dataFim: toISODateString(dataFim),
         }
+      });
 
-        setIsLoading(true);
-        setMensagem('');
-        setComprovantes([]);
+      if (response.data && response.data.success) {
+        setComprovantes(response.data.data);
+      } else {
+        setError(response.data.errorMessage || 'Erro ao buscar dados.');
+      }
+    } catch (error: any) {
+      console.error('Erro ao buscar comprovantes:', error);
+      setError('Erro de conexão. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        // Formata as datas para a API (YYYY-MM-DD)
-        const params = {
-            dataInicio: toISODateString(dataInicio),
-            dataFim: toISODateString(dataFim),
-        };
+  // Busca os dados quando a tela é focada (ao abrir)
+  useFocusEffect(
+    useCallback(() => {
+      fetchComprovantes();
+    }, [dataInicio, dataFim, userId]) // Recarrega se as datas ou o userId mudarem
+  );
 
-        try {
-            console.log('Buscando comprovantes com params:', params);
-            console.log('Funcionário ID:', funcionarioId);
-            const response = await api.get(`/RegistroPonto/comprovantes?funcionarioId=${funcionarioId}`, { params });
+  // Funções para os DatePickers
+  const onChangeDataInicio = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    const currentDate = selectedDate || dataInicio;
+    setShowPickerInicio(Platform.OS === 'ios'); // No Android, o picker se fecha sozinho
+    if (currentDate) {
+      // Garante que a data selecionada seja tratada como UTC
+      const newDate = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()));
+      setDataInicio(newDate);
+    }
+  };
 
-            if (response.data && response.data.success) {
-                setComprovantes(response.data.data);
-                if (response.data.data.length === 0) {
-                    setMensagem('Nenhum comprovante encontrado para o período selecionado.');
-                }
-            } else {
-                setMensagem(response.data.errorMessage || 'Erro ao buscar dados.');
-            }
-        } catch (error: any) {
-            console.error('Erro ao buscar comprovantes:', error);
-            setMensagem('Erro de conexão. Tente novamente.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
+  const onChangeDataFim = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    const currentDate = selectedDate || dataFim;
+    setShowPickerFim(Platform.OS === 'ios');
+    if (currentDate) {
+      const newDate = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()));
+      setDataFim(newDate);
+    }
+  };
 
-    // Busca os dados quando a tela é focada (ao abrir)
-    useFocusEffect(
-        useCallback(() => {
-        fetchComprovantes();
-  }, [dataInicio, dataFim, userId]) // Recarrega se as datas ou o userId mudarem
-    );
+  // Função para abrir o link do comprovante
+  const abrirComprovante = (url: string) => {
+    Linking.openURL(url).catch(err => Alert.alert('Erro', 'Não foi possível abrir o comprovante.'));
+  };
 
-    // Funções para os DatePickers
-    const onChangeDataInicio = (event: DateTimePickerEvent, selectedDate?: Date) => {
-        const currentDate = selectedDate || dataInicio;
-        setShowPickerInicio(false);
-        setDataInicio(currentDate);
-    };
+  // 1. Agrupa os comprovantes por dia usando useMemo para otimização
+  const groupedComprovantes = useMemo(() => {
+    const groups: { [key: string]: ComprovanteDto[] } = {};
 
-    const onChangeDataFim = (event: DateTimePickerEvent, selectedDate?: Date) => {
-        const currentDate = selectedDate || dataFim;
-        setShowPickerFim(false);
-        setDataFim(currentDate);
-    };
+    comprovantes.forEach(comprovante => {
+      // Usamos toLocaleDateString com UTC para garantir que a data não mude com o fuso horário
+      const dateKey = new Date(comprovante.timestampMarcacao).toLocaleDateString('pt-BR', {
+        day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC'
+      });
 
-    // Função para abrir o link do comprovante
-    const abrirComprovante = (url: string) => {
-        Linking.openURL(url).catch(err => Alert.alert('Erro', 'Não foi possível abrir o comprovante.'));
-    };
+      if (!groups[dateKey]) {
+        groups[dateKey] = [];
+      }
+      groups[dateKey].push(comprovante);
+    });
 
-    // Renderização do item da lista
-    const renderItem = ({ item }: { item: ComprovanteDto }) => (
-        <TouchableOpacity style={styles.itemContainer} onPress={() => abrirComprovante(item.comprovanteUrl)}>
-        <View>
-            <Text style={styles.itemTipo}>{item.tipo}</Text>
-            <Text style={styles.itemData}>
-            {new Date(item.timestampMarcacao).toLocaleDateString('pt-BR')} - {new Date(item.timestampMarcacao).toLocaleTimeString('pt-BR')}
-            </Text>
-        </View>
-        </TouchableOpacity>
-    );
+    // Transforma o objeto em um array que o SectionList entende
+    return Object.keys(groups).map(date => ({
+      title: date,
+      data: groups[date],
+    }));
+  }, [comprovantes]);
 
-    return (
-        <View style={styles.container}>
-        <Text style={styles.title}>Filtrar Período</Text>
-        
-        {/* Seletores de Data */}
-        <View style={styles.pickerContainer}>
+  // Renderização do item da lista
+  const renderItem = ({ item }: { item: ComprovanteDto }) => (
+    <List.Item
+      title={item.tipo.replace(/_/g, ' ')}
+      titleStyle={styles.itemTipo}
+      right={() => (
+        <PaperText style={styles.itemData}>
+          {new Date(item.timestampMarcacao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+        </PaperText>
+      )}
+      left={() => <Avatar.Icon size={40} icon={getIconForType(item.tipo).icon} color={getIconForType(item.tipo).color} style={{ backgroundColor: 'transparent' }} />}
+      onPress={() => abrirComprovante(item.comprovanteUrl)}
+      style={styles.itemContainer}
+    />
+  );
+
+  const renderEmptyList = () => {
+    if (isLoading) return null; // Não mostra nada se estiver carregando
+    if (error) {
+      return <EmptyState message={error} />;
+    }
+    return <EmptyState message="Nenhum comprovante encontrado para o período selecionado." />;
+  };
+
+  return (
+    <ScreenContainer>
+      <View style={styles.container}>
+        <PaperText variant="headlineSmall" style={styles.title}>Filtrar Período</PaperText>
+
+        <List.Accordion
+          title="Filtros"
+          left={props => <List.Icon {...props} icon="filter-variant" />}
+          style={styles.accordion}
+        >
+          <View style={styles.pickerContainer}>
             <View style={styles.pickerWrapper}>
-            <Text style={styles.label}>Data Início:</Text>
-            <Button onPress={() => setShowPickerInicio(true)} title={dataInicio.toLocaleDateString('pt-BR')} />
-            {showPickerInicio && (
-              Platform.OS === 'web' ? (
+              <PaperText style={styles.label}>Data Início:</PaperText>
+              {Platform.OS === 'web' ? (
                 <input
                   type="date"
                   value={toISODateString(dataInicio)}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    const newDate = e.target.value ? new Date(e.target.value) : dataInicio;
-                    setShowPickerInicio(false);
-                    setDataInicio(newDate);
+                    const [year, month, day] = e.target.value.split('-').map(Number);
+                    setDataInicio(new Date(Date.UTC(year, month - 1, day)));
                   }}
-                  style={{ padding: 8 }}
+                  style={{ ...styles.webDatePicker, backgroundColor: paperTheme.colors.surface, color: paperTheme.colors.onSurface }}
                 />
               ) : (
-                <DateTimePicker
-                  value={dataInicio}
-                  mode="date"
-                  display="default"
-                  onChange={onChangeDataInicio}
-                />
-              )
-            )}
+                <>
+                  <Button mode="outlined" onPress={() => setShowPickerInicio(true)}>{dataInicio.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</Button>
+                  {showPickerInicio && (
+                    <DateTimePicker
+                      value={dataInicio}
+                      mode="date"
+                      display="default"
+                      onChange={onChangeDataInicio}
+                    />
+                  )}
+                </>
+              )}
             </View>
             <View style={styles.pickerWrapper}>
-            <Text style={styles.label}>Data Fim:</Text>
-            <Button onPress={() => setShowPickerFim(true)} title={dataFim.toLocaleDateString('pt-BR')} />
-            {showPickerFim && (
-              Platform.OS === 'web' ? (
+              <PaperText style={styles.label}>Data Fim:</PaperText>
+              {Platform.OS === 'web' ? (
                 <input
                   type="date"
                   value={toISODateString(dataFim)}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    const newDate = e.target.value ? new Date(e.target.value) : dataFim;
-                    setShowPickerFim(false);
-                    setDataFim(newDate);
+                    const [year, month, day] = e.target.value.split('-').map(Number);
+                    setDataFim(new Date(Date.UTC(year, month - 1, day)));
                   }}
-                  style={{ padding: 8 }}
+                  style={{ ...styles.webDatePicker, backgroundColor: paperTheme.colors.surface, color: paperTheme.colors.onSurface }}
                 />
               ) : (
-                <DateTimePicker
-                  value={dataFim}
-                  mode="date"
-                  display="default"
-                  onChange={onChangeDataFim}
-                />
-              )
-            )}
+                <>
+                  <Button mode="outlined" onPress={() => setShowPickerFim(true)}>{dataFim.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</Button>
+                  {showPickerFim && (
+                    <DateTimePicker
+                      value={dataFim}
+                      mode="date"
+                      display="default"
+                      onChange={onChangeDataFim}
+                    />
+                  )}
+                </>
+              )}
             </View>
-        </View>
-        
-        {/* O botão de buscar não é mais estritamente necessário se usamos o useFocusEffect,
-            mas podemos manter para o usuário "re-buscar" manualmente se desejar */}
-        <Button title="Buscar" onPress={fetchComprovantes} disabled={isLoading} />
+          </View>
+        </List.Accordion>
+
+        {/* O botão de busca foi removido pois a busca é automática ao mudar as datas */}
 
         {/* Feedback de Carregamento */}
-        {isLoading ? (
-            <ActivityIndicator size="large" color={Colors.light.tint} style={styles.loader} />
+        {isLoading && comprovantes.length === 0 ? (
+          <ActivityIndicator size="large" color={paperTheme.colors.primary} style={styles.loader} />
         ) : (
-            <FlatList
-            data={comprovantes}
+          <SectionList
+            sections={groupedComprovantes}
             renderItem={renderItem}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item, index) => item.id.toString() + index}
             style={styles.list}
-            ListEmptyComponent={<Text style={styles.mensagemVazio}>{mensagem}</Text>}
-            />
+            ListEmptyComponent={renderEmptyList}
+            renderSectionHeader={({ section: { title } }) => <PaperText style={styles.sectionHeader}>{title}</PaperText>}
+            stickySectionHeadersEnabled={false}
+          />
         )}
-        </View>
-    );
+      </View>
+    </ScreenContainer>
+  );
 }
 /* ---------- styles ---------- */
-const styles = StyleSheet.create({
-  container: {
+const getStyles = (paperTheme: any) => StyleSheet.create({
+    container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  accordion: {
+    backgroundColor: paperTheme.colors.surfaceVariant,
     marginBottom: 16,
   },
   pickerContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-evenly',
     marginBottom: 16,
   },
   pickerWrapper: {
     alignItems: 'center',
   },
   label: {
-    fontSize: 16,
     marginBottom: 8,
   },
   loader: {
@@ -214,30 +287,33 @@ const styles = StyleSheet.create({
   list: {
     marginTop: 16,
   },
-  itemContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    backgroundColor: '#f9f9f9',
-    marginBottom: 8,
-    borderRadius: 8,
-  },
-  itemTipo: {
+  sectionHeader: {
     fontSize: 16,
     fontWeight: 'bold',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: paperTheme.colors.surfaceVariant,
+    marginTop: 12,
+    borderRadius: 4,
+  },
+  itemContainer: {
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: paperTheme.colors.outlineVariant,
+  },
+  itemTipo: {
     textTransform: 'capitalize',
+    fontSize: 16,
+    marginLeft: -8, // Ajuste fino para alinhar com o ícone
   },
   itemData: {
     fontSize: 14,
-    color: '#555',
+    alignSelf: 'center', // Centraliza o texto do horário verticalmente
   },
-  mensagemVazio: {
-    textAlign: 'center',
-    marginTop: 50,
-    fontSize: 16,
-    color: '#777',
+  webDatePicker: {
+    padding: 10,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
 });

@@ -47,16 +47,16 @@ export default function EmployeeLayout() {
          <Drawer.Screen
             name="bater-ponto"
             options={{
-               drawerLabel: 'bater-ponto',
-               title: 'bater-ponto'
+               drawerLabel: 'Bater-ponto',
+               title: 'Bater-ponto'
             }}
          />
 
          <Drawer.Screen
             name="comprovantes"
             options={{
-               drawerLabel: 'comprovantes',
-               title: 'comprovantes',
+               drawerLabel: 'Comprovantes',
+               title: 'Comprovantes',
             }}
          />
 
