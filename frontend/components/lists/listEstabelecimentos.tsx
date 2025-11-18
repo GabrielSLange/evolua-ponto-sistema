@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet, Pressable, useWindowDimensions, Platform } from 'react-native';
 import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme, Icon, Portal } from 'react-native-paper';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { ModelEstabelecimento } from '../../models/ModelEstabelecimento';
 
 interface ListEstabelcimentosProps {
@@ -26,7 +26,17 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
    const iconColor = theme.colors.secondary;
    // Pega o ID da empresa e o nome da empresa passados na navegação
    const { width } = useWindowDimensions();
-   const isDesktop = Platform.OS === 'web' && width > 768;
+   const isDesktop = Platform.OS === 'web' && width > 768;
+   const [isFocused, setIsFocused] = useState(false);
+   
+   useFocusEffect(
+      useCallback(() => {
+         setIsFocused(true); // Mostra o botão ao entrar
+         return () => {
+            setIsFocused(false); // Esconde o botão ao sair
+         };
+      }, [])
+   );
 
    return (
       <View style={styles.container}>
@@ -103,16 +113,20 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
             )}
             ListEmptyComponent={<View style={styles.emptyContainer}><Text>Nenhum estabelecimento cadastrado.</Text></View>}
          />
-         <FAB
-            style={[styles.fab, isDesktop && styles.fabDesktop]}
-            icon="plus"
-            onPress={() => {
-               router.push({
-                  pathname: `/(${permissao})/estabelecimentos/add-estabelecimento`,
-                  params: { empresaId: empresaId, userId: userId }
-               });
-            }}
-         />
+         {isFocused && (
+            <Portal>
+            <FAB
+               style={[styles.fab, isDesktop && styles.fabDesktop]}
+               icon="plus"
+               onPress={() => {
+                  router.push({
+                     pathname: `/(${permissao})/estabelecimentos/add-estabelecimento`,
+                     params: { empresaId: empresaId, userId: userId }
+                  });
+               }}
+            />
+            </Portal>
+         )}
       </View>
    );
 };

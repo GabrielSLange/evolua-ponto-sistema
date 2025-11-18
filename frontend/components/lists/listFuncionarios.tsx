@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { View, FlatList, StyleSheet, Pressable, useWindowDimensions, Platform } from 'react-native';
 import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme, Icon, Portal } from 'react-native-paper';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { ModelFuncionario } from '../../models/ModelFuncionario';
 
 interface ListFuncionariosProps {
@@ -25,6 +25,16 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
     // Pega o ID da empresa e o nome da empresa passados na navegação
     const { width } = useWindowDimensions();
     const isDesktop = Platform.OS === 'web' && width > 768;
+    const [isFocused, setIsFocused] = useState(false);
+
+    useFocusEffect(
+      useCallback(() => {
+         setIsFocused(true); // Mostra o botão ao entrar
+         return () => {
+            setIsFocused(false); // Esconde o botão ao sair
+         };
+      }, [])
+    );
     
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -89,16 +99,20 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                 )}
                 ListEmptyComponent={<View style={styles.emptyContainer}><Text>Nenhum funcionário encontrado.</Text></View>}
             />
-            <FAB
-                style={[styles.fab, isDesktop && styles.fabDesktop]}
-                icon="plus"
-                onPress={() => {
-                    router.push({
-                        pathname: `/(${permissao})/funcionarios/add-funcionario`,
-                        params: { estabelecimentoId: estabelecimentoId }
-                    });
-                }}
-            />
+            {isFocused && (
+                <Portal>
+                    <FAB
+                        style={[styles.fab, isDesktop && styles.fabDesktop]}
+                        icon="plus"
+                        onPress={() => {
+                            router.push({
+                                pathname: `/(${permissao})/funcionarios/add-funcionario`,
+                                params: { estabelecimentoId: estabelecimentoId }
+                            });
+                        }}
+                    />
+                </Portal>
+            )}
         </View>
     );
 };
