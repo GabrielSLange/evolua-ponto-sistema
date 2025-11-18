@@ -74,3 +74,9 @@ services:
 volumes:
   postgres_data:
   pgadmin_data:
+
+networks:
+  default:
+    driver: bridge
+  nginx-proxy-net:
+    external: true
