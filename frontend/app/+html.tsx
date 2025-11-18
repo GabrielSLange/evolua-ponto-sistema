@@ -1,33 +1,29 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 
-// This file is web-only and used to configure the root HTML for every
-// web page during static rendering.
-// The contents of this function only run in Node.js environments and
-// do not have access to the DOM or browser APIs.
 export default function Root({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
-        {/* 
-          Disable body scrolling on web. This makes ScrollView components work closer to how they do on native. 
-          However, body scrolling is often nice to have for mobile web. If you want to enable it, remove this line.
-        */}
         <ScrollViewStyleReset />
 
-        {/* Using raw CSS styles as an escape-hatch to ensure the background color never flickers in dark-mode. */}
-        <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
-        {/* Add any additional <head> elements that you want globally available on web... */}
+        <style dangerouslySetInnerHTML={{ 
+          __html: globalCss 
+        }} />
+        
+        <title>Evolua Ponto</title>
       </head>
       <body>{children}</body>
     </html>
   );
 }
 
-const responsiveBackground = `
+// --- CSS COMBINADO (Versão Final e Simplificada) ---
+const globalCss = `
+/* Fundo responsivo (seu código original) */
 body {
   background-color: #fff;
 }
@@ -35,4 +31,40 @@ body {
   body {
     background-color: #000;
   }
-}`;
+}
+
+/* * --- Estilos da Barra de Rolagem (WebKit: Chrome, Edge, Safari) ---
+ * Aplica-se a todos os elementos com scroll (*)
+ */
+
+/* 1. Largura da barra */
+*::-webkit-scrollbar {
+  width: 8px;  /* Deixa a barra mais fina */
+  height: 8px; /* Para barras horizontais */
+}
+
+/* 2. A "trilha" (fundo) - Deixamos transparente */
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 3. O "polegar" (a parte que arrasta) - TEMA CLARO */
+*::-webkit-scrollbar-thumb {
+  background-color: #ccc; /* Um cinza claro sutil */
+  border-radius: 4px;     /* Bordas arredondadas */
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #aaa; /* Um pouco mais escuro ao passar o mouse */
+}
+
+/* 4. Cores para o TEMA ESCURO */
+@media (prefers-color-scheme: dark) {
+  *::-webkit-scrollbar-thumb {
+    background-color: #444; /* Um cinza escuro sutil */
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #666; /* Um pouco mais claro ao passar o mouse */
+  }
+}
+`;

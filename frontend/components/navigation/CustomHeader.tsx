@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Appbar, Menu, Switch, Text } from 'react-native-paper';
+import { Appbar, Divider, Menu, Switch, Text } from 'react-native-paper';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../contexts/AuthContext';
 import { View } from 'react-native';
@@ -19,6 +19,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, isDesktop }: CustomH
    const closeMenu = () => setMenuVisible(false);
 
    return (
+      <View>
       <Appbar.Header >
          {/* Ícone de Menu Lateral (Sanduíche) à Esquerda */}
          {!isDesktop && (
@@ -43,6 +44,8 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, isDesktop }: CustomH
             </View>
          </Menu>
       </Appbar.Header>
+      <Divider />
+      </View>
    );
 };
 

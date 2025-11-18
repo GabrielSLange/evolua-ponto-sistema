@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
-// 1. Importe os componentes necessários
+import { StyleSheet } from 'react-native';
 import CustomDrawerContent from '../../components/navigation/CustomDrawerContent';
 import CustomHeader from '../../components/navigation/CustomHeader';
 import { useWindowDimensions } from 'react-native';
@@ -23,8 +23,9 @@ export default function AdminLayout() {
 
             // 4. Ajuste de estilo e comportamento para desktop vs. mobile
             drawerStyle: {
-               // Define uma largura fixa no desktop e percentual no mobile
                width: isDesktop ? '25%' : '80%',
+               borderRightColor: theme.colors.outlineVariant,
+               borderRightWidth: StyleSheet.hairlineWidth,
             },
             swipeEnabled: !isDesktop, // Desabilita o gesto de arrastar no desktop
 

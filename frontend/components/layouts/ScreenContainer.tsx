@@ -41,8 +41,8 @@ const styles = StyleSheet.create({
    },
    desktopContainer: {
       maxWidth: '70%', // A mesma lógica de antes para limitar a largura
-      borderLeftWidth: 1,
-      borderRightWidth: 1, // Adiciona um fundo branco para o conteúdo
+      borderLeftWidth: 0,
+      borderRightWidth: 0, // Adiciona um fundo branco para o conteúdo
    },
 });
 
