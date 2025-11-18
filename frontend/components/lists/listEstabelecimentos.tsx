@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, FlatList, StyleSheet, Pressable } from 'react-native';
-import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme, Icon } from 'react-native-paper';
+import { View, FlatList, StyleSheet, Pressable, useWindowDimensions, Platform } from 'react-native';
+import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme, Icon, Portal } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { ModelEstabelecimento } from '../../models/ModelEstabelecimento';
 
@@ -25,7 +25,8 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
    const theme = useTheme();
    const iconColor = theme.colors.secondary;
    // Pega o ID da empresa e o nome da empresa passados na navegação
-
+   const { width } = useWindowDimensions();
+   const isDesktop = Platform.OS === 'web' && width > 768;
 
    return (
       <View style={styles.container}>
@@ -103,7 +104,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
             ListEmptyComponent={<View style={styles.emptyContainer}><Text>Nenhum estabelecimento cadastrado.</Text></View>}
          />
          <FAB
-            style={styles.fab}
+            style={[styles.fab, isDesktop && styles.fabDesktop]}
             icon="plus"
             onPress={() => {
                router.push({
@@ -149,6 +150,9 @@ const styles = StyleSheet.create({
       right: 0,
       bottom: 0,
    },
+   fabDesktop: {
+       right: '12%', 
+    },
    listContentContainer: {
       paddingBottom: 80,
    }
