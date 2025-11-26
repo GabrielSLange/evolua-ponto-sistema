@@ -128,9 +128,8 @@ export default function ComprovanteScreen() {
     const groups: { [key: string]: ComprovanteDto[] } = {};
 
     comprovantes.forEach(comprovante => {
-      // Usamos toLocaleDateString com UTC para garantir que a data não mude com o fuso horário
       const dateKey = new Date(comprovante.timestampMarcacao).toLocaleDateString('pt-BR', {
-        day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC'
+        day: '2-digit', month: '2-digit', year: 'numeric'
       });
 
       if (!groups[dateKey]) {

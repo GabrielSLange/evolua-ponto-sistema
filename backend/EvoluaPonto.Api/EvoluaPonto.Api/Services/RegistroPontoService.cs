@@ -123,7 +123,8 @@ namespace EvoluaPonto.Api.Services
                 var inicioUtc = DateTime.SpecifyKind(dataInicio.Date, DateTimeKind.Utc);
 
                 // Fazemos o mesmo para a data final
-                var fimUtc = DateTime.SpecifyKind(dataFim.Date.AddDays(1).AddTicks(-1), DateTimeKind.Utc);
+                // Em vez de terminar em 23:59:59 UTC, nós avançamos 4 horas no dia seguinte.
+                var fimUtc = DateTime.SpecifyKind(dataFim.Date.AddDays(1).AddHours(4), DateTimeKind.Utc);
 
                 var comprovantes = await _context.RegistrosPonto
                     .Where(r =>
