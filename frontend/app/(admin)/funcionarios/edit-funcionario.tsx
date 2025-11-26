@@ -1,4 +1,3 @@
-import { View } from "@/components/Themed";
 import { Appbar } from "react-native-paper";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useNotification } from "../../../contexts/NotificationContext";
@@ -7,7 +6,7 @@ import CustomLoader from "../../../components/CustomLoader";
 import { ModelFuncionario } from "../../../models/ModelFuncionario";
 import ScreenContainer from "@/components/layouts/ScreenContainer";
 import { useEditFuncionario } from "@/hooks/superadmin/useFuncionario";
-import { Modal, StyleSheet } from "react-native";
+import { Modal, StyleSheet, View } from "react-native";
 
 const EditFuncionarioAdminScreen = () => {
     const router = useRouter();
