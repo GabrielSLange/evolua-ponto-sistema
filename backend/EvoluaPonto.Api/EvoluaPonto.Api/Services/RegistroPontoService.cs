@@ -163,5 +163,48 @@ namespace EvoluaPonto.Api.Services
                 return new ServiceResponse<List<ComprovanteDto>> { Success = false, ErrorMessage = $"Erro ao recuperar comprovantes: {ex.Message}" };
             }      
         }
+
+        public async Task<ServiceResponse<ModelRegistroPonto>> SolicitarPontoAsync(SolicitacaoRegistroDto solicitacaoDto)
+        {
+            ModelFuncionario? funcionarioBanco = await _context.Funcionarios
+                                                                .Include(f => f.Estabelecimento)
+                                                                .ThenInclude(est => est.Empresa)
+                                                                .FirstOrDefaultAsync(tb => tb.Id == solicitacaoDto.FuncionarioId);
+
+            if (funcionarioBanco is null)
+                return new ServiceResponse<ModelRegistroPonto> { Success = false, ErrorMessage = "Funcionário não encontrado." };
+
+            if (funcionarioBanco.Estabelecimento is null)
+                return new ServiceResponse<ModelRegistroPonto> { Success = false, ErrorMessage = "Estabelecimento não encontrado." };
+            
+            if (funcionarioBanco.Estabelecimento.Empresa is null)
+                return new ServiceResponse<ModelRegistroPonto> { Success = false, ErrorMessage = "Empresa não encontrada." };
+
+            // Tratamento de Data (Segurança para o PostgreSQL)
+            // Garante que o horário enviado seja gravado como UTC no banco
+            var horarioUtc = DateTime.SpecifyKind(solicitacaoDto.Horario, DateTimeKind.Utc);
+
+            // Criação do Objeto (Sem NSR, Sem Hash, Sem Foto)
+            ModelRegistroPonto novaSolicitacao = new ModelRegistroPonto
+            {
+                FuncionarioId = solicitacaoDto.FuncionarioId,
+                TimestampMarcacao = horarioUtc,
+                Tipo = solicitacaoDto.Tipo,
+                
+                // Configuração de Solicitação Manual
+                RegistroManual = true, 
+                Status = StatusSolicitacao.Pendente,
+                JustificativaFuncionario = solicitacaoDto.Justificativa,
+                
+                // Campos de Controle
+                FotoUrl = null,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _context.RegistrosPonto.AddAsync(novaSolicitacao);
+            await _context.SaveChangesAsync();
+
+            return new ServiceResponse<ModelRegistroPonto> { Success = true, Data = novaSolicitacao, ErrorMessage = "Solicitação enviada com sucesso." };
+        }
     }
 }
