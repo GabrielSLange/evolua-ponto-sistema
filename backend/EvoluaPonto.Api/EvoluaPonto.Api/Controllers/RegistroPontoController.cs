@@ -74,7 +74,7 @@ namespace EvoluaPonto.Api.Controllers
                 if (!responseSolicitacao.Success)
                     return BadRequest(responseSolicitacao.ErrorMessage);
 
-                return Ok(responseSolicitacao.Data);
+                return Ok(responseSolicitacao);
             }
             catch (Exception ex)
             {

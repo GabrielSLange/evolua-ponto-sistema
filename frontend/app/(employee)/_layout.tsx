@@ -47,8 +47,16 @@ export default function EmployeeLayout() {
          <Drawer.Screen
             name="bater-ponto"
             options={{
-               drawerLabel: 'Bater-ponto',
-               title: 'Bater-ponto'
+               drawerLabel: 'Bater ponto',
+               title: 'Bater ponto'
+            }}
+         />
+
+         <Drawer.Screen
+            name="solicitar-ponto"
+            options={{
+               drawerLabel: 'Inserir batida',
+               title: 'Solicitar ponto',
             }}
          />
 
