@@ -63,5 +63,23 @@ namespace EvoluaPonto.Api.Controllers
 
             return Ok(response); // Retorna a lista de comprovantes
         }
+
+        [HttpPost("solicitacao")]
+        public async Task<IActionResult> SolicitarPonto([FromBody] SolicitacaoRegistroDto solicitacaoDto)
+        {
+            try
+            {
+                ServiceResponse<ModelRegistroPonto> responseSolicitacao = await _registroPontoService.SolicitarPontoAsync(solicitacaoDto);
+
+                if (!responseSolicitacao.Success)
+                    return BadRequest(responseSolicitacao.ErrorMessage);
+
+                return Ok(responseSolicitacao);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ServiceResponse<ModelRegistroPonto> { Success = false, ErrorMessage = ex.Message });
+            }
+        }
     }
 }
