@@ -47,7 +47,8 @@ const RootLayoutNav = () => {
   // --- CORREÇÃO 1: Carregamento Explícito da Fonte ---
   // Mapeamos 'MaterialDesignIcons' (que o Paper usa) direto para o arquivo físico
   const [fontsLoaded] = useFonts({
-    'MaterialDesignIcons': require('../assets/fonts/MaterialDesignIcons.ttf'),
+    // Apontamos direto para a raiz do site (/fonts/...)
+    'MaterialDesignIcons': '/fonts/MaterialCommunityIcons.ttf',
   });
 
   useEffect(() => {
