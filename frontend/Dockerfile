@@ -10,6 +10,8 @@ WORKDIR /app
 # Instala a linha de comando do Expo
 RUN npm install -g expo-cli
 
+ENV NEXT_PUBLIC_API_URL=https://evoluaponto-api.d63v0v.easypanel.host
+
 # Copia os arquivos de dependência e instala usando a flag que já funcionou
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --legacy-peer-deps
