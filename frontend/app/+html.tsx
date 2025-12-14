@@ -1,6 +1,7 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
+import { type PropsWithChildren } from 'react';
 
-export default function Root({ children }: { children: React.ReactNode }) {
+export default function Root({ children }: PropsWithChildren) {
   return (
     <html lang="pt-BR">
       <head>
@@ -10,6 +11,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
 
         <ScrollViewStyleReset />
 
+        {/* Injeta o CSS global (Fontes + Scrollbar) */}
         <style dangerouslySetInnerHTML={{ 
           __html: globalCss 
         }} />
@@ -21,11 +23,21 @@ export default function Root({ children }: { children: React.ReactNode }) {
   );
 }
 
-// --- CSS COMBINADO (Versão Final e Simplificada) ---
+// --- CSS COMBINADO (Fontes + Scrollbar) ---
 const globalCss = `
-/* Fundo responsivo (seu código original) */
+/* 1. DEFINIÇÃO DA FONTE (O Pulo do Gato 🐈)
+  Isso carrega a fonte direto da pasta /public/fonts/ sem passar pelo Bundler.
+*/
+@font-face {
+  font-family: 'MaterialCommunityIcons';
+  src: url('/fonts/MaterialCommunityIcons.ttf') format('truetype');
+}
+
+/* 2. Fundo responsivo */
 body {
   background-color: #fff;
+  /* Garante que a fonte padrão esteja pronta caso falhe */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   body {
@@ -33,38 +45,31 @@ body {
   }
 }
 
-/* * --- Estilos da Barra de Rolagem (WebKit: Chrome, Edge, Safari) ---
- * Aplica-se a todos os elementos com scroll (*)
- */
-
-/* 1. Largura da barra */
+/* 3. Estilos da Barra de Rolagem (Seu código original mantido) */
 *::-webkit-scrollbar {
-  width: 8px;  /* Deixa a barra mais fina */
-  height: 8px; /* Para barras horizontais */
+  width: 8px;
+  height: 8px;
 }
 
-/* 2. A "trilha" (fundo) - Deixamos transparente */
 *::-webkit-scrollbar-track {
   background: transparent;
 }
 
-/* 3. O "polegar" (a parte que arrasta) - TEMA CLARO */
 *::-webkit-scrollbar-thumb {
-  background-color: #ccc; /* Um cinza claro sutil */
-  border-radius: 4px;     /* Bordas arredondadas */
+  background-color: #ccc;
+  border-radius: 4px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background-color: #aaa; /* Um pouco mais escuro ao passar o mouse */
+  background-color: #aaa;
 }
 
-/* 4. Cores para o TEMA ESCURO */
 @media (prefers-color-scheme: dark) {
   *::-webkit-scrollbar-thumb {
-    background-color: #444; /* Um cinza escuro sutil */
+    background-color: #444;
   }
   *::-webkit-scrollbar-thumb:hover {
-    background-color: #666; /* Um pouco mais claro ao passar o mouse */
+    background-color: #666;
   }
 }
 `;
