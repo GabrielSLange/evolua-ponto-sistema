@@ -52,7 +52,7 @@ const RootLayoutNav = () => {
 
   useEffect(() => {
     // Se ainda está carregando Auth ou Fonte, não faz redirecionamento
-    if (isLoading || !fontsLoaded) return;
+    if (isLoading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
 
@@ -87,7 +87,7 @@ const RootLayoutNav = () => {
   // --- CORREÇÃO 2: Proteção contra Tela Branca ---
   // Se estiver carregando (Auth) OU se a fonte não baixou ainda:
   // Mostra APENAS o Loader. Não tenta renderizar o Slot.
-  if (isLoading || !fontsLoaded) {
+  if (isLoading) {
     return (
       <View style={styles.loaderOverlay}>
         <CustomLoader />
