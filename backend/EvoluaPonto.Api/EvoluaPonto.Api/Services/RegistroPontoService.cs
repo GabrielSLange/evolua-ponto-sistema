@@ -206,5 +206,90 @@ namespace EvoluaPonto.Api.Services
 
             return new ServiceResponse<ModelRegistroPonto> { Success = true, Data = novaSolicitacao, ErrorMessage = "Solicitação enviada com sucesso." };
         }
+
+        public async Task<ServiceResponse<List<ModelRegistroPonto>>> GetSolicitacoesPendentesAsync(Guid empresaId)
+        {
+            // Busca registros onde Status == Pendente e a empresa é a do Admin
+            var pendentes = await _context.RegistrosPonto
+                                            .Include(r => r.Funcionario) // Para mostrar o nome de quem pediu
+                                            .Where(r =>
+                                                r.Status == StatusSolicitacao.Pendente &&
+                                                r.Funcionario.Estabelecimento.EmpresaId == empresaId
+                                            )
+                                            .OrderByDescending(r => r.CreatedAt)
+                                            .ToListAsync();
+
+            return new ServiceResponse<List<ModelRegistroPonto>> { Data = pendentes };
+        }
+
+        public async Task<ServiceResponse<bool>> AvaliarSolicitacaoAsync(long id, AvaliarSolicitacaoDto avaliacaoDto)
+        {
+            // 1. Buscar a solicitação
+            // Precisamos dos Includes (Funcionario, Empresa, etc) para gerar o PDF se for aprovado
+            var registro = await _context.RegistrosPonto
+                                            .Include(r => r.Funcionario)
+                                            .ThenInclude(f => f.Estabelecimento)
+                                            .ThenInclude(e => e.Empresa)
+                                            .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (registro is null)
+                return new ServiceResponse<bool> { Success = false, ErrorMessage = "Solicitação não encontrada." };
+
+            if (registro.Status != StatusSolicitacao.Pendente)
+                return new ServiceResponse<bool> { Success = false, ErrorMessage = "Esta solicitação já foi avaliada." };
+
+            // 2. Caminho da Rejeição
+            if (!avaliacaoDto.Aprovado)
+            {
+                registro.Status = StatusSolicitacao.Rejeitado;
+                registro.JustificativaAdmin = avaliacaoDto.JustificativaAdmin;
+
+                await _context.SaveChangesAsync();
+                return new ServiceResponse<bool> { Success = true, Data = true, ErrorMessage = "Solicitação rejeitada com sucesso." };
+            }
+
+            // 3. Caminho da Aprovação (Transformar em Ponto Oficial)
+            try
+            {
+                registro.Status = StatusSolicitacao.Aprovado;
+                registro.JustificativaAdmin = avaliacaoDto.JustificativaAdmin;
+
+                // --- Geração de Dados Fiscais (Cópia da lógica de RegistrarPontoAsync) ---
+
+                // A. Gerar NSR (Número Sequencial de Registro)
+                long ultimoNsr = await _context.RegistrosPonto
+                                                  .Where(p => p.Funcionario.Estabelecimento.EmpresaId == registro.Funcionario.Estabelecimento.EmpresaId)
+                                                  .MaxAsync(p => (long?)p.Nsr) ?? 0;
+
+                registro.Nsr = ultimoNsr + 1;
+
+                // B. Gerar Hash SHA256
+                // Padrão: NSR + CPF + DATAHORA + CNPJ
+                string dadosParaHash = $"{registro.Nsr}{registro.Funcionario.Cpf}{registro.TimestampMarcacao:yyyyMMddHHmmss}{registro.Funcionario.Estabelecimento.Empresa.Cnpj}";
+                registro.HashSha256 = GerarHashSha256(dadosParaHash); // Reutiliza seu método privado existente
+
+                // C. Gerar e Assinar PDF
+                byte[]? pdfBytes = _comprovanteService.GerarComprovante(registro, registro.Funcionario, registro.Funcionario.Estabelecimento.Empresa, registro.Funcionario.Estabelecimento);
+                byte[]? pdfAssinadoBytes = _signatureService.SignPdf(pdfBytes);
+
+                if (pdfAssinadoBytes is null)
+                    return new ServiceResponse<bool> { Success = false, ErrorMessage = "Erro ao assinar o comprovante na aprovação." };
+
+                // D. Salvar PDF no Storage
+                var nomeArquivoPdf = $"comprovante_{registro.Nsr}.pdf";
+                var comprovanteUrl = await _storageService.UploadBytesAsync(pdfAssinadoBytes, registro.FuncionarioId, nomeArquivoPdf, "application/pdf");
+
+                registro.ComprovanteUrl = comprovanteUrl;
+
+                // 4. Salvar tudo
+                await _context.SaveChangesAsync();
+
+                return new ServiceResponse<bool> { Success = true, Data = true, ErrorMessage = "Solicitação aprovada e comprovante gerado com sucesso." };
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResponse<bool> { Success = false, ErrorMessage = $"Erro ao processar aprovação: {ex.Message}" };
+            }
+        }
     }
 }
