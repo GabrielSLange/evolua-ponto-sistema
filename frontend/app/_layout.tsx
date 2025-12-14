@@ -47,7 +47,7 @@ const RootLayoutNav = () => {
   // --- CORREÇÃO 1: Carregamento Explícito da Fonte ---
   // Mapeamos 'MaterialDesignIcons' (que o Paper usa) direto para o arquivo físico
   const [fontsLoaded] = useFonts({
-    'MaterialDesignIcons': require('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf'),
+    'MaterialDesignIcons': require('../assets/fonts/MaterialDesignIcons.ttf'),
   });
 
   useEffect(() => {
