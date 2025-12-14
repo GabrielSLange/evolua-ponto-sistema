@@ -1,17 +1,16 @@
 FROM nginx:alpine
 
-# --- CACHE BUSTER ---
-# Mude o número abaixo sempre que achar que o servidor não atualizou
-ENV BUILD_VERSION="v2.0-fix-fonts" 
+# Cache Buster: Mudamos a versão para garantir
+ENV DEPLOY_VERSION="v3.0-pasta-nova"
 
-# Remove a configuração padrão
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copia a NOSSA configuração personalizada
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copia a pasta dist NOVA
-COPY frontend/dist /usr/share/nginx/html
+# --- MUDANÇA AQUI ---
+# Copia a pasta 'web-build' (nova) em vez da 'dist' (velha/cacheada)
+COPY frontend/web-build /usr/share/nginx/html
+# --------------------
 
 EXPOSE 80
 
