@@ -67,7 +67,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddServer(new Microsoft.OpenApi.Models.OpenApiServer() { Url = "/api" });
     // Define o T�tulo e a Vers�o da sua API
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "Evolua Ponto API", Version = "v1" });
 
@@ -126,7 +125,6 @@ var app = builder.Build();
 
 app.UseForwardedHeaders();
 
-app.UsePathBase("/api");
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
