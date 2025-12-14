@@ -81,5 +81,25 @@ namespace EvoluaPonto.Api.Controllers
                 return BadRequest(new ServiceResponse<ModelRegistroPonto> { Success = false, ErrorMessage = ex.Message });
             }
         }
+
+        [HttpGet("pendentes/{empresaId}")]
+        public async Task<IActionResult> GetPendentes(Guid empresaId)
+        {
+            // Idealmente, pegue o ID da empresa do Token do usuário logado por segurança,
+            // mas para dev, passar via parametro funciona.
+            var response = await _registroPontoService.GetSolicitacoesPendentesAsync(empresaId);
+            return Ok(response);
+        }
+
+        [HttpPut("avaliar/{id}")]
+        public async Task<IActionResult> AvaliarSolicitacao(long id, [FromBody] AvaliarSolicitacaoDto dto)
+        {
+            var response = await _registroPontoService.AvaliarSolicitacaoAsync(id, dto);
+
+            if (!response.Success)
+                return BadRequest(response.ErrorMessage);
+
+            return Ok(response);
+        }
     }
 }
