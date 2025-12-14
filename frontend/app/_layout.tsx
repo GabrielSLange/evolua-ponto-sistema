@@ -6,16 +6,12 @@ import CustomLoader from '../components/CustomLoader';
 import { NotificationProvider, NotificationStateContext } from '../contexts/NotificationContext';
 import { Text, View, StyleSheet } from 'react-native';
 
-// --- IMPORTS PARA A CORREÇÃO DOS ÍCONES ---
-import { useFonts } from 'expo-font';
-// ------------------------------------------
+// SEM useFonts, SEM require. Vida que segue.
 
-// Componente GlobalSnackbar (Mantive igual ao seu)
 const GlobalSnackbar = () => {
   const notificationState = useContext(NotificationStateContext);
-
   if (!notificationState) return null;
-
+  
   const getBackgroundColor = () => {
     switch (notificationState.type) {
       case 'error': return '#B00020';
@@ -38,35 +34,22 @@ const GlobalSnackbar = () => {
   );
 }
 
-// Componente de Navegação Principal
 const RootLayoutNav = () => {
   const { isAuthenticated, isLoading, role, userId } = useAuth();
   const router = useRouter();
   const segments = useSegments();
 
-  // --- CORREÇÃO 1: Carregamento Explícito da Fonte ---
-  // Mapeamos 'MaterialDesignIcons' (que o Paper usa) direto para o arquivo físico
-  const [fontsLoaded] = useFonts({
-    // Apontamos direto para a raiz do site (/fonts/...)
-    'MaterialDesignIcons': require('../assets/fonts/MaterialCommunityIcons.ttf'),
-  });
-
+  // Lógica de Auth pura
   useEffect(() => {
-    // Se ainda está carregando Auth ou Fonte, não faz redirecionamento
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
+    const currentRouteGroup = segments[0];
 
-    // Se NÃO está logado
     if (!isAuthenticated) {
-      if (!inAuthGroup) {
-        router.replace('/(auth)/login');
-      }
+      if (!inAuthGroup) router.replace('/(auth)/login');
       return;
     }
-
-    // Se JÁ está logado
-    const currentRouteGroup = segments[0];
 
     if (inAuthGroup) {
       if (role === 'superadmin') router.replace('/(superadmin)/empresas');
@@ -75,7 +58,6 @@ const RootLayoutNav = () => {
       return;
     }
 
-    // Proteção de Rotas
     if (role === 'normal' && currentRouteGroup !== '(employee)') {
       router.replace('/(employee)/home');
     } else if (role === 'admin' && currentRouteGroup !== '(admin)') {
@@ -83,11 +65,10 @@ const RootLayoutNav = () => {
     } else if (role === 'superadmin' && currentRouteGroup !== '(superadmin)') {
       router.replace('/(superadmin)/empresas');
     }
-  }, [isAuthenticated, isLoading, role, segments, userId, fontsLoaded]);
+  }, [isAuthenticated, isLoading, role, segments, userId]);
 
-  // --- CORREÇÃO 2: Proteção contra Tela Branca ---
-  // Se estiver carregando (Auth) OU se a fonte não baixou ainda:
-  // Mostra APENAS o Loader. Não tenta renderizar o Slot.
+  // Se tiver carregando o AUTH, mostra loader.
+  // Se for fonte, problema da fonte. O app abre.
   if (isLoading) {
     return (
       <View style={styles.loaderOverlay}>
@@ -96,11 +77,9 @@ const RootLayoutNav = () => {
     );
   }
 
-  // Só renderiza o app quando tudo estiver pronto
   return <Slot />;
 };
 
-// Componente de Tema
 const ThemedApp = () => {
   const { theme } = useAuth();
   const currentTheme = theme === 'dark' ? MD3DarkTheme : MD3LightTheme;
@@ -113,7 +92,6 @@ const ThemedApp = () => {
   );
 }
 
-// Layout Raiz
 export default function RootLayout() {
   return (
     <AuthProvider>
@@ -139,11 +117,11 @@ const styles = StyleSheet.create({
   },
   loaderOverlay: {
     flex: 1,
-    backgroundColor: '#fff', // Fundo sólido ou transparente, como preferir
+    backgroundColor: '#fff', 
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 9999,
-    height: '100%', // Garante altura total
+    height: '100%',
     width: '100%',
   },
 });
