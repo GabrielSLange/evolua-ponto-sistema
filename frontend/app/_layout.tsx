@@ -10,6 +10,9 @@ import { useContext } from 'react';
 import { useSegments } from 'expo-router';
 import { Text, View, StyleSheet, Modal } from 'react-native';
 
+import { useFonts } from 'expo-font';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 // NOVO: Componente que renderiza o Snackbar global
 const GlobalSnackbar = () => {
   const notificationState = useContext(NotificationStateContext);
@@ -52,6 +55,10 @@ const RootLayoutNav = () => {
 
   const segments = useSegments();
 
+  const [fontsLoaded] = useFonts({
+    ...MaterialCommunityIcons.font,
+  });
+
   useEffect(() => {
     if (isLoading) {
       return;
@@ -92,6 +99,10 @@ const RootLayoutNav = () => {
       router.replace('/(superadmin)/empresas');
     }
   }, [isAuthenticated, isLoading, role, segments, userId]);
+
+  if (!fontsLoaded) {
+    return null; // Ou seu CustomLoader aqui
+  }
 
   <Modal
     transparent={true}
