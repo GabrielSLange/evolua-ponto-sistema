@@ -39,6 +39,7 @@ builder.Services.AddCors(options =>
                                              "https://localhost:7080",
                                              "http://localhost:8080",
                                              "http://localhost:80",
+                                             "https://evoluaponto-frontend.d63v0v.easypanel.host",
                                              "https://evolua-ponto-sistema.vercel.app") // Para o Swagger local
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
