@@ -1,34 +1,26 @@
-import { Slot, useRouter } from 'expo-router';
-// 1. Importe os temas claro e escuro
-import { PaperProvider, MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
+import { Slot, useRouter, useSegments } from 'expo-router';
+import { PaperProvider, MD3LightTheme, MD3DarkTheme, Snackbar } from 'react-native-paper';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
-import { useEffect } from 'react';
+import { useEffect, useContext } from 'react';
 import CustomLoader from '../components/CustomLoader';
-import { Snackbar } from 'react-native-paper';
 import { NotificationProvider, NotificationStateContext } from '../contexts/NotificationContext';
-import { useContext } from 'react';
-import { useSegments } from 'expo-router';
-import { Text, View, StyleSheet, Modal } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 
+// --- IMPORTS PARA A CORREÇÃO DOS ÍCONES ---
 import { useFonts } from 'expo-font';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+// ------------------------------------------
 
-// NOVO: Componente que renderiza o Snackbar global
+// Componente GlobalSnackbar (Mantive igual ao seu)
 const GlobalSnackbar = () => {
   const notificationState = useContext(NotificationStateContext);
 
-
   if (!notificationState) return null;
 
-  // Define a cor do snackbar com base no tipo de notificação
   const getBackgroundColor = () => {
     switch (notificationState.type) {
-      case 'error':
-        return '#B00020'; // Cor de erro do Material Design
-      case 'success':
-        return '#00C853'; // Cor de sucesso
-      default:
-        return undefined; // Cor padrão do tema
+      case 'error': return '#B00020';
+      case 'success': return '#00C853';
+      default: return undefined;
     }
   };
 
@@ -40,57 +32,49 @@ const GlobalSnackbar = () => {
         duration={4000}
         style={{ backgroundColor: getBackgroundColor() }}
       >
-        <Text style={styles.snackbarText}>
-          {notificationState.message}
-        </Text>
+        <Text style={styles.snackbarText}>{notificationState.message}</Text>
       </Snackbar>
     </View>
   );
 }
 
-// Componente que lida com a lógica de navegação/redirecionamento
+// Componente de Navegação Principal
 const RootLayoutNav = () => {
   const { isAuthenticated, isLoading, role, userId } = useAuth();
   const router = useRouter();
-
   const segments = useSegments();
 
+  // --- CORREÇÃO 1: Carregamento Explícito da Fonte ---
+  // Mapeamos 'MaterialDesignIcons' (que o Paper usa) direto para o arquivo físico
   const [fontsLoaded] = useFonts({
-    ...MaterialCommunityIcons.font,
+    'MaterialDesignIcons': require('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf'),
   });
 
   useEffect(() => {
-    if (isLoading) {
-      return;
-    }
+    // Se ainda está carregando Auth ou Fonte, não faz redirecionamento
+    if (isLoading || !fontsLoaded) return;
 
     const inAuthGroup = segments[0] === '(auth)';
 
-    // --- Lógica para usuário NÃO autenticado ---
+    // Se NÃO está logado
     if (!isAuthenticated) {
-      // Se não está na tela de (auth), redireciona para login
       if (!inAuthGroup) {
         router.replace('/(auth)/login');
-      }
-      return; // Para a execução
-    }
-
-    const currentRouteGroup = segments[0];
-
-    // 1. Se o usuário está em uma rota de (auth) mas já está logado, redireciona
-    if (inAuthGroup) {
-      if (role === 'superadmin') {
-        router.replace('/(superadmin)/empresas');
-      } else if (role === 'admin') {
-        router.replace(`/(admin)/estabelecimentos?userId=${userId}`);
-      } else if (role === 'normal') {
-        router.replace('/(employee)/home');
       }
       return;
     }
 
-    // 2. Proteção de Rota por Role
-    // Verifica se a rota atual é diferente da permitida para a role
+    // Se JÁ está logado
+    const currentRouteGroup = segments[0];
+
+    if (inAuthGroup) {
+      if (role === 'superadmin') router.replace('/(superadmin)/empresas');
+      else if (role === 'admin') router.replace(`/(admin)/estabelecimentos?userId=${userId}`);
+      else if (role === 'normal') router.replace('/(employee)/home');
+      return;
+    }
+
+    // Proteção de Rotas
     if (role === 'normal' && currentRouteGroup !== '(employee)') {
       router.replace('/(employee)/home');
     } else if (role === 'admin' && currentRouteGroup !== '(admin)') {
@@ -98,81 +82,67 @@ const RootLayoutNav = () => {
     } else if (role === 'superadmin' && currentRouteGroup !== '(superadmin)') {
       router.replace('/(superadmin)/empresas');
     }
-  }, [isAuthenticated, isLoading, role, segments, userId]);
+  }, [isAuthenticated, isLoading, role, segments, userId, fontsLoaded]);
 
-  if (!fontsLoaded) {
-    return null; // Ou seu CustomLoader aqui
+  // --- CORREÇÃO 2: Proteção contra Tela Branca ---
+  // Se estiver carregando (Auth) OU se a fonte não baixou ainda:
+  // Mostra APENAS o Loader. Não tenta renderizar o Slot.
+  if (isLoading || !fontsLoaded) {
+    return (
+      <View style={styles.loaderOverlay}>
+        <CustomLoader />
+      </View>
+    );
   }
 
-  <Modal
-    transparent={true}
-    animationType="fade"
-    visible={isLoading}
-  >
-    <View style={styles.loaderOverlay}>
-      <CustomLoader />
-    </View>
-  </Modal>
-
+  // Só renderiza o app quando tudo estiver pronto
   return <Slot />;
 };
 
-// NOVO: Componente que aplica o tema ao aplicativo
+// Componente de Tema
 const ThemedApp = () => {
-  // Pega o estado 'theme' do nosso contexto
   const { theme } = useAuth();
-
-  // Define qual objeto de tema usar com base no estado
   const currentTheme = theme === 'dark' ? MD3DarkTheme : MD3LightTheme;
 
   return (
-    // O PaperProvider agora recebe o tema correto e reage às mudanças
     <PaperProvider theme={currentTheme}>
-
       <RootLayoutNav />
+      <GlobalSnackbar />
     </PaperProvider>
   );
 }
 
-// O layout raiz agora envolve tudo com o AuthProvider e renderiza o ThemedApp
+// Layout Raiz
 export default function RootLayout() {
   return (
     <AuthProvider>
       <NotificationProvider>
         <ThemedApp />
-        <GlobalSnackbar />
       </NotificationProvider>
     </AuthProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  // ... (outros estilos que você possa ter, como 'center')
-
-  // ADICIONE ESTE ESTILO
   snackbarContainer: {
-    // Posiciona o container de forma absoluta
     position: 'absolute',
-
-    // Alinha no topo da tela
-    top: 80, // <-- Ajuste essa distância do topo (ex: 50 ou 80)
-
-    // Garante que ocupe toda a largura
-    left: 8,
-    right: 8,
-
-    // Garante que fique "em cima" de todo o resto
-    zIndex: 1000,
+    top: 90,
+    left: 16,
+    right: 16,
+    zIndex: 9999,
   },
   snackbarText: {
-    textAlign: 'center', // Centraliza o texto horizontalmente
-    color: '#FFFFFF',      // Cor do texto (branco)
-    width: '100%',         // Garante que o texto ocupe toda a largura
+    textAlign: 'center',
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
   loaderOverlay: {
-    flex: 1, // O Modal precisa que o 'flex: 1' preencha a tela
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    flex: 1,
+    backgroundColor: '#fff', // Fundo sólido ou transparente, como preferir
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 9999,
+    height: '100%', // Garante altura total
+    width: '100%',
   },
 });
