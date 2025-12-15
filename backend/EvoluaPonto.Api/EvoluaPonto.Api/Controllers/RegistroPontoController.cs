@@ -45,23 +45,45 @@ namespace EvoluaPonto.Api.Controllers
         }
 
         [HttpGet("comprovantes")]
-        public async Task<IActionResult> GetComprovantes([FromQuery] Guid funcionarioId, [FromQuery] DateTime dataInicio, [FromQuery] DateTime dataFim)
+        public async Task<IActionResult> GetComprovantes([FromQuery] Guid funcionarioId, [FromQuery] string dataInicio, [FromQuery] string dataFim)
         {
-            // Validação simples das datas
-            if (dataFim < dataInicio)
+            // 1. BLINDAGEM: Envolvemos tudo num try/catch no nível do Controller
+            // para garantir que qualquer erro devolva JSON e não quebre o CORS.
+            try
             {
-                return BadRequest(new ServiceResponse<object> { Success = false, ErrorMessage = "Data final não pode ser anterior à data inicial." });
+                // 2. CONVERSÃO MANUAL: Recebemos string e convertemos aqui dentro.
+                // Isso evita que o .NET rejeite a requisição antes de começar.
+                if (!DateTime.TryParse(dataInicio, out DateTime dtInicio))
+                {
+                    return BadRequest(new ServiceResponse<object> { Success = false, ErrorMessage = $"Data de início inválida: {dataInicio}. Use o formato YYYY-MM-DD." });
+                }
+
+                if (!DateTime.TryParse(dataFim, out DateTime dtFim))
+                {
+                    return BadRequest(new ServiceResponse<object> { Success = false, ErrorMessage = $"Data final inválida: {dataFim}. Use o formato YYYY-MM-DD." });
+                }
+
+                // Validação lógica
+                if (dtFim < dtInicio)
+                {
+                    return BadRequest(new ServiceResponse<object> { Success = false, ErrorMessage = "Data final não pode ser anterior à data inicial." });
+                }
+
+                // Chama o serviço (passando os DateTimes já convertidos)
+                var response = await _registroPontoService.GetComprovantesPorFuncionarioAsync(funcionarioId, dtInicio, dtFim);
+
+                if (!response.Success)
+                {
+                    return BadRequest(response);
+                }
+
+                return Ok(response);
             }
-
-            // Chama o serviço que criamos
-            var response = await _registroPontoService.GetComprovantesPorFuncionarioAsync(funcionarioId, dataInicio, dataFim);
-
-            if (!response.Success)
+            catch (Exception ex)
             {
-                return BadRequest(response); // Retorna a mensagem de erro do serviço
+                // Se explodir aqui, devolvemos 500 com JSON, o que o navegador aceita melhor que um crash de rede
+                return StatusCode(500, new ServiceResponse<object> { Success = false, ErrorMessage = $"Erro interno na Controller: {ex.Message}" });
             }
-
-            return Ok(response); // Retorna a lista de comprovantes
         }
 
         [HttpPost("solicitacao")]
