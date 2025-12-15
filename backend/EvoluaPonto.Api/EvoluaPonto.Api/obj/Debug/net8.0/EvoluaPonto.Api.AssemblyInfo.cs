@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EvoluaPonto.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+903c7bd7889c65d275836cf92aff4b87cf29ec49")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b4bbf3a1f153f49a4615a5921347fa51ab508609")]
 [assembly: System.Reflection.AssemblyProductAttribute("EvoluaPonto.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EvoluaPonto.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
