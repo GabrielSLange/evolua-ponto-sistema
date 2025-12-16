@@ -65,21 +65,50 @@ namespace EvoluaPonto.Api.Controllers
         [HttpGet("pendentes/{empresaId}")]
         public async Task<IActionResult> GetPendentes(Guid empresaId)
         {
-            // Idealmente, pegue o ID da empresa do Token do usuário logado por segurança,
-            // mas para dev, passar via parametro funciona.
-            var response = await _registroPontoService.GetSolicitacoesPendentesAsync(empresaId);
-            return Ok(response);
+            try
+            {
+                var response = await _registroPontoService.GetSolicitacoesPendentesAsync(empresaId);
+
+                if (!response.Success)
+                {
+                    return BadRequest(response);
+                }
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                // Retorna um erro estruturado em vez de estourar a API
+                return BadRequest(new ServiceResponse<List<ModelRegistroPonto>>
+                {
+                    Success = false,
+                    ErrorMessage = $"Erro ao listar pendências: {ex.Message}"
+                });
+            }
         }
 
         [HttpPut("avaliar/{id}")]
         public async Task<IActionResult> AvaliarSolicitacao(long id, [FromBody] AvaliarSolicitacaoDto dto)
         {
-            var response = await _registroPontoService.AvaliarSolicitacaoAsync(id, dto);
+            try
+            {
+                var response = await _registroPontoService.AvaliarSolicitacaoAsync(id, dto);
 
-            if (!response.Success)
-                return BadRequest(response.ErrorMessage);
+                if (!response.Success)
+                {
+                    return BadRequest(response);
+                }
 
-            return Ok(response);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ServiceResponse<bool>
+                {
+                    Success = false,
+                    ErrorMessage = $"Erro ao processar avaliação: {ex.Message}"
+                });
+            }
         }
     }
 }

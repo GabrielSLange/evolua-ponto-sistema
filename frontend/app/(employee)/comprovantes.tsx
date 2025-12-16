@@ -273,6 +273,7 @@ const getStyles = (paperTheme: any) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     marginBottom: 16,
+    marginLeft: -40,
   },
   pickerWrapper: {
     alignItems: 'center',

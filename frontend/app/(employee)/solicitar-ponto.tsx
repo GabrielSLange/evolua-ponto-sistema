@@ -150,7 +150,6 @@ const handleSubmit = async () => {
                   fontSize: 16,
                   borderRadius: 4,
                   border: `1px solid ${theme.colors.outline}`,
-                  width: '100%',
                   backgroundColor: theme.colors.surface,
                   color: theme.colors.onSurface
                 }}
