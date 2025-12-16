@@ -182,6 +182,14 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
       if (estabelecimento?.id) {
          const cepFormatado = estabelecimento.cep ? formatarCep(estabelecimento.cep) : '';
          setFormData({ ...estabelecimento, cep: cepFormatado });
+         if (estabelecimento.latitude && estabelecimento.longitude && estabelecimento.latitude !== 0) {
+            setMapRegion({
+               latitude: estabelecimento.latitude,
+               longitude: estabelecimento.longitude,
+               latitudeDelta: 0.005,
+               longitudeDelta: 0.005,
+            });
+         }
       } else {
          // Limpa o formulário no modo de criação
          setFormData({
