@@ -27,32 +27,34 @@ const EditEstabelecimentoScreen = () => {
 
 
    return (
-      <ScreenContainer>
-         <View style={{ flex: 1 }}>
-            <Appbar.Header>
-               <Appbar.BackAction onPress={() => router.push({
-                  pathname: '/(superadmin)/estabelecimentos',
-                  params: { empresaId: empresaId }
-               })}
+      <View style={{ flex: 1 }}>
+         <Appbar.Header>
+                  <Appbar.BackAction onPress={() => router.push({
+                     pathname: '/(superadmin)/estabelecimentos',
+                     params: { empresaId: empresaId }
+                  })}
+                  />
+               </Appbar.Header>
+         <ScreenContainer>
+            <View style={{ flex: 1 }}>
+               
+               <EstabelecimentoForm
+                  onSubmit={handleUpdate}
+                  estabelecimento={estabelecimento}
+                  submitButtonLabel="Salvar Alterações"
                />
-               <Appbar.Content title="Editar Estabelecimento" />
-            </Appbar.Header>
-            <EstabelecimentoForm
-               onSubmit={handleUpdate}
-               estabelecimento={estabelecimento}
-               submitButtonLabel="Salvar Alterações"
-            />
-            <Modal
-               transparent={true}
-               animationType="fade"
-               visible={loading}
-            >
-               <View style={styles.loaderOverlay}>
-                  <CustomLoader />
-               </View>
-            </Modal>
-         </View>
-      </ScreenContainer>
+               <Modal
+                  transparent={true}
+                  animationType="fade"
+                  visible={loading}
+               >
+                  <View style={styles.loaderOverlay}>
+                     <CustomLoader />
+                  </View>
+               </Modal>
+            </View>
+         </ScreenContainer>
+      </View>
    );
 };
 

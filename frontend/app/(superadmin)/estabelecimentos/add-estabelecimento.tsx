@@ -14,31 +14,40 @@ const AddEstabelecimentoScreen = () => {
    const { loading, addEstabelecimento } = useAddEstabelecimento(empresaId as string);
 
    return (
-      <ScreenContainer>
-         <View style={{ flex: 1 }}>
-            <Appbar.Header>
-               <Appbar.BackAction onPress={() => router.push({
-                  pathname: '/(superadmin)/estabelecimentos',
-                  params: { empresaId: empresaId }
-               })}
+      <View style={{ flex: 1 }}>
+         <Appbar.Header>
+                  <Appbar.BackAction onPress={() => router.push({
+                     pathname: '/(superadmin)/estabelecimentos',
+                     params: { empresaId: empresaId }
+                  })}
+                  />
+               </Appbar.Header>
+         <ScreenContainer>
+            <View style={{ flex: 1 }}>
+               <Appbar.Header>
+                  <Appbar.BackAction onPress={() => router.push({
+                     pathname: '/(superadmin)/estabelecimentos',
+                     params: { empresaId: empresaId }
+                  })}
+                  />
+                  <Appbar.Content title="Novo Estabelecimento" />
+               </Appbar.Header>
+               <EstabelecimentoForm
+                  onSubmit={addEstabelecimento}
+                  submitButtonLabel="Cadastrar"
                />
-               <Appbar.Content title="Novo Estabelecimento" />
-            </Appbar.Header>
-            <EstabelecimentoForm
-               onSubmit={addEstabelecimento}
-               submitButtonLabel="Cadastrar"
-            />
-            <Modal
-               transparent={true}
-               animationType="fade"
-               visible={loading}
-            >
-               <View style={styles.loaderOverlay}>
-                  <CustomLoader />
-               </View>
-            </Modal>
-         </View>
-      </ScreenContainer>
+               <Modal
+                  transparent={true}
+                  animationType="fade"
+                  visible={loading}
+               >
+                  <View style={styles.loaderOverlay}>
+                     <CustomLoader />
+                  </View>
+               </Modal>
+            </View>
+         </ScreenContainer>
+      </View>
    );
 };
 

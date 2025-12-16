@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, StyleSheet, View } from 'react-native';
-import { Appbar } from 'react-native-paper';
+import { Appbar, Divider } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import ScreenContainer from '../../../components/layouts/ScreenContainer';
 import { useFuncionarios } from '../../../hooks/superadmin/useFuncionario';
@@ -49,30 +49,31 @@ const FuncionariosScreen = () => {
    };
 
    return (
-      <ScreenContainer>
-         <View style={{ flex: 1 }}>
-            <Appbar.Header>
-               <Appbar.BackAction onPress={handleBack} />
-               <Appbar.Content title={headerTitle} />
-            </Appbar.Header>
-            <ListFuncionarios
-               funcionarios={funcionarios}
-               permissao="superadmin"
-               estabelecimentoId={estabelecimentoId}
-               userId={null}
-               toggleFuncionarioAtivo={toggleFuncionarioAtivo}
-            />
-            <Modal
-               transparent={true}
-               animationType="fade"
-               visible={loading || fetchingDetails}
-            >
-               <View style={styles.loaderOverlay}>
-                  <CustomLoader />
-               </View>
-            </Modal>
-         </View>
-      </ScreenContainer>
+      <View style={{ flex: 1 }}>  
+         <Appbar.Header>
+            <Appbar.BackAction onPress={handleBack} />
+         </Appbar.Header>
+         <ScreenContainer>
+            <View style={{ flex: 1 }}>    
+               <ListFuncionarios
+                  funcionarios={funcionarios}
+                  permissao="superadmin"
+                  estabelecimentoId={estabelecimentoId}
+                  userId={null}
+                  toggleFuncionarioAtivo={toggleFuncionarioAtivo}
+               />
+               <Modal
+                  transparent={true}
+                  animationType="fade"
+                  visible={loading || fetchingDetails}
+               >
+                  <View style={styles.loaderOverlay}>
+                     <CustomLoader />
+                  </View>
+               </Modal>
+            </View>
+         </ScreenContainer>
+      </View>
    );
 };
 

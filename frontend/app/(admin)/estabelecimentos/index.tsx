@@ -15,29 +15,33 @@ const AdminDashboardScreen = () => {
 
 
    return (
-      <ScreenContainer>
-         <View style={{ flex: 1, backgroundColor: colors.background }}>
-            <Appbar.Header>
-               <Appbar.Content title={`Estabelecimentos de ${nomeEmpresa}`} />
-            </Appbar.Header>
-            <ListEstabelcimentos
-               estabelecimentos={estabelecimentos}
-               permissao="admin"
-               userId={userId}
-               empresaId={empresaId}
-               toggleEstabelecimentoAtivo={toggleEstabelecimentoAtivo}
-            />
-         </View>
-         <Modal
-            transparent={true}
-            animationType="fade"
-            visible={loading}
-         >
-            <View style={styles.loaderOverlay}>
-               <CustomLoader />
+      <View style={{ flex: 1 }}>
+         <Appbar.Header>
+            <Appbar.Content title={`Estabelecimentos de ${nomeEmpresa}`} />
+         </Appbar.Header>
+         <Divider />
+         <ScreenContainer>
+            <View style={{ flex: 1, backgroundColor: colors.background }}>
+               
+               <ListEstabelcimentos
+                  estabelecimentos={estabelecimentos}
+                  permissao="admin"
+                  userId={userId}
+                  empresaId={empresaId}
+                  toggleEstabelecimentoAtivo={toggleEstabelecimentoAtivo}
+               />
             </View>
-         </Modal>
-      </ScreenContainer>
+            <Modal
+               transparent={true}
+               animationType="fade"
+               visible={loading}
+            >
+               <View style={styles.loaderOverlay}>
+                  <CustomLoader />
+               </View>
+            </Modal>
+         </ScreenContainer>
+      </View>
    );
 };
 

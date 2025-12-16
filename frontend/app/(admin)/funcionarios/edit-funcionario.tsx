@@ -27,33 +27,35 @@ const EditFuncionarioAdminScreen = () => {
     };
 
     return (
-        <ScreenContainer>
-            <View style={{ flex: 1 }}>
-                <Appbar.Header>
-                    <Appbar.BackAction onPress={() => router.push({
-                        pathname: '/(admin)/funcionarios', // Caminho para o admin
-                        params: { estabelecimentoId: estabelecimentoId }
-                    })} />
-                    <Appbar.Content title={isReadOnly ? "Detalhes do Funcionário" : "Editar Funcionário"} />
-                </Appbar.Header>
-                <FuncionarioForm
-                    onSubmit={isReadOnly ? () => { } : handleUpdate}
-                    funcionario={funcionario}
-                    submitButtonLabel={isReadOnly ? "" : "Salvar Alterações"}
-                    estabelecimentos={funcionario ? estabelecimentos : []}
-                    isReadOnly={isReadOnly}
-                />
-                <Modal
-                    transparent={true}
-                    animationType="fade"
-                    visible={loading}
-                >
-                    <View style={styles.loaderOverlay}>
-                        <CustomLoader />
-                    </View>
-                </Modal>
-            </View>
-        </ScreenContainer>
+        <View style={{ flex: 1 }}>
+            <Appbar.Header>
+                <Appbar.BackAction onPress={() => router.push({
+                    pathname: '/(admin)/funcionarios', // Caminho para o admin
+                    params: { estabelecimentoId: estabelecimentoId }
+                })} />                        
+            </Appbar.Header>
+            <ScreenContainer>
+                <View style={{ flex: 1 }}>
+                    
+                    <FuncionarioForm
+                        onSubmit={isReadOnly ? () => { } : handleUpdate}
+                        funcionario={funcionario}
+                        submitButtonLabel={isReadOnly ? "" : "Salvar Alterações"}
+                        estabelecimentos={funcionario ? estabelecimentos : []}
+                        isReadOnly={isReadOnly}
+                    />
+                    <Modal
+                        transparent={true}
+                        animationType="fade"
+                        visible={loading}
+                    >
+                        <View style={styles.loaderOverlay}>
+                            <CustomLoader />
+                        </View>
+                    </Modal>
+                </View>
+            </ScreenContainer>
+        </View>
     );
 };
 

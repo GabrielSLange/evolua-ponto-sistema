@@ -27,28 +27,30 @@ const EditEmpresaScreen = () => {
    }
 
    return (
-      <ScreenContainer>
-         <View style={{ flex: 1 }}>
-            <Appbar.Header>
-               <Appbar.BackAction onPress={() => router.back()} />
-               <Appbar.Content title="Editar Empresa" />
-            </Appbar.Header>
-            <EmpresaForm
-               onSubmit={handleUpdateEmpresa}
-               empresa={empresa || undefined}
-               submitButtonLabel="Salvar Alterações"
-            />
-            <Modal
-               transparent={true}
-               animationType="fade"
-               visible={loading}
-            >
-               <View style={styles.loaderOverlay}>
-                  <CustomLoader />
-               </View>
-            </Modal>
-         </View>
-      </ScreenContainer>
+      <View style={{ flex: 1 }}>
+         <Appbar.Header>
+            <Appbar.BackAction onPress={() => router.back()} />
+         </Appbar.Header>
+         <ScreenContainer>
+            <View style={{ flex: 1 }}>
+               
+               <EmpresaForm
+                  onSubmit={handleUpdateEmpresa}
+                  empresa={empresa || undefined}
+                  submitButtonLabel="Salvar Alterações"
+               />
+               <Modal
+                  transparent={true}
+                  animationType="fade"
+                  visible={loading}
+               >
+                  <View style={styles.loaderOverlay}>
+                     <CustomLoader />
+                  </View>
+               </Modal>
+            </View>
+         </ScreenContainer>
+      </View>
    );
 };
 

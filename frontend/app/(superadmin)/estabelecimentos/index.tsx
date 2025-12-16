@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, StyleSheet, View } from 'react-native';
-import { Appbar, useTheme } from 'react-native-paper';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Appbar, Divider, useTheme } from 'react-native-paper';
+import { useRouter, useLocalSearchParams, useNavigation } from 'expo-router';
 import ScreenContainer from '../../../components/layouts/ScreenContainer';
 import { useEstabelecimentos } from '../../../hooks/superadmin/useEstabelecimento';
 import CustomLoader from '@/components/CustomLoader';
@@ -12,9 +12,10 @@ const EstabelecimentosScreen = () => {
    const router = useRouter();
    // Pega o ID da empresa e o nome da empresa passados na navegação
    const { empresaId, empresaNome: initialEmpresaNome } = useLocalSearchParams<{ empresaId: string; empresaNome: string }>();
-
+   const navigation = useNavigation();
    const [displayEmpresaNome, setDisplayEmpresaNome] = useState<string | undefined>(initialEmpresaNome);
    const [fetchingEmpresaName, setFetchingEmpresaName] = useState(false);
+   const { empresa_Nome } = useLocalSearchParams();
 
    useEffect(() => {
       if (empresaId) {
@@ -41,31 +42,37 @@ const EstabelecimentosScreen = () => {
    const { estabelecimentos, loading, toggleEstabelecimentoAtivo } = useEstabelecimentos(empresaId);
 
    return (
-      <ScreenContainer>
-         <View style={{ flex: 1 }}>
-            <Appbar.Header>
-               <Appbar.BackAction onPress={() => router.back()} />
-               <Appbar.Content title={`Estabelecimentos de ${displayEmpresaNome || '...'}`} />
-            </Appbar.Header>
-            <ListEstabelcimentos
-               estabelecimentos={estabelecimentos}
-               permissao="superadmin"
-               empresaId={empresaId}
-               empresaNome={displayEmpresaNome || ''} // Passa o nome correto para o componente de lista
-               userId={null}
-               toggleEstabelecimentoAtivo={toggleEstabelecimentoAtivo}
-            />
-            <Modal
-               transparent={true}
-               animationType="fade"
-               visible={loading || fetchingEmpresaName} // Combina os estados de carregamento
-            >
-               <View style={styles.loaderOverlay}>
-                  <CustomLoader />
+      <View style={{ flex: 1 }}>
+                
+         <Appbar.Header>
+            <Appbar.BackAction onPress={() => router.back()} />
+         </Appbar.Header>
+         <ScreenContainer>
+            <View style={{ flex: 1 }}>
+               
+               
+               <View style={{ flex: 1 }}>
+                  <ListEstabelcimentos
+                     estabelecimentos={estabelecimentos}
+                     permissao="superadmin"
+                     empresaId={empresaId}
+                     empresaNome={displayEmpresaNome || ''} // Passa o nome correto para o componente de lista
+                     userId={null}
+                     toggleEstabelecimentoAtivo={toggleEstabelecimentoAtivo}
+                  />
                </View>
-            </Modal>
-         </View>
-      </ScreenContainer>
+               <Modal
+                  transparent={true}
+                  animationType="fade"
+                  visible={loading || fetchingEmpresaName} // Combina os estados de carregamento
+               >
+                  <View style={styles.loaderOverlay}>
+                     <CustomLoader />
+                  </View>
+               </Modal>
+            </View>
+         </ScreenContainer>
+      </View>
    );
 };
 

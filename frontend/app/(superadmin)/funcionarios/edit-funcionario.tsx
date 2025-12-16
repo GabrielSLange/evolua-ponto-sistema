@@ -28,33 +28,35 @@ const EditFuncionarioScreen = () => {
 
 
     return (
-        <ScreenContainer>
-            <View style={{ flex: 1 }}>
-                <Appbar.Header>
-                    <Appbar.BackAction onPress={() => router.push({
-                        pathname: '/(superadmin)/funcionarios',
-                        params: { estabelecimentoId: estabelecimentoId }
-                    })} />
-                    <Appbar.Content title={isReadOnly ? "Detalhes do Funcionário" : "Editar Funcionário"} />
-                </Appbar.Header>
-                <FuncionarioForm
-                    onSubmit={isReadOnly ? () => { } : handleUpdate}
-                    funcionario={funcionario}
-                    estabelecimentos={funcionario ? estabelecimentos : []}
-                    submitButtonLabel={isReadOnly ? "" : "Salvar Alterações"}
-                    isReadOnly={isReadOnly}
-                />
-                <Modal
-                    transparent={true}
-                    animationType="fade"
-                    visible={loading}
-                >
-                    <View style={styles.loaderOverlay}>
-                        <CustomLoader />
-                    </View>
-                </Modal>
-            </View>
-        </ScreenContainer>
+        <View style={{ flex: 1 }}>
+            <Appbar.Header>
+                        <Appbar.BackAction onPress={() => router.push({
+                            pathname: '/(superadmin)/funcionarios',
+                            params: { estabelecimentoId: estabelecimentoId }
+                        })} />                        
+                    </Appbar.Header>
+            <ScreenContainer>
+                <View style={{ flex: 1 }}>
+                    
+                    <FuncionarioForm
+                        onSubmit={isReadOnly ? () => { } : handleUpdate}
+                        funcionario={funcionario}
+                        estabelecimentos={funcionario ? estabelecimentos : []}
+                        submitButtonLabel={isReadOnly ? "" : "Salvar Alterações"}
+                        isReadOnly={isReadOnly}
+                    />
+                    <Modal
+                        transparent={true}
+                        animationType="fade"
+                        visible={loading}
+                    >
+                        <View style={styles.loaderOverlay}>
+                            <CustomLoader />
+                        </View>
+                    </Modal>
+                </View>
+            </ScreenContainer>
+        </View>
     );
 };
 

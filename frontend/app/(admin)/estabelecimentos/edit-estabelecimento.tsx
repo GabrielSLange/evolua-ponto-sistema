@@ -24,32 +24,35 @@ const EditEstabelecimentoScreen = () => {
    };
 
    return (
-      <ScreenContainer>
-         <View style={{ flex: 1 }}>
-            <Appbar.Header>
-               <Appbar.BackAction onPress={() => router.push({
-                  pathname: '/(admin)/estabelecimentos',
-                  params: { userId: userId }
-               })}
-               />
-               <Appbar.Content title="Editar Estabelecimento" />
-            </Appbar.Header>
-            <EstabelecimentoForm
-               onSubmit={handleUpdate}
-               estabelecimento={estabelecimento}
-               submitButtonLabel="Salvar Alterações"
+      <View style={{ flex: 1 }}>
+         <Appbar.Header>
+            <Appbar.BackAction onPress={() => router.push({
+               pathname: '/(admin)/estabelecimentos',
+               params: { userId: userId }
+            })}
             />
-            <Modal
-               transparent={true}
-               animationType="fade"
-               visible={loading}
-            >
-               <View style={styles.loaderOverlay}>
-                  <CustomLoader />
-               </View>
-            </Modal>
-         </View>
-      </ScreenContainer>
+         </Appbar.Header>
+         
+         <ScreenContainer>
+            <View style={{ flex: 1 }}>
+               
+               <EstabelecimentoForm
+                  onSubmit={handleUpdate}
+                  estabelecimento={estabelecimento}
+                  submitButtonLabel="Salvar Alterações"
+               />
+               <Modal
+                  transparent={true}
+                  animationType="fade"
+                  visible={loading}
+               >
+                  <View style={styles.loaderOverlay}>
+                     <CustomLoader />
+                  </View>
+               </Modal>
+            </View>
+         </ScreenContainer>
+      </View>
    );
 };
 

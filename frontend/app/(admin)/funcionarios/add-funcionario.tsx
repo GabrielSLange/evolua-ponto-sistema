@@ -14,30 +14,32 @@ const AddFuncionarioScreen = () => {
     const { loading, addFuncionario } = useAddFuncionario(estabelecimentoId as string);
 
     return (
-        <ScreenContainer>
-            <View style={{ flex: 1 }}>
-                <Appbar.Header>
-                    <Appbar.BackAction onPress={() => router.push({
-                        pathname: '/(admin)/funcionarios', // Caminho para o admin
-                        params: { estabelecimentoId: estabelecimentoId }
-                    })} />
-                    <Appbar.Content title="Novo Funcionário" />
-                </Appbar.Header>
-                <FuncionarioForm
-                    onSubmit={addFuncionario}
-                    submitButtonLabel="Cadastrar"
-                />
-                <Modal
-                    transparent={true}
-                    animationType="fade"
-                    visible={loading}
-                >
-                    <View style={styles.loaderOverlay}>
-                        <CustomLoader />
-                    </View>
-                </Modal>
-            </View>
-        </ScreenContainer>
+        <View style={{ flex: 1 }}>
+            <Appbar.Header>
+                <Appbar.BackAction onPress={() => router.push({
+                    pathname: '/(admin)/funcionarios', // Caminho para o admin
+                    params: { estabelecimentoId: estabelecimentoId }
+                })} />
+            </Appbar.Header>
+            <ScreenContainer>
+                <View style={{ flex: 1 }}>
+                    
+                    <FuncionarioForm
+                        onSubmit={addFuncionario}
+                        submitButtonLabel="Cadastrar"
+                    />
+                    <Modal
+                        transparent={true}
+                        animationType="fade"
+                        visible={loading}
+                    >
+                        <View style={styles.loaderOverlay}>
+                            <CustomLoader />
+                        </View>
+                    </Modal>
+                </View>
+            </ScreenContainer>
+        </View>
     );
 };
 
