@@ -44,7 +44,8 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
       estado: '',
       ativo: true,
       latitude: 0,
-      longitude: 0
+      longitude: 0,
+      raioKm: 1,
    });
 
    const [mapRegion, setMapRegion] = useState(() => {
@@ -205,7 +206,8 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
             estado: '',
             ativo: true,
             latitude: 0,
-            longitude: 0
+            longitude: 0,
+            raioKm: 1,
          });
       }
    }, [estabelecimento]);
@@ -272,13 +274,24 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
                </View>
             </View>
 
-            <View style={{ margin: isDesktop ? 8 : 0 }} >
-               <TextInput
-                  label="Complemento"
-                  value={formData.complemento ?? ''}
-                  onChangeText={(text) => handleChange('complemento', text)}
-                  style={styles.input}
-               />
+            <View style={[{ marginBottom: isDesktop ? 0 : 35, flexDirection: isDesktop ? 'row' : 'column' }]}>
+               <View style={{flex: 7, margin: isDesktop ? 8 : 0 }} >
+                  <TextInput
+                     label="Complemento"
+                     value={formData.complemento ?? ''}
+                     onChangeText={(text) => handleChange('complemento', text)}
+                     style={styles.input}
+                  />
+               </View>
+               <View style={{ flex: 3, margin: isDesktop ? 8 : 0 }} >
+                  <TextInput
+                     label="Raio de atuação (km)"
+                     value={String(formData.raioKm ?? 1)}
+                     onChangeText={(text) => handleChange('raioKm', text)}
+                     style={styles.input}
+                     keyboardType="number-pad"
+                  />
+               </View>
             </View>
             <Text style={{ fontWeight: 'bold', color: theme.colors.onSurface }}>Clique no Mapa para definir a localização:</Text>
             <View
