@@ -51,6 +51,9 @@ namespace EvoluaPonto.Api.Models
         [Column("longitude")]
         public decimal? Longitude { get; set; }
 
+        [Column("raio_km")]
+        public decimal? RaioKm { get; set; } = 1.0m;
+
         // Relação com a Empresa
         [Required]
         [Column("empresa_id")]
