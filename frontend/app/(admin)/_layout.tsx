@@ -23,7 +23,7 @@ export default function AdminLayout() {
 
             // 4. Ajuste de estilo e comportamento para desktop vs. mobile
             drawerStyle: {
-               width: isDesktop ? '25%' : '80%',
+               width: isDesktop ? '18%' : '80%',
                borderRightColor: theme.colors.outlineVariant,
                borderRightWidth: StyleSheet.hairlineWidth,
             },
