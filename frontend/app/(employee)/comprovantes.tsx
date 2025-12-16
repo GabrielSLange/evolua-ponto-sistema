@@ -70,7 +70,7 @@ export default function ComprovanteScreen() {
     setComprovantes([]);
 
     try {
-      const response = await api.get('/RegistroPonto/comprovantes', {
+      const response = await api.get('/Comprovante', {
         params: {
           funcionarioId: funcionarioId,
           dataInicio: toISODateString(dataInicio),
