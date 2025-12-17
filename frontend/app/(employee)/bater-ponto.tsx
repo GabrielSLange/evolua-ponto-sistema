@@ -9,7 +9,7 @@ import { useFocusEffect } from "expo-router";
 import CustomLoader from "@/components/CustomLoader";
 import api from "@/services/api";
 import { useNotification } from "@/contexts/NotificationContext";
-import { useTheme } from "react-native-paper";
+import { SegmentedButtons, useTheme } from "react-native-paper";
 
 /* ---------- helper: inject leaflet CSS via CDN (web only) ---------- */
 function ensureLeafletCss() {
@@ -51,11 +51,10 @@ export default function BaterPontoScreen() {
    const [errorMsg, setErrorMsg] = useState<string | null>(null);
    const { showNotification } = useNotification();
    const [allowedRadius, setAllowedRadius] = useState(1000);
-   
-   // 1. OBTENDO O TEMA ATUAL
    const theme = useTheme();
+   const [tipoPonto, setTipoPonto] = useState('ENTRADA');
 
-   const { loading, funcionario, SetLoading } = baterPonto();
+   const { loading, funcionario, tipoBatida, SetLoading } = baterPonto();
    const [locationPermissionGranted, setLocationPermissionGranted] = useState(false);
    const [initialCenterCoords, setInitialCenterCoords] = useState<{ latitude: number; longitude: number } | null>(null);
 
@@ -67,6 +66,12 @@ export default function BaterPontoScreen() {
       });
       if (funcionario?.estabelecimento?.raioKm !== undefined) {
          setAllowedRadius(funcionario?.estabelecimento?.raioKm * 1000);
+      }
+      if(tipoBatida === "ENTRADA"){
+         setTipoPonto("SAIDA");
+      }
+      else{
+         setTipoPonto("ENTRADA");
       }
    }, [funcionario]);
 
@@ -255,21 +260,39 @@ export default function BaterPontoScreen() {
 
    const handleBaterPonto = async () => {
       const formData = new FormData();
-      formData.append('Tipo', 'ENTRADA');
+      formData.append('Tipo', tipoPonto);
       formData.append('FuncionarioId', `${funcionario?.id}`);
 
       try {
          SetLoading(true);
          const response = await api.post("RegistroPonto", formData);
          showNotification("Ponto batido com sucesso!", "success");
+         if(tipoPonto === "ENTRADA"){
+            setTipoPonto("SAIDA");
+         }
+         else{
+            setTipoPonto("ENTRADA");
+         }
       } catch (error) {
          console.error("Erro ao bater ponto:", error);
-         showNotification("Erro ao registrar ponto.", "error"); // Adicionado feedback visual de erro
+         showNotification("Erro ao registrar ponto.", "error"); 
       }
       finally {
          SetLoading(false);
       }
    };
+
+   useEffect(() => {
+      if (tipoBatida) {
+
+         if (tipoBatida === 'ENTRADA') {
+            setTipoPonto('SAIDA');
+         } 
+         else {
+            setTipoPonto('ENTRADA');
+         }
+      }
+   }, [tipoBatida]);
 
    const statusText = errorMsg
       ? errorMsg
@@ -281,7 +304,6 @@ export default function BaterPontoScreen() {
 
 
    return (
-      // 2. APLICANDO COR DE FUNDO DINÂMICA
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
          {Platform.OS === "web" ? (
             <View style={styles.map}>
@@ -324,6 +346,35 @@ export default function BaterPontoScreen() {
             <Text style={[styles.dateText, { color: theme.colors.onSurfaceVariant }]}>
                {format(currentTime, "eeee, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
             </Text>
+
+            <View style={{ width: '80%', marginBottom: 20 }}>
+               <SegmentedButtons
+                  value={tipoPonto}
+                  onValueChange={setTipoPonto}
+                  buttons={[
+                     {
+                        value: 'ENTRADA',
+                        label: 'Entrada',
+                        icon: 'login',
+                        style: { 
+                           backgroundColor: tipoPonto === 'ENTRADA' 
+                              ? theme.colors.primaryContainer
+                              : undefined 
+                        }
+                     },
+                     {
+                        value: 'SAIDA',
+                        label: 'Saída',
+                        icon: 'logout', // Ícone de sair
+                        style: { 
+                           backgroundColor: tipoPonto === 'SAIDA' 
+                              ? theme.colors.errorContainer // Cor diferente para saída (opcional)
+                              : undefined 
+                        }
+                     },
+                  ]}
+               />
+            </View>
 
             <TouchableOpacity
                style={[
