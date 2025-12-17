@@ -10,6 +10,7 @@ import { useFocusEffect } from "expo-router";
 import CustomLoader from "@/components/CustomLoader";
 import api from "@/services/api";
 import { useNotification } from "@/contexts/NotificationContext";
+import { useTheme } from "react-native-paper";
 
 /* ---------- helper: inject leaflet CSS via CDN (web only) ---------- */
 function ensureLeafletCss() {
@@ -19,7 +20,6 @@ function ensureLeafletCss() {
    const link = document.createElement("link");
    link.id = id;
    link.rel = "stylesheet";
-   // CDN link avoids bundling image urls from node_modules CSS
    link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
    document.head.appendChild(link);
 }
@@ -28,10 +28,8 @@ function ensureLeafletCss() {
 let WebMapModule: any = null;
 if (Platform.OS === "web") {
    try {
-      // inject CSS from CDN
       ensureLeafletCss();
       WebMapModule = require("react-leaflet");
-      // fix icon paths if needed (leaflet images will be loaded from CDN CSS so this is optional)
       const L = require("leaflet");
       // @ts-ignore
       delete L.Icon.Default.prototype._getIconUrl;
@@ -41,8 +39,7 @@ if (Platform.OS === "web") {
          shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
       });
    } catch (e) {
-      // ignore; errors will surface later if user opens web map
-      // console.warn("Failed to load react-leaflet (web):", e);
+      // ignore
    }
 }
 
@@ -54,7 +51,10 @@ export default function BaterPontoScreen() {
    const [currentTime, setCurrentTime] = useState(new Date());
    const [errorMsg, setErrorMsg] = useState<string | null>(null);
    const { showNotification } = useNotification();
-   const [ allowedRadius, setAllowedRadius ] = useState(1000);
+   const [allowedRadius, setAllowedRadius] = useState(1000);
+   
+   // 1. OBTENDO O TEMA ATUAL
+   const theme = useTheme();
 
    const { loading, funcionario, SetLoading } = baterPonto();
    const [locationPermissionGranted, setLocationPermissionGranted] = useState(false);
@@ -66,7 +66,7 @@ export default function BaterPontoScreen() {
          latitude: funcionario?.estabelecimento?.latitude ?? 0,
          longitude: funcionario?.estabelecimento?.longitude ?? 0
       });
-      if(funcionario?.estabelecimento?.raioKm !== undefined){
+      if (funcionario?.estabelecimento?.raioKm !== undefined) {
          setAllowedRadius(funcionario?.estabelecimento?.raioKm * 1000);
       }
    }, [funcionario]);
@@ -81,13 +81,11 @@ export default function BaterPontoScreen() {
       let mounted = true;
 
       function startLocationWatch(tryHighAccuracy: boolean) {
-         // Limpa qualquer watch anterior
          if (watchRef.current != null) {
             navigator.geolocation.clearWatch(watchRef.current);
             watchRef.current = null;
          }
 
-         // Limpa qualquer timer de recuperação pendente
          if (recoveryTimer.current) {
             clearTimeout(recoveryTimer.current);
             recoveryTimer.current = null;
@@ -96,12 +94,11 @@ export default function BaterPontoScreen() {
          const options = {
             enableHighAccuracy: tryHighAccuracy,
             maximumAge: 2000,
-            timeout: 5000 // 5 segundos de timeout
+            timeout: 5000
          };
 
          watchRef.current = navigator.geolocation.watchPosition(
             (pos) => {
-               // SUCESSO
                if (!mounted) return;
 
                const location = {
@@ -116,43 +113,35 @@ export default function BaterPontoScreen() {
 
                setUserLocation(location);
                setLocationPermissionGranted(true);
-               setErrorMsg(null); // Limpa qualquer erro anterior
+               setErrorMsg(null);
 
-               // Define as coordenadas iniciais do mapa na primeira vez
                if (!initialCenterCoords) {
                   setInitialCenterCoords({ latitude: location.coords.latitude, longitude: location.coords.longitude });
                }
 
                calcDistanceAndState(location);
 
-               // Se tivemos sucesso com BAIXA precisão, tenta "recuperar" a ALTA após 30s
                if (!tryHighAccuracy && !recoveryTimer.current) {
                   recoveryTimer.current = setTimeout(() => {
                      if (mounted) {
-                        // console.log("Tentando recuperar alta precisão...");
-                        startLocationWatch(true); // Tenta voltar para alta precisão
+                        startLocationWatch(true);
                      }
-                  }, 30000); // 30 segundos
+                  }, 30000);
                }
             },
             (err) => {
-               // ERRO
                if (!mounted) return;
 
                if (err.code === err.PERMISSION_DENIED) {
                   setErrorMsg("Permissão de localização negada.");
                   setLocationPermissionGranted(false);
-                  // Centraliza no estabelecimento se a permissão for negada
                   if (establishmentCoords) {
                      setInitialCenterCoords({ latitude: establishmentCoords.latitude, longitude: establishmentCoords.longitude });
                   }
                } else if (tryHighAccuracy) {
-                  // Falhou na ALTA precisão (kCLErrorDomain, timeout, etc.)
-                  // console.warn("Falha na alta precisão, caindo para baixa precisão.");
                   setErrorMsg("GPS indisponível, usando localização aproximada.");
-                  startLocationWatch(false); // <-- O FALLBACK
+                  startLocationWatch(false);
                } else {
-                  // Falhou ATÉ MESMO na baixa precisão.
                   setErrorMsg("GPS indisponível, usando localização aproximada.");
                   if (establishmentCoords) {
                      setInitialCenterCoords({ latitude: establishmentCoords.latitude, longitude: establishmentCoords.longitude });
@@ -190,7 +179,7 @@ export default function BaterPontoScreen() {
                      setUserLocation(location);
                      calcDistanceAndState(location);
                   },
-                  (err) => { // <--- ADICIONE O TRATAMENTO DE ERRO AQUI
+                  (err) => {
                      if (!mounted) return;
                      if (err.code === err.PERMISSION_DENIED) {
                         setErrorMsg("Permissão de localização negada.");
@@ -234,7 +223,6 @@ export default function BaterPontoScreen() {
 
       return () => {
          mounted = false;
-         // Limpa o timer de recuperação
          if (recoveryTimer.current) {
             clearTimeout(recoveryTimer.current);
             recoveryTimer.current = null;
@@ -248,7 +236,7 @@ export default function BaterPontoScreen() {
                watchRef.current = null;
             }
          } catch {
-            // ignore cleanup errors
+            // ignore
          }
       };
    }, [establishmentCoords, initialCenterCoords]);
@@ -261,30 +249,23 @@ export default function BaterPontoScreen() {
    function calcDistanceAndState(location: Location.LocationObject) {
       if (!establishmentCoords) return;
       const userCoords = { latitude: location.coords.latitude, longitude: location.coords.longitude };
-      const dist = haversine(userCoords, establishmentCoords); // metros
+      const dist = haversine(userCoords, establishmentCoords);
       setDistance(dist);
       setIsWithinRadius(dist <= allowedRadius);
    }
 
    const handleBaterPonto = async () => {
-
-      // 1. Crie um objeto FormData
       const formData = new FormData();
-
-      // 2. Adicione os campos de texto.
-      // Os nomes ("Tipo", "FuncionarioId") devem ser IDÊNTICOS aos do seu DTO C#.
       formData.append('Tipo', 'ENTRADA');
       formData.append('FuncionarioId', `${funcionario?.id}`);
 
       try {
          SetLoading(true);
          const response = await api.post("RegistroPonto", formData);
-
          showNotification("Ponto batido com sucesso!", "success");
-
       } catch (error) {
          console.error("Erro ao bater ponto:", error);
-
+         showNotification("Erro ao registrar ponto.", "error"); // Adicionado feedback visual de erro
       }
       finally {
          SetLoading(false);
@@ -300,15 +281,13 @@ export default function BaterPontoScreen() {
             : `Você está a ${Math.round(distance)} m do local. Aproxime-se para bater o ponto.`;
 
 
-
-
    return (
-      <View style={styles.container}>
+      // 2. APLICANDO COR DE FUNDO DINÂMICA
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
          {Platform.OS === "web" ? (
             <View style={styles.map}>
-               {/* render web map (leaflet) */}
                {WebMapModule ? (
-                  <Suspense fallback={<View style={styles.center}><Text>Carregando mapa web...</Text></View>}>
+                  <Suspense fallback={<View style={styles.center}><Text style={{ color: theme.colors.onSurface }}>Carregando mapa web...</Text></View>}>
                      <WebLeafletMap
                         initialCenter={initialCenterCoords}
                         userLocation={userLocation}
@@ -318,30 +297,50 @@ export default function BaterPontoScreen() {
                   </Suspense>
                ) : (
                   <View style={styles.center}>
-                     <Text>Mapa web indisponível (react-leaflet não carregado).</Text>
+                     <Text style={{ color: theme.colors.onSurface }}>Mapa web indisponível.</Text>
                   </View>
                )}
             </View>
          ) : (
+            // 3. PASSANDO A COR PRIMÁRIA PARA O MAPA NATIVO
             <NativeMap
                refMap={mapRefNative}
                establishmentCoords={establishmentCoords}
                allowedRadius={allowedRadius}
+               primaryColor={theme.colors.primary}
             />
          )}
 
          <View style={styles.bottomContainer}>
-            <Text style={styles.statusText}>{statusText}</Text>
-            <Text style={styles.clockText}>{format(currentTime, "HH:mm:ss", { locale: ptBR })}</Text>
-            <Text style={styles.dateText}>
+            {/* 4. APLICANDO CORES DE TEXTO DINÂMICAS */}
+            <Text style={[
+               styles.statusText,
+               { color: errorMsg ? theme.colors.error : theme.colors.onSurface }
+            ]}>
+               {statusText}
+            </Text>
+            
+            <Text style={[styles.clockText, { color: theme.colors.onSurface }]}>
+               {format(currentTime, "HH:mm:ss", { locale: ptBR })}
+            </Text>
+            
+            <Text style={[styles.dateText, { color: theme.colors.onSurfaceVariant }]}>
                {format(currentTime, "eeee, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
             </Text>
 
             <TouchableOpacity
-               style={[styles.button, { backgroundColor: "#4CAF50" }]}
+               style={[
+                  styles.button,
+                  { backgroundColor: theme.colors.primary}
+               ]}
                onPress={handleBaterPonto}
             >
-               <Text style={styles.buttonText}>Bater Ponto</Text>
+               <Text style={[
+                   styles.buttonText, 
+                   { color:theme.colors.onPrimary}
+               ]}>
+                   Bater Ponto
+               </Text>
             </TouchableOpacity>
          </View>
 
@@ -359,26 +358,37 @@ export default function BaterPontoScreen() {
 }
 
 /* ---------- Native map (dynamically require react-native-maps) ---------- */
-function NativeMap({ refMap, establishmentCoords, allowedRadius }: any) {
-   // require only on native to prevent web bundler from resolving native-only modules
+function NativeMap({ refMap, establishmentCoords, allowedRadius, primaryColor }: any) {
    let MapView: any = null;
    let Marker: any = null;
    let Circle: any = null;
    try {
-      // dynamic require: only executed on native
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const RNM = eval("require")("react-native-maps");
       MapView = RNM.default ?? RNM;
       Marker = RNM.Marker ?? RNM.Marker;
       Circle = RNM.Circle ?? RNM.Circle;
    } catch (e) {
-      // if require fails, render fallback
       return (
          <View style={styles.map}>
             <Text>Mapa nativo não disponível</Text>
          </View>
       );
    }
+
+   // Função para converter hex para rgba (para o fill do circulo)
+   const hexToRgba = (hex: string, opacity: number) => {
+        let c: any;
+        if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+            c= hex.substring(1).split('');
+            if(c.length== 3){
+                c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+            }
+            c= '0x'+c.join('');
+            return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+opacity+')';
+        }
+        return 'rgba(0,0,255,0.12)'; // Fallback azul
+    }
 
    const initialRegion = {
       latitude: establishmentCoords.latitude,
@@ -396,12 +406,16 @@ function NativeMap({ refMap, establishmentCoords, allowedRadius }: any) {
          showsMyLocationButton
          loadingEnabled
       >
-         <Marker coordinate={establishmentCoords} title="Seu Local de Trabalho" pinColor="blue" />
+         <Marker 
+            coordinate={establishmentCoords} 
+            title="Seu Local de Trabalho" 
+            pinColor={primaryColor} // 6. Pin da cor do tema
+         />
          <Circle
             center={establishmentCoords}
             radius={allowedRadius}
-            strokeColor="rgba(0,0,255,0.5)"
-            fillColor="rgba(0,0,255,0.12)"
+            strokeColor={primaryColor} // 7. Borda do círculo da cor do tema
+            fillColor={hexToRgba(primaryColor, 0.2)} // 8. Preenchimento transparente da cor do tema
          />
       </MapView>
    );
@@ -411,14 +425,12 @@ function NativeMap({ refMap, establishmentCoords, allowedRadius }: any) {
 function WebLeafletMap({ initialCenter, establishmentCoords, userLocation, allowedRadius }: any) {
    const { MapContainer, TileLayer, Marker, Circle } = WebMapModule;
 
-   // Evita erro de acesso se ainda não houver coordenadas válidas
    const lat = initialCenter?.latitude ?? establishmentCoords?.latitude ?? 0;
    const lng = initialCenter?.longitude ?? establishmentCoords?.longitude ?? 0;
 
    const mapInitialCenter: [number, number] = [lat, lng];
    const mapInitialZoom = 15;
 
-   // Se ainda não houver coordenadas válidas, mostra mensagem
    if (!lat || !lng) {
       return (
          <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -434,6 +446,7 @@ function WebLeafletMap({ initialCenter, establishmentCoords, userLocation, allow
             zoom={mapInitialZoom}
             style={{ width: "100%", height: "100%" }}
          >
+             {/* Nota: Tiles do OSM são sempre claros. Para mudar, precisa de provedor customizado */}
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <Marker position={[establishmentCoords.latitude, establishmentCoords.longitude]} />
             <Circle center={[establishmentCoords.latitude, establishmentCoords.longitude]} radius={allowedRadius} />
@@ -479,7 +492,6 @@ const styles = StyleSheet.create({
       alignItems: "center"
    },
    buttonText: {
-      color: "white",
       fontSize: 18,
       fontWeight: "bold"
    },
@@ -489,8 +501,8 @@ const styles = StyleSheet.create({
       justifyContent: "center"
    },
    loaderOverlay: {
-      flex: 1, // O Modal precisa que o 'flex: 1' preencha a tela
-      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Escureci um pouco mais para contraste em telas claras
       alignItems: 'center',
       justifyContent: 'center',
    },
