@@ -57,6 +57,7 @@ namespace EvoluaPonto.Api.Services
             estabelecimentoBanco.Cep = estabelecimentoAtualizado.Cep;
             estabelecimentoBanco.Latitude = estabelecimentoAtualizado.Latitude;
             estabelecimentoBanco.Longitude = estabelecimentoAtualizado.Longitude;
+            estabelecimentoBanco.RaioKm = estabelecimentoAtualizado.RaioKm;
 
             _context.Update(estabelecimentoBanco);
             await _context.SaveChangesAsync();

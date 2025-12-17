@@ -11,11 +11,6 @@ import CustomLoader from "@/components/CustomLoader";
 import api from "@/services/api";
 import { useNotification } from "@/contexts/NotificationContext";
 
-
-
-
-const allowedRadius = 1000; // metros
-
 /* ---------- helper: inject leaflet CSS via CDN (web only) ---------- */
 function ensureLeafletCss() {
    if (typeof document === "undefined") return;
@@ -59,6 +54,7 @@ export default function BaterPontoScreen() {
    const [currentTime, setCurrentTime] = useState(new Date());
    const [errorMsg, setErrorMsg] = useState<string | null>(null);
    const { showNotification } = useNotification();
+   const [ allowedRadius, setAllowedRadius ] = useState(1000);
 
    const { loading, funcionario, SetLoading } = baterPonto();
    const [locationPermissionGranted, setLocationPermissionGranted] = useState(false);
@@ -70,6 +66,9 @@ export default function BaterPontoScreen() {
          latitude: funcionario?.estabelecimento?.latitude ?? 0,
          longitude: funcionario?.estabelecimento?.longitude ?? 0
       });
+      if(funcionario?.estabelecimento?.raioKm !== undefined){
+         setAllowedRadius(funcionario?.estabelecimento?.raioKm * 1000);
+      }
    }, [funcionario]);
 
    useFocusEffect(fetchCarregarLocalizaçãoEstabelecimento);
