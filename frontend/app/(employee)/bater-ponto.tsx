@@ -1,4 +1,3 @@
-// frontend/app/(employee)/bater-ponto.tsx
 import React, { useEffect, useRef, useState, Suspense, useCallback } from "react";
 import { Platform, StyleSheet, Text, View, TouchableOpacity, Modal } from "react-native";
 import * as Location from "expo-location";
@@ -302,7 +301,6 @@ export default function BaterPontoScreen() {
                )}
             </View>
          ) : (
-            // 3. PASSANDO A COR PRIMÁRIA PARA O MAPA NATIVO
             <NativeMap
                refMap={mapRefNative}
                establishmentCoords={establishmentCoords}
@@ -312,7 +310,6 @@ export default function BaterPontoScreen() {
          )}
 
          <View style={styles.bottomContainer}>
-            {/* 4. APLICANDO CORES DE TEXTO DINÂMICAS */}
             <Text style={[
                styles.statusText,
                { color: errorMsg ? theme.colors.error : theme.colors.onSurface }

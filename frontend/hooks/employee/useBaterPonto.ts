@@ -26,6 +26,8 @@ export const baterPonto = () => {
             SetLoading(false);
          });
 
+      
+
    }, []);
 
 
