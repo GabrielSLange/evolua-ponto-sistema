@@ -40,7 +40,7 @@ namespace EvoluaPonto.Api.Models
         public string? Cep { get; set; }
 
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         [Column("ativo")]
         public bool Ativo { get; set; }
