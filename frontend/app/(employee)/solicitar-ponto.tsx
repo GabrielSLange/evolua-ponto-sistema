@@ -123,14 +123,18 @@ const handleSubmit = async () => {
                 {
                   value: 'ENTRADA',
                   label: 'Entrada',
-                  icon: 'login-variant',
-                  style: { borderColor: theme.colors.primary }
+                  icon: 'login',
+                  style: { backgroundColor: tipo === 'ENTRADA' 
+                    ? theme.colors.primaryContainer 
+                    : undefined }
                 },
                 {
                   value: 'SAIDA',
                   label: 'Saída',
-                  icon: 'logout-variant',
-                  style: { borderColor: theme.colors.error } 
+                  icon: 'logout',
+                  style: { backgroundColor: tipo === 'SAIDA'
+                    ? theme.colors.errorContainer 
+                    : undefined }
                 },
               ]}
             />
