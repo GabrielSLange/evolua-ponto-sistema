@@ -139,57 +139,6 @@ namespace EvoluaPonto.Api.Services
             }
         }
 
-        public async Task<ServiceResponse<List<ComprovanteDto>>> GetComprovantesPorFuncionarioAsync(Guid funcionarioId, DateTime dataInicio, DateTime dataFim)
-        {
-            try
-            {
-                // 1. Pegamos a data (ex: "2025-11-01 00:00:00")
-                // 2. Usamos DateTime.SpecifyKind() para *definir* o tipo dela como UTC.
-                //    Isso informa ao .NET que esta data deve ser tratada como UTC.
-                var inicioUtc = DateTime.SpecifyKind(dataInicio.Date, DateTimeKind.Utc);
-
-                // Fazemos o mesmo para a data final
-                // Em vez de terminar em 23:59:59 UTC, nós avançamos 4 horas no dia seguinte.
-                var fimUtc = DateTime.SpecifyKind(dataFim.Date.AddDays(1).AddHours(4), DateTimeKind.Utc);
-
-                var comprovantes = await _context.RegistrosPonto
-                    .Where(r =>
-                        // Filtro 1: Pertence ao funcionário
-                        r.FuncionarioId == funcionarioId &&
-
-                        // Filtro 2: Está dentro do período
-                        r.TimestampMarcacao >= inicioUtc &&
-                        r.TimestampMarcacao <= fimUtc &&
-
-                        // Filtro 3: É um registro "oficial" (como definimos antes)
-                        (r.RegistroManual == false || r.Status == StatusSolicitacao.Aprovado) &&
-
-                        // Filtro 4: REALMENTE possui um comprovante
-                        !string.IsNullOrEmpty(r.ComprovanteUrl)
-                    )
-                    .OrderByDescending(r => r.TimestampMarcacao) // Mais recentes primeiro
-                    .Select(r => new ComprovanteDto
-                    {
-                        Id = r.Id,
-                        TimestampMarcacao = r.TimestampMarcacao,
-                        Tipo = r.Tipo,
-                        ComprovanteUrl = r.ComprovanteUrl
-                    })
-                    .ToListAsync();
-
-                if (comprovantes == null || !comprovantes.Any())
-                {
-                    return new ServiceResponse<List<ComprovanteDto>> { Success = true, ErrorMessage = "Nenhum comprovante encontrado para este período.", Data = new List<ComprovanteDto>() };
-                }
-
-                return new ServiceResponse<List<ComprovanteDto>> { Success = true, ErrorMessage = "Comprovantes encontrados.", Data = comprovantes };
-            }
-            catch (Exception ex)
-            {
-                return new ServiceResponse<List<ComprovanteDto>> { Success = false, ErrorMessage = $"Erro ao recuperar comprovantes: {ex.Message}" };
-            }
-        }
-
         public async Task<ServiceResponse<ModelRegistroPonto>> SolicitarPontoAsync(SolicitacaoRegistroDto solicitacaoDto)
         {
             ModelFuncionario? funcionarioBanco = await _context.Funcionarios

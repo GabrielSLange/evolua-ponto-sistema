@@ -70,7 +70,7 @@ export default function ComprovanteScreen() {
     setComprovantes([]);
 
     try {
-      const response = await api.get('/RegistroPonto/comprovantes', {
+      const response = await api.get('/Comprovante', {
         params: {
           funcionarioId: funcionarioId,
           dataInicio: toISODateString(dataInicio),
@@ -273,6 +273,7 @@ const getStyles = (paperTheme: any) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     marginBottom: 16,
+    marginLeft: -40,
   },
   pickerWrapper: {
     alignItems: 'center',
