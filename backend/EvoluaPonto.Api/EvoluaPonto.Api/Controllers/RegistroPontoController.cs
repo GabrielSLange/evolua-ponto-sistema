@@ -20,6 +20,7 @@ namespace EvoluaPonto.Api.Controllers
             _registroPontoService = registroPontoService;
         }
 
+        [HttpGet("ultimoPonto")]
         public async Task<IActionResult> GetUltimoPonto([FromQuery] Guid funcionarioId)
         {
             try
