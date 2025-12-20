@@ -20,6 +20,25 @@ namespace EvoluaPonto.Api.Controllers
             _registroPontoService = registroPontoService;
         }
 
+        public async Task<IActionResult> GetUltimoPonto([FromQuery] Guid funcionarioId)
+        {
+            try
+            {
+                ServiceResponse<string> responseFuncionario = await _registroPontoService.GetUltimoPontoAsync(funcionarioId);
+
+                if (!responseFuncionario.Success)
+                    return BadRequest(responseFuncionario.ErrorMessage);
+
+                return Ok(responseFuncionario.Data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> RegistrarPonto([FromForm] RegistroPontoDto pontoDto)
         {
