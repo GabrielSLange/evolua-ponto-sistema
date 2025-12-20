@@ -25,11 +25,6 @@ namespace EvoluaPonto.Api.Controllers
         {
             try
             {
-                //if (!ModelState.IsValid)
-                //{
-                //    return BadRequest(ModelState);
-                //}
-
                 ServiceResponse<ModelRegistroPonto> responseFuncionario = await _registroPontoService.RegistrarPontoAsync(pontoDto);
 
                 if (!responseFuncionario.Success)

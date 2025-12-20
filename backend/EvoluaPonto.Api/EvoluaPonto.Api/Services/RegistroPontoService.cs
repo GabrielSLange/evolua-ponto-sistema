@@ -80,7 +80,7 @@ namespace EvoluaPonto.Api.Services
 
             byte[]? pdfAssinadoBytes = _signatureService.SignPdf(pdfBytes);
 
-            if(pdfAssinadoBytes is null)
+            if (pdfAssinadoBytes is null)
             {
                 return new ServiceResponse<ModelRegistroPonto> { Success = false, ErrorMessage = "Erro ao assinar PDF" };
             }
@@ -97,6 +97,32 @@ namespace EvoluaPonto.Api.Services
             await _context.SaveChangesAsync();
 
             return new ServiceResponse<ModelRegistroPonto> { Data = novoRegistro };
+        }
+
+        public async Task<ServiceResponse<string>> GetUltimoPontoAsync(Guid funcionarioId)
+        {
+            var ultimoRegistro = await _context.RegistrosPonto
+                .AsNoTracking()
+                .Where(x => x.FuncionarioId == funcionarioId)
+                .OrderByDescending(x => x.TimestampMarcacao)
+                .FirstOrDefaultAsync();
+
+            if (ultimoRegistro is null)
+            {
+                return new ServiceResponse<string>
+                {
+                    Success = true,
+                    Data = null,
+                    ErrorMessage = "Nenhum registro encontrado."
+                };
+            }
+
+            // 3. Cenário: Encontrou, retorna o Tipo (Entrada/Saida)
+            return new ServiceResponse<string>
+            {
+                Success = true,
+                Data = ultimoRegistro.Tipo
+            };
         }
 
         private static string GerarHashSha256(string input)
@@ -125,7 +151,7 @@ namespace EvoluaPonto.Api.Services
 
             if (funcionarioBanco.Estabelecimento is null)
                 return new ServiceResponse<ModelRegistroPonto> { Success = false, ErrorMessage = "Estabelecimento não encontrado." };
-            
+
             if (funcionarioBanco.Estabelecimento.Empresa is null)
                 return new ServiceResponse<ModelRegistroPonto> { Success = false, ErrorMessage = "Empresa não encontrada." };
 
@@ -139,12 +165,12 @@ namespace EvoluaPonto.Api.Services
                 FuncionarioId = solicitacaoDto.FuncionarioId,
                 TimestampMarcacao = horarioUtc,
                 Tipo = solicitacaoDto.Tipo,
-                
+
                 // Configuração de Solicitação Manual
-                RegistroManual = true, 
+                RegistroManual = true,
                 Status = StatusSolicitacao.Pendente,
                 JustificativaFuncionario = solicitacaoDto.Justificativa,
-                
+
                 // Campos de Controle
                 FotoUrl = null,
                 CreatedAt = DateTime.UtcNow

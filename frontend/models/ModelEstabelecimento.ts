@@ -12,4 +12,5 @@ export interface ModelEstabelecimento {
    empresaId: string;
    latitude: number;
    longitude: number;
+   raioKm: number;
 }
