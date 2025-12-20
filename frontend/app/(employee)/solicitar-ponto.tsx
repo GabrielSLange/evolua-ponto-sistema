@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Platform, Alert, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { View, StyleSheet, Platform, Alert, ScrollView, KeyboardAvoidingView, TouchableOpacity} from 'react-native';
 import { Text, TextInput, Button, SegmentedButtons, useTheme, HelperText } from 'react-native-paper';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
@@ -221,16 +221,21 @@ const handleSubmit = async () => {
           </View>
 
           {/* 4. Botão de Enviar */}
-          <Button
-            mode="contained"
+          <TouchableOpacity
+            style={[
+              styles.button,
+              { backgroundColor: theme.colors.primary}
+            ]}
             onPress={handleSubmit}
-            loading={isLoading}
             disabled={isLoading}
-            style={styles.button}
-            contentStyle={{ paddingVertical: 8 }}
-          >
-            Enviar Solicitação
-          </Button>
+        >
+            <Text style={[
+                styles.buttonText, 
+                { color:theme.colors.onPrimary}
+            ]}>
+                Enviar Solicitação
+            </Text>
+        </TouchableOpacity>
 
         </ScrollView>
       </KeyboardAvoidingView>
@@ -265,6 +270,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   button: {
-    marginTop: 10,
-  }
+      width: "100%",
+      padding: 16,
+      borderRadius: 10,
+      alignItems: "center"
+   },
+  buttonText: {
+      fontSize: 18,
+      fontWeight: "bold"
+   }
 });
