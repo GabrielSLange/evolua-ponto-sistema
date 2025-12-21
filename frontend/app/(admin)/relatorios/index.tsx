@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, Platform, Alert } from 'react-native';
+import { View, StyleSheet, Platform, Alert, ScrollView } from 'react-native';
 import { Text, RadioButton, Button, useTheme, Divider, Card } from 'react-native-paper';
 import { useFocusEffect } from 'expo-router';
 
@@ -189,6 +189,7 @@ export default function RelatoriosScreen() {
 
   return (
     <ScreenContainer>
+      <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
         <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>
           Central de Relatórios
@@ -294,18 +295,16 @@ export default function RelatoriosScreen() {
           mode="contained" 
           icon="download"
           onPress={handleDownload}
-          loading={loading}
           disabled={loading}
-          contentStyle={{ height: 56 }}
-          style={{ borderRadius: 8 }}
         >
-          {loading ? 'Processando e Baixando...' : 'GERAR E BAIXAR RELATÓRIO'}
+          Gerar e Baixar Relatório
         </Button>
       </View>
 
       {/* --- LOADING GLOBAL --- */}
       {loading && <CustomLoader/>} 
 
+      </ScrollView>
     </ScreenContainer>
   );
 };
@@ -329,5 +328,8 @@ const styles = StyleSheet.create({
   actionContainer: {
     marginTop: 24,
     marginBottom: 40,
+  },
+  container: {
+    padding: 16,
   }
 });
