@@ -1,12 +1,14 @@
-﻿using EvoluaPonto.Api.Services;
+﻿using EvoluaPonto.Api.Dtos;
+using EvoluaPonto.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QuestPDF.Fluent;
 using System.IO.Compression;
 using System.Text;
 
 namespace EvoluaPonto.Api.Controllers
 {
-    [Authorize] // Protege todos os endpoints de relatório
+    [Authorize]
     [ApiController]
     [Route("relatorios")]
     public class RelatoriosController : ControllerBase
@@ -35,6 +37,8 @@ namespace EvoluaPonto.Api.Controllers
         [HttpGet("afd")]
         public async Task<IActionResult> GerarAfd([FromQuery] Guid estabelecimentoId, [FromQuery] DateTime dataInicio, [FromQuery] DateTime dataFim)
         {
+            dataInicio = dataInicio.Date;
+            dataFim = dataFim.Date.AddDays(1).AddTicks(-1);
             try
             {
                 // Etapa 1: Gerar o conteúdo do arquivo AFD (.txt)
@@ -76,35 +80,67 @@ namespace EvoluaPonto.Api.Controllers
             }
         }
 
-        [HttpGet("espelho-ponto")]
-        public async Task<IActionResult> GerarEspelhoPonto([FromQuery] Guid funcionarioId, [FromQuery] int ano, [FromQuery] int mes)
+        [HttpGet("espelho-ponto/{funcionarioId}")]
+        public async Task<IActionResult> GetEspelhoIndividual(Guid funcionarioId, [FromQuery] int ano, [FromQuery] int mesInicio, [FromQuery] int mesFim)
         {
-            try
-            {
-                // Etapa 1: Chamar o serviço de cálculo para obter os dados processados.
-                var response = await _jornadaService.CalcularEspelhoPontoAsync(funcionarioId, ano, mes);
+            var response = await _jornadaService.CalcularEspelhoPontoAgrupadoAsync(funcionarioId, ano, mesInicio, mesFim);
 
-                // Etapa 2: Verificar se o cálculo foi bem-sucedido.
-                if (!response.Success || response.Data == null)
+            if (!response.Success) return BadRequest(response.ErrorMessage);
+
+            // Gera o PDF (QuestPDF)
+            var document = new EspelhoPontoDocument(response.Data);
+            var pdfBytes = document.GeneratePdf();
+
+            // Assina (opcional)
+            var pdfAssinado = _signatureService.SignPdf(pdfBytes);
+
+            var nomeArquivo = $"{response.Data.Funcionario.Nome}_Espelho.pdf";
+            return File(pdfAssinado, "application/pdf", nomeArquivo);
+        }
+
+        [HttpPost("espelho-ponto/lote")]
+        public async Task<IActionResult> GetEspelhoLote([FromBody] FiltroDownloadLoteDto filtro)
+        {
+            using var memoryStream = new MemoryStream();
+
+            using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+            {
+                foreach (var funcionarioId in filtro.FuncionariosIds)
                 {
-                    return BadRequest(response.ErrorMessage ?? "Ocorreu um erro ao calcular os dados da jornada.");
+                    try
+                    {
+                        // Busca dados
+                        var response = await _jornadaService.CalcularEspelhoPontoAgrupadoAsync(funcionarioId, filtro.Ano, filtro.MesInicio, filtro.MesFim);
+
+                        if (response.Success)
+                        {
+                            // Gera PDF
+                            var document = new EspelhoPontoDocument(response.Data);
+                            var pdfBytes = document.GeneratePdf();
+
+                            // Assina
+                            var pdfAssinado = _signatureService.SignPdf(pdfBytes);
+
+                            // Adiciona ao ZIP
+                            var nomeLimpo = response.Data.Funcionario.Nome.Trim().Replace(" ", "_");
+                            var entry = archive.CreateEntry($"{nomeLimpo}.pdf");
+
+                            using var entryStream = entry.Open();
+                            await entryStream.WriteAsync(pdfAssinado, 0, pdfAssinado.Length);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Loga erro mas não para o loop, cria um TXT de erro dentro do zip
+                        var errorEntry = archive.CreateEntry($"ERRO_{funcionarioId}.txt");
+                        using var writer = new StreamWriter(errorEntry.Open());
+                        writer.Write(ex.Message);
+                    }
                 }
-
-                // Etapa 3: Passar os dados calculados para o serviço de geração de PDF.
-                var pdfBytes = _espelhoPontoService.GerarEspelhoPontoPDF(response.Data);
-
-                var pdfBytesAssinado = _signatureService.SignPdf(pdfBytes);
-
-                // Etapa 4: Retornar o PDF como um arquivo para download.
-                var nomeArquivo = $"EspelhoPonto_{response.Data.Funcionario.Nome.Replace(" ", "_")}_{ano}-{mes:00}.pdf";
-
-                return File(pdfBytesAssinado, "application/pdf", nomeArquivo);
             }
-            catch (Exception ex)
-            {
-                // Captura exceções inesperadas durante o processo.
-                return StatusCode(500, $"Erro interno do servidor: {ex.Message}");
-            }
+
+            memoryStream.Position = 0;
+            return File(memoryStream.ToArray(), "application/zip", $"Fechamento_{filtro.MesInicio}-{filtro.MesFim}_{filtro.Ano}.zip");
         }
 
         [HttpGet("aej")]

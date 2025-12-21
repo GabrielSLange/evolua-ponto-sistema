@@ -12,12 +12,13 @@ namespace EvoluaPonto.Api.Dtos
     public class JornadaDiaria
     {
         public DateTime Dia { get; set; }
-        public List<ParMarcacao> Marcacoes { get; set; } = new();
+        public List<ModelRegistroPonto> Marcacoes { get; set; } = new();
+        public List<string> Observacoes { get; set; } = new();
+
         public TimeSpan TotalTrabalhado { get; set; }
         public TimeSpan HorasExtras { get; set; }
-        public TimeSpan Atrasos { get; set; }
-
-        public List<string> Observacoes { get; set; } = new List<string>();
+        public TimeSpan HorasFaltas { get; set; } // Nova propriedade
+        public TimeSpan SaldoDiario { get; set; } // Nova propriedade (Trabalhado - Carga)
     }
 
     // O objeto completo do Espelho de Ponto

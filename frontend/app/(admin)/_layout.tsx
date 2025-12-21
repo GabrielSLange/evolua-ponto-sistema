@@ -82,6 +82,13 @@ export default function AdminLayout() {
                title: 'Funcionários', // Título genérico, pois pode ser edição ou detalhes
             }}
          />
+         <Drawer.Screen
+            name='relatorios/index'
+            options={{
+               drawerLabel: 'Relatórios',
+               title: 'Relatórios',
+            }}
+         />
          <Drawer.Screen name="relatorios" options={{ drawerLabel: 'Relatórios', title: 'Relatórios' }} />
       </Drawer>
    );

@@ -1,5 +1,6 @@
 ﻿using EvoluaPonto.Api.Data;
 using EvoluaPonto.Api.Dtos;
+using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Shared;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -17,22 +18,174 @@ namespace EvoluaPonto.Api.Services
             _feriadoService = feriadoService;
         }
 
-        public async Task<ServiceResponse<EspelhoPontoDto>> CalcularEspelhoPontoAsync(Guid funcionarioId, int ano, int mes)
+        public async Task<ServiceResponse<EspelhoPontoAgrupadoDto>> CalcularEspelhoPontoAgrupadoAsync(Guid funcionarioId, int ano, int mesInicio, int mesFim)
         {
-            var dataInicio = new DateTime(ano, mes, 1, 0, 0, 0, DateTimeKind.Utc);
-            var dataFim = dataInicio.AddMonths(1).AddTicks(-1);
+            // Define o período TOTAL (ex: 01/05 a 30/06) para busca no banco
+            var dataInicioTotal = new DateTime(ano, mesInicio, 1);
+            var dataFimTotal = new DateTime(ano, mesFim, 1).AddMonths(1).AddDays(-1);
 
+            // 1. Buscas no Banco (Mantive sua lógica de includes)
             var funcionario = await _context.Funcionarios
-                .Include(f => f.Estabelecimento)
-                .ThenInclude(e => e.Empresa)
+                .Include(f => f.Estabelecimento).ThenInclude(e => e.Empresa)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(f => f.Id == funcionarioId);
 
             if (funcionario == null)
+                return new ServiceResponse<EspelhoPontoAgrupadoDto> { Success = false, ErrorMessage = "Funcionário não encontrado." };
+
+            if (string.IsNullOrEmpty(funcionario.HorarioContratual))
+                return new ServiceResponse<EspelhoPontoAgrupadoDto> { Success = false, ErrorMessage = "Horário contratual inválido." };
+
+            var horariosContratuais = ParseHorarioContratual(funcionario.HorarioContratual); // Seu método auxiliar existente
+            if (horariosContratuais.Count == 0) return new ServiceResponse<EspelhoPontoAgrupadoDto> { Success = false, ErrorMessage = "Erro no horário contratual." };
+
+            // 2. Feriados e Registros (Busca TOTAL)
+            // ... (Sua lógica de busca de feriados aqui, igual ao anterior) ...
+            var feriadosDoAno = await ObterFeriadosUnificados(ano, funcionario, dataInicioTotal, dataFimTotal); // *Extraí para limpar
+
+            var todosRegistros = await _context.RegistrosPonto
+                .Where(r => r.FuncionarioId == funcionarioId && r.TimestampMarcacao >= dataInicioTotal.ToUniversalTime() && r.TimestampMarcacao <= dataFimTotal.ToUniversalTime().AddDays(1))
+                .OrderBy(r => r.TimestampMarcacao)
+                .ToListAsync();
+
+            // 3. Montagem do Objeto de Retorno
+            var resultado = new EspelhoPontoAgrupadoDto
             {
-                return new ServiceResponse<EspelhoPontoDto> { Success = false, ErrorMessage = "Funcionário não encontrado." };
+                Funcionario = funcionario,
+                Estabelecimento = funcionario.Estabelecimento,
+                Empresa = funcionario.Estabelecimento.Empresa
+            };
+
+            TimeSpan horasContratuaisNoDia = (horariosContratuais[0].Saida - horariosContratuais[0].Entrada) + (horariosContratuais[1].Saida - horariosContratuais[1].Entrada);
+
+            // 4. O LOOP MÁGICO (Itera mês a mês)
+            for (int mesAtual = mesInicio; mesAtual <= mesFim; mesAtual++)
+            {
+                var inicioMes = new DateTime(ano, mesAtual, 1);
+                var fimMes = inicioMes.AddMonths(1).AddDays(-1);
+
+                var dtoMes = new EspelhoPontoMensalDto
+                {
+                    Mes = mesAtual,
+                    Ano = ano,
+                    PeriodoInicio = inicioMes,
+                    PeriodoFim = fimMes
+                };
+
+                // Processa cada dia do mês atual
+                for (DateTime dia = inicioMes; dia <= fimMes; dia = dia.AddDays(1))
+                {
+                    var registrosDia = todosRegistros.Where(r => r.TimestampMarcacao.ToLocalTime().Date == dia.Date).ToList();
+
+                    // *Extraí a lógica de cálculo do dia para um método privado para não repetir código*
+                    var jornada = CalcularJornadaDoDia(dia, registrosDia, feriadosDoAno, horasContratuaisNoDia);
+
+                    dtoMes.Jornadas.Add(jornada);
+
+                    // Acumuladores Mensais
+                    dtoMes.TotalHorasTrabalhadas += jornada.TotalTrabalhado;
+                    dtoMes.TotalHorasExtras += jornada.HorasExtras;
+                    dtoMes.TotalAtrasos += jornada.HorasFaltas;
+                }
+
+                dtoMes.Saldo = dtoMes.TotalHorasExtras - dtoMes.TotalAtrasos;
+                resultado.Meses.Add(dtoMes);
             }
 
+            return new ServiceResponse<EspelhoPontoAgrupadoDto> { Data = resultado };
+        }
+
+        // Método auxiliar com a sua lógica de cálculo diário (copiada e isolada)
+        private JornadaDiaria CalcularJornadaDoDia(DateTime dia, List<ModelRegistroPonto> marcacoes, List<DateTime> feriados, TimeSpan cargaHorariaDiaria)
+        {
+            var jornada = new JornadaDiaria
+            {
+                Dia = dia,
+                Marcacoes = marcacoes.OrderBy(m => m.TimestampMarcacao).ToList()
+            };
+
+            bool isFimDeSemana = dia.DayOfWeek == DayOfWeek.Saturday || dia.DayOfWeek == DayOfWeek.Sunday;
+            bool isFeriado = feriados.Contains(dia.Date);
+
+            // Se não tem marcações
+            if (!jornada.Marcacoes.Any())
+            {
+                if (isFimDeSemana) jornada.Observacoes.Add("Folga DSR");
+                else if (isFeriado) jornada.Observacoes.Add("Feriado");
+                else
+                {
+                    jornada.Observacoes.Add("Falta Integral");
+                    // Se faltou, deve a carga horária inteira (negativo)
+                    jornada.HorasFaltas = cargaHorariaDiaria;
+                    jornada.SaldoDiario = -cargaHorariaDiaria;
+                }
+                return jornada;
+            }
+
+            // Lógica de cálculo de horas trabalhadas (Pares Entrada/Saída)
+            TimeSpan trabalhado = TimeSpan.Zero;
+
+            for (int i = 0; i < jornada.Marcacoes.Count; i += 2)
+            {
+                if (i + 1 < jornada.Marcacoes.Count)
+                {
+                    // Temos um par (Entrada e Saída)
+                    var entrada = jornada.Marcacoes[i].TimestampMarcacao.ToLocalTime();
+                    var saida = jornada.Marcacoes[i + 1].TimestampMarcacao.ToLocalTime();
+                    trabalhado += (saida - entrada);
+                }
+                else
+                {
+                    // Marcação ímpar (esqueceu de bater a saída)
+                    jornada.Observacoes.Add("Marcação Ímpar");
+                }
+            }
+
+            jornada.TotalTrabalhado = trabalhado;
+
+            // Definição da Carga Esperada para o dia
+            TimeSpan cargaEsperada = (isFimDeSemana || isFeriado) ? TimeSpan.Zero : cargaHorariaDiaria;
+
+            // Cálculo do Saldo (Trabalhado - Esperado)
+            var saldo = trabalhado - cargaEsperada;
+            jornada.SaldoDiario = saldo;
+
+            if (saldo > TimeSpan.Zero)
+            {
+                jornada.HorasExtras = saldo;
+                jornada.HorasFaltas = TimeSpan.Zero;
+            }
+            else
+            {
+                jornada.HorasExtras = TimeSpan.Zero;
+                jornada.HorasFaltas = saldo.Duration(); // Duration() torna o negativo em positivo absoluto para exibição
+            }
+
+            return jornada;
+        }
+
+        private List<(TimeSpan Entrada, TimeSpan Saida)> ParseHorarioContratual(string horarioContratual)
+        {
+            var pares = new List<(TimeSpan, TimeSpan)>();
+            var horarios = horarioContratual.Split('-');
+
+            if (horarios.Length != 4) return pares;
+
+            try
+            {
+                pares.Add((TimeSpan.Parse(horarios[0]), TimeSpan.Parse(horarios[1])));
+                pares.Add((TimeSpan.Parse(horarios[2]), TimeSpan.Parse(horarios[3])));
+            }
+            catch (FormatException)
+            {
+                return new List<(TimeSpan, TimeSpan)>();
+            }
+
+            return pares;
+        }
+
+        private async Task<List<DateTime>> ObterFeriadosUnificados(int ano, ModelFuncionario funcionario, DateTime dataInicio, DateTime dataFim)
+        {
             // --- LÓGICA DE FERIADOS UNIFICADA ---
 
             // 1. Busca feriados nacionais da API
@@ -59,126 +212,7 @@ namespace EvoluaPonto.Api.Services
             feriadosDoAno = feriadosDoAno.Distinct().ToList();
 
             // --- FIM DA LÓGICA DE FERIADOS ---
-
-
-            if (string.IsNullOrEmpty(funcionario.HorarioContratual))
-            {
-                return new ServiceResponse<EspelhoPontoDto> { Success = false, ErrorMessage = "Funcionário não possui horário contratual definido." };
-            }
-
-            var registros = await _context.RegistrosPonto
-                .Where(r => r.FuncionarioId == funcionarioId && r.TimestampMarcacao >= dataInicio && r.TimestampMarcacao <= dataFim)
-                .OrderBy(r => r.TimestampMarcacao)
-                .ToListAsync();
-
-            var espelhoPonto = new EspelhoPontoDto
-            {
-                Funcionario = funcionario,
-                Estabelecimento = funcionario.Estabelecimento,
-                Empresa = funcionario.Estabelecimento.Empresa,
-                PeriodoInicio = dataInicio.Date,
-                PeriodoFim = dataFim.Date
-            };
-
-            var horariosContratuais = ParseHorarioContratual(funcionario.HorarioContratual);
-            if (horariosContratuais.Count == 0)
-            {
-                return new ServiceResponse<EspelhoPontoDto> { Success = false, ErrorMessage = "Formato do horário contratual é inválido. Use 'HH:mm-HH:mm-HH:mm-HH:mm'." };
-            }
-
-            TimeSpan totalHorasTrabalhadasMes = TimeSpan.Zero;
-            TimeSpan totalHorasExtrasMes = TimeSpan.Zero;
-            TimeSpan totalAtrasosMes = TimeSpan.Zero;
-            TimeSpan horasContratuaisNoDia = (horariosContratuais[0].Saida - horariosContratuais[0].Entrada) + (horariosContratuais[1].Saida - horariosContratuais[1].Entrada);
-
-            for (DateTime diaCorrente = dataInicio.Date; diaCorrente <= dataFim.Date; diaCorrente = diaCorrente.AddDays(1))
-            {
-                var marcacoesDoDia = registros
-                    .Where(r => r.TimestampMarcacao.Date == diaCorrente.Date)
-                    .OrderBy(r => r.TimestampMarcacao)
-                    .ToList();
-
-                var jornadaDiaria = new JornadaDiaria { Dia = diaCorrente.Date };
-
-                bool isFimDeSemana = diaCorrente.DayOfWeek == DayOfWeek.Saturday || diaCorrente.DayOfWeek == DayOfWeek.Sunday;
-                bool isFeriado = feriadosDoAno.Contains(diaCorrente.Date);
-
-                if ((isFimDeSemana || isFeriado) && !marcacoesDoDia.Any())
-                {
-                    if (isFeriado) jornadaDiaria.Observacoes.Add("Feriado");
-                    espelhoPonto.Jornadas.Add(jornadaDiaria);
-                    continue;
-                }
-
-                if (marcacoesDoDia.Count % 2 != 0)
-                {
-                    jornadaDiaria.Observacoes.Add("Marcação ímpar: Verifique esquecimento de registro.");
-                }
-
-                TimeSpan totalTrabalhadoNoDia = TimeSpan.Zero;
-
-                for (int i = 0; i < marcacoesDoDia.Count; i += 2)
-                {
-                    var entrada = marcacoesDoDia[i];
-                    var saida = (i + 1 < marcacoesDoDia.Count) ? marcacoesDoDia[i + 1] : null;
-
-                    var par = new ParMarcacao { Entrada = entrada.TimestampMarcacao };
-                    if (saida != null && saida.Tipo.ToLower() == "saida" && entrada.Tipo.ToLower() == "entrada")
-                    {
-                        par.Saida = saida.TimestampMarcacao;
-                        totalTrabalhadoNoDia += (par.Saida.Value - par.Entrada.Value);
-                    }
-                    jornadaDiaria.Marcacoes.Add(par);
-                }
-                jornadaDiaria.TotalTrabalhado = totalTrabalhadoNoDia;
-
-                if (totalTrabalhadoNoDia > horasContratuaisNoDia)
-                {
-                    jornadaDiaria.HorasExtras = totalTrabalhadoNoDia - horasContratuaisNoDia;
-                }
-                else if (totalTrabalhadoNoDia < horasContratuaisNoDia && marcacoesDoDia.Any())
-                {
-                    jornadaDiaria.Atrasos = horasContratuaisNoDia - totalTrabalhadoNoDia;
-                }
-                else if (totalTrabalhadoNoDia == TimeSpan.Zero && !isFimDeSemana && !isFeriado)
-                {
-                    jornadaDiaria.Atrasos = horasContratuaisNoDia;
-                    if (!marcacoesDoDia.Any()) jornadaDiaria.Observacoes.Add("Falta");
-                }
-
-                espelhoPonto.Jornadas.Add(jornadaDiaria);
-
-                totalHorasTrabalhadasMes += jornadaDiaria.TotalTrabalhado;
-                totalHorasExtrasMes += jornadaDiaria.HorasExtras;
-                totalAtrasosMes += jornadaDiaria.Atrasos;
-            }
-
-            espelhoPonto.TotalHorasTrabalhadasMes = totalHorasTrabalhadasMes;
-            espelhoPonto.TotalHorasExtrasMes = totalHorasExtrasMes;
-            espelhoPonto.TotalAtrasosMes = totalAtrasosMes;
-            espelhoPonto.SaldoMes = totalHorasExtrasMes - totalAtrasosMes;
-
-            return new ServiceResponse<EspelhoPontoDto> { Data = espelhoPonto };
-        }
-
-        private List<(TimeSpan Entrada, TimeSpan Saida)> ParseHorarioContratual(string horarioContratual)
-        {
-            var pares = new List<(TimeSpan, TimeSpan)>();
-            var horarios = horarioContratual.Split('-');
-
-            if (horarios.Length != 4) return pares;
-
-            try
-            {
-                pares.Add((TimeSpan.Parse(horarios[0]), TimeSpan.Parse(horarios[1])));
-                pares.Add((TimeSpan.Parse(horarios[2]), TimeSpan.Parse(horarios[3])));
-            }
-            catch (FormatException)
-            {
-                return new List<(TimeSpan, TimeSpan)>();
-            }
-
-            return pares;
+            return feriadosDoAno;
         }
     }
 }
