@@ -17,7 +17,7 @@ export const useFuncionarios = (estabelecimentoId: string | undefined) => {
       }
       setLoading(true);
       try {
-         const response = await api.get(`/Funcionarios?estabelecimentoId=${estabelecimentoId}`)
+         const response = await api.get(`/Funcionarios/estabelecimento/${estabelecimentoId}`)
             .then(response => {
                if (response.data && response.data) {
                   setFuncionarios(response.data);
@@ -47,7 +47,11 @@ export const useFuncionarios = (estabelecimentoId: string | undefined) => {
       }
    };
 
-   useFocusEffect(fetchFuncionarios);
+   useFocusEffect(
+      useCallback(() => {
+         fetchFuncionarios();
+      }, [fetchFuncionarios])
+   );
 
    return { funcionarios, loading, fetchFuncionarios, toggleFuncionarioAtivo };
 };

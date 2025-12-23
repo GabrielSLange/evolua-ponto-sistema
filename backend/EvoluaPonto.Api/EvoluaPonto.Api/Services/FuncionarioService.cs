@@ -22,9 +22,18 @@ namespace EvoluaPonto.Api.Services
             => new ServiceResponse<List<ModelFuncionario>>
             {
                 Data = await _context.Funcionarios
-                    .AsNoTracking()
-                    .Where(tb => tb.Estabelecimento.EmpresaId == empresaId)
-                    .ToListAsync()
+                .AsNoTracking()
+                .Where(tb => tb.Estabelecimento.EmpresaId == empresaId)
+                .ToListAsync()
+            };
+
+        public async Task<ServiceResponse<List<ModelFuncionario>>> GetFuncionariosEstabelecimento(Guid estabelecimentoId)
+            => new ServiceResponse<List<ModelFuncionario>>
+            {
+                Data = await _context.Funcionarios
+                .AsNoTracking()
+                .Where(tb => tb.EstabelecimentoId == estabelecimentoId)
+                .ToListAsync()
             };
 
         public async Task<ServiceResponse<FuncionarioDto>> GetFuncionarioById(Guid funcionarioId)
@@ -39,11 +48,11 @@ namespace EvoluaPonto.Api.Services
             (SupabaseUserResponse? supabaseUser, string? error) = await _supabaseAdmin.GetByIdAsync(funcionario.Id.ToString());
 
             if (error != null || supabaseUser is null)
-            {                 
+            {
                 return new ServiceResponse<FuncionarioDto> { Success = false, ErrorMessage = $"Erro Supabase: {error}" };
             }
 
-            FuncionarioDto funcionarioDto = new FuncionarioDto 
+            FuncionarioDto funcionarioDto = new FuncionarioDto
             {
                 Id = funcionario.Id,
                 Nome = funcionario.Nome,
@@ -53,7 +62,7 @@ namespace EvoluaPonto.Api.Services
                 Ativo = funcionario.Ativo,
                 EstabelecimentoId = funcionario.EstabelecimentoId,
                 Estabelecimento = funcionario.Estabelecimento,
-                Email = supabaseUser.Email, 
+                Email = supabaseUser.Email,
                 Role = supabaseUser.App_Metadata["role"].ToString(),
             };
 
