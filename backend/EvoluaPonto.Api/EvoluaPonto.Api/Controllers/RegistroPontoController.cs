@@ -77,12 +77,12 @@ namespace EvoluaPonto.Api.Controllers
             }
         }
 
-        [HttpGet("pendentes/{empresaId}")]
-        public async Task<IActionResult> GetPendentes(Guid empresaId)
+        [HttpGet("pendentes")]
+        public async Task<IActionResult> GetPendentes([FromQuery] Guid funcionarioId)
         {
             try
             {
-                var response = await _registroPontoService.GetSolicitacoesPendentesAsync(empresaId);
+                var response = await _registroPontoService.GetSolicitacoesPendentesAsync(funcionarioId);
 
                 if (!response.Success)
                 {

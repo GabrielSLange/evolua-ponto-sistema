@@ -83,6 +83,13 @@ export default function AdminLayout() {
             }}
          />
          <Drawer.Screen
+            name='solicitacoes'
+            options={{
+               drawerLabel: 'Solicitações Pendentes',
+               title: 'Solicitações Pendentes',
+            }}
+         />
+         <Drawer.Screen
             name='relatorios/index'
             options={{
                drawerLabel: 'Relatórios',

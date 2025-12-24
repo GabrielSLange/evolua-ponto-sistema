@@ -182,8 +182,19 @@ namespace EvoluaPonto.Api.Services
             return new ServiceResponse<ModelRegistroPonto> { Success = true, Data = novaSolicitacao, ErrorMessage = "Solicitação enviada com sucesso." };
         }
 
-        public async Task<ServiceResponse<List<ModelRegistroPonto>>> GetSolicitacoesPendentesAsync(Guid empresaId)
+        public async Task<ServiceResponse<List<ModelRegistroPonto>>> GetSolicitacoesPendentesAsync(Guid funcionarioId)
         {
+            // 1. Buscar o Funcionário para obter a EmpresaId
+            var funcionario = await _context.Funcionarios
+                                            .Include(f => f.Estabelecimento)
+                                            .FirstOrDefaultAsync(f => f.Id == funcionarioId);
+            if (funcionario is null)
+                return new ServiceResponse<List<ModelRegistroPonto>> { Success = false, ErrorMessage = "Funcionário não encontrado." };
+
+            var empresaId = funcionario.Estabelecimento?.EmpresaId;
+            if (empresaId is null)
+                return new ServiceResponse<List<ModelRegistroPonto>> { Success = false, ErrorMessage = "Empresa do funcionário não encontrada." };
+
             // Busca registros onde Status == Pendente e a empresa é a do Admin
             var pendentes = await _context.RegistrosPonto
                                             .Include(r => r.Funcionario) // Para mostrar o nome de quem pediu
