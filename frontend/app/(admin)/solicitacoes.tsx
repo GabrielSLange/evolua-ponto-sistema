@@ -217,7 +217,7 @@ export default function SolicitacoesScreen() {
                         />
 
                         <View style={styles.modalButtons}>
-                            <Button onPress={() => setRejectModalVisible(false)} style={{ flex: 1 }}>
+                            <Button onPress={() => setRejectModalVisible(false)} style={{ flex: 1, borderColor: theme.colors.outline, borderWidth: 1 }} mode="outlined">
                                 Cancelar
                             </Button>
                             <Button
