@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, FlatList, StyleSheet, Alert, Modal, TouchableOpacity } from 'react-native';
-import { Text, Card, Button, Avatar, ActivityIndicator, TextInput, useTheme, IconButton } from 'react-native-paper';
+import { Text, Card, Button, Avatar, ActivityIndicator, TextInput, useTheme, IconButton, HelperText } from 'react-native-paper';
 import api from '@/services/api';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import { useFocusEffect } from 'expo-router';
@@ -19,6 +19,9 @@ export default function SolicitacoesScreen() {
     const [rejectModalVisible, setRejectModalVisible] = useState(false);
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [motivoRejeicao, setMotivoRejeicao] = useState('');
+
+    // Estado para controlar o erro visual no input do motivo de rejeição
+    const [errorMotivo, setErrorMotivo] = useState(false);
 
     // --- BUSCAR DADOS ---
     const fetchSolicitacoes = async () => {
@@ -74,13 +77,14 @@ export default function SolicitacoesScreen() {
     const openRejectModal = (id: number) => {
         setSelectedId(id);
         setMotivoRejeicao('');
+        setErrorMotivo(false);
         setRejectModalVisible(true);
     };
 
     const handleConfirmarRejeicao = async () => {
         if (!selectedId) return;
         if (!motivoRejeicao.trim()) {
-            Alert.alert("Atenção", "Informe o motivo da rejeição.");
+            setErrorMotivo(true);
             return;
         }
 
@@ -212,9 +216,17 @@ export default function SolicitacoesScreen() {
                             multiline
                             numberOfLines={3}
                             value={motivoRejeicao}
-                            onChangeText={setMotivoRejeicao}
-                            style={{ marginBottom: 20, backgroundColor: theme.colors.surface }}
+                            onChangeText={(text) => {
+                                setMotivoRejeicao(text);
+                                if (text.trim().length > 0) setErrorMotivo(false);
+                            }}
+                            error={errorMotivo}
+                            style={{ backgroundColor: theme.colors.surface }}
                         />
+
+                        <HelperText type="error" visible={errorMotivo} style={{ marginBottom: 10 }}>
+                            O motivo da rejeição é obrigatório.
+                        </HelperText>
 
                         <View style={styles.modalButtons}>
                             <Button onPress={() => setRejectModalVisible(false)} style={{ flex: 1, borderColor: theme.colors.outline, borderWidth: 1 }} mode="outlined">
