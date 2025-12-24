@@ -4,14 +4,14 @@ import { Text, Card, Button, Avatar, ActivityIndicator, TextInput, useTheme, Ico
 import api from '@/services/api';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import { useFocusEffect } from 'expo-router';
-import { SolicitacaoPendenteDto } from '@/models/Dtos/SolicitacaoPendenteDto';
+import { SolicitacaoPontoDto } from '@/models/Dtos/SolicitacaoPontoDto';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function SolicitacoesScreen() {
     const theme = useTheme();
     const { userId } = useAuth();
 
-    const [solicitacoes, setSolicitacoes] = useState<SolicitacaoPendenteDto[]>([]);
+    const [solicitacoes, setSolicitacoes] = useState<SolicitacaoPontoDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [processingId, setProcessingId] = useState<number | null>(null);
 
@@ -113,7 +113,7 @@ export default function SolicitacoesScreen() {
 
     // --- RENDER ---
 
-    const renderItem = ({ item }: { item: SolicitacaoPendenteDto }) => {
+    const renderItem = ({ item }: { item: SolicitacaoPontoDto }) => {
         const dataObj = new Date(item.timestampMarcacao);
         const dataFormatada = dataObj.toLocaleDateString('pt-BR');
         const horaFormatada = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });

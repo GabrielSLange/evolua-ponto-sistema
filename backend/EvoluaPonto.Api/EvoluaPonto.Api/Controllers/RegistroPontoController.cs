@@ -77,6 +77,29 @@ namespace EvoluaPonto.Api.Controllers
             }
         }
 
+        [HttpGet("historico")]
+        public async Task<IActionResult> GetHistoricoSolicitacoes([FromQuery] Guid funcionarioId)
+        {
+            try
+            {
+                ServiceResponse<List<ModelRegistroPonto>> response = await _registroPontoService.GetHistoricoSolicitacoesAsync(funcionarioId);
+
+                if (!response.Success)
+                {
+                    return BadRequest(response);
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ServiceResponse<List<ModelRegistroPonto>>
+                {
+                    Success = false,
+                    ErrorMessage = $"Erro ao listar histórico: {ex.Message}"
+                });
+            }
+        }
+
         [HttpGet("pendentes")]
         public async Task<IActionResult> GetPendentes([FromQuery] Guid funcionarioId)
         {

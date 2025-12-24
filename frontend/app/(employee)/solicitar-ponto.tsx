@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Platform, Alert, ScrollView, KeyboardAvoidingView, TouchableOpacity} from 'react-native';
-import { Text, TextInput, Button, SegmentedButtons, useTheme, HelperText } from 'react-native-paper';
+import React, { useCallback, useState } from 'react';
+import { View, StyleSheet, Platform, Alert, ScrollView, KeyboardAvoidingView, TouchableOpacity, RefreshControl} from 'react-native';
+import { Text, TextInput, Button, SegmentedButtons, useTheme, HelperText, Card, Chip, Avatar, Divider } from 'react-native-paper';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '@/contexts/NotificationContext';
 import api from '../../services/api';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
+import { SolicitacaoPontoDto } from '@/models/Dtos/SolicitacaoPontoDto';
+import { is } from 'date-fns/locale';
 
 export default function SolicitarPontoScreen() {
   const router = useRouter();
@@ -27,9 +29,48 @@ export default function SolicitarPontoScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
+  // --- NOVO: Estados para Histórico ---
+  const [historico, setHistorico] = useState<SolicitacaoPontoDto[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
   // --- Helpers de Data ---
   const getIsoDateForApi = () => {
     return dataSelecionada.toISOString();
+  };
+
+  // Função para buscar histórico
+  const fetchHistorico = async () => {
+    const funcionarioId = userId;
+    if (!funcionarioId) {
+      Alert.alert('Erro', 'Não foi possível identificar o funcionário.');
+      return;
+    }
+    setRefreshing(true);
+
+    try {
+      const response = await api.get('/RegistroPonto/historico', {
+        params: { funcionarioId: funcionarioId }
+      });
+      if (response.data.success) {
+        setHistorico(response.data.data);
+      }
+    } catch (error) {
+      console.log("Erro ao buscar histórico", error);
+    }
+  };
+
+  // Carrega dados ao entrar na tela
+  useFocusEffect(
+    useCallback(() => {
+      fetchHistorico();
+    }, [])
+  );
+
+  // -Pull to Refresh
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchHistorico();
+    setRefreshing(false);
   };
 
   // --- Handlers (Nativo) ---
@@ -86,8 +127,11 @@ const handleSubmit = async () => {
         // Mostra o Toast Verde
         showNotification('Solicitação enviada com sucesso!', 'success');
         
-        // Volta para a tela anterior
-        router.back(); 
+        // Limpa formulário e atualiza lista em vez de sair da tela
+        setJustificativa('');
+        setErroJustificativa(false);
+        fetchHistorico(); // Atualiza a lista lá embaixo 
+
       } else {
         // --- ERRO DA API ---
         const msg = response.data.errorMessage || 'Não foi possível enviar a solicitação.';
@@ -103,13 +147,55 @@ const handleSubmit = async () => {
     }
   };
 
+  // Renderiza cada item do histórico
+  const renderHistoricoItem = (item: SolicitacaoPontoDto) => {
+    const dataItem = new Date(item.timestampMarcacao);
+    const isRejeitado = item.status === 2;
+
+    return (
+      <Card key={item.id} style={[styles.card, { borderColor: isRejeitado ? theme.colors.error : theme.colors.outline }]}>
+        <Card.Content>
+          <View style={styles.cardHeader}>
+            <Text variant="titleMedium" style={{fontWeight: 'bold'}}>
+              {dataItem.toLocaleDateString('pt-BR')} - {dataItem.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}
+            </Text>
+            <Chip 
+              icon={isRejeitado ? "alert-circle" : "clock-outline"} 
+              style={{ backgroundColor: isRejeitado ? theme.colors.errorContainer : theme.colors.secondaryContainer }}
+              textStyle={{ color: isRejeitado ? theme.colors.error : theme.colors.onSecondaryContainer }}
+            >
+              {item.status === 0 ? 'Pendente' : item.status === 1 ? 'Aprovado' : 'Rejeitado'}
+            </Chip>
+          </View>
+          
+          <Text style={{marginTop: 8}}>
+            <Text style={{fontWeight: 'bold'}}>Tipo: </Text> {item.tipo}
+          </Text>
+          <Text style={{marginBottom: 8}}>
+            <Text style={{fontWeight: 'bold'}}>Sua Justificativa: </Text> {item.justificativaFuncionario}
+          </Text>
+
+          {isRejeitado && item.justificativaAdmin && (
+            <View style={[styles.rejectionBox, { backgroundColor: theme.colors.errorContainer }]}>
+              <Text style={{color: theme.colors.onErrorContainer, fontWeight: 'bold'}}>Motivo da Rejeição:</Text>
+              <Text style={{color: theme.colors.onErrorContainer}}>{item.justificativaAdmin}</Text>
+            </View>
+          )}
+        </Card.Content>
+      </Card>
+    );
+  };
+  
   return (
     <ScreenContainer>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+        >
           
           <Text variant="headlineMedium" style={styles.title}>Solicitar Ajuste</Text>
 
@@ -241,6 +327,23 @@ const handleSubmit = async () => {
             </Text>
         </TouchableOpacity>
 
+          {/* --- NOVO: Seção de Histórico Abaixo do Botão --- */}
+
+          <Divider style={styles.divider} />
+          <Text variant="titleLarge" style={styles.sectionTitle}>Minhas Solicitações</Text>
+          <Text variant="bodySmall" style={{marginBottom: 16, color: '#666'}}>
+            Acompanhe o status das suas solicitações manuais.
+          </Text>
+          
+          {historico.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Avatar.Icon icon="history" size={48} style={{backgroundColor: theme.colors.surfaceVariant}} />
+              <Text style={{color: '#888', marginTop: 8}}>Nenhuma solicitação recente.</Text>
+            </View>
+          ) : (
+            historico.map(renderHistoricoItem)
+          )}
+
         </ScrollView>
       </KeyboardAvoidingView>
     </ScreenContainer>
@@ -254,7 +357,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 20,
     textAlign: 'center',
   },
   subtitle: {
@@ -282,5 +385,33 @@ const styles = StyleSheet.create({
   buttonText: {
       fontSize: 18,
       fontWeight: "bold"
+   },
+   divider: {
+     marginVertical: 32,
+     height: 1,
+   },
+   sectionTitle: {
+     fontWeight: 'bold',
+     marginBottom: 4,
+   },
+   card: {
+     marginBottom: 16,
+     borderLeftWidth: 4, // Tarja colorida na esquerda
+   },
+   cardHeader: {
+     flexDirection: 'row',
+     justifyContent: 'space-between',
+     alignItems: 'center',
+     marginBottom: 8,
+   },
+   rejectionBox: {
+     marginTop: 10,
+     padding: 8,
+     borderRadius: 4,
+   },
+   emptyState: {
+     alignItems: 'center',
+     padding: 20,
+     opacity: 0.7
    }
 });
