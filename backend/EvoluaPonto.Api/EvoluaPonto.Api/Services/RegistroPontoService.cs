@@ -182,8 +182,45 @@ namespace EvoluaPonto.Api.Services
             return new ServiceResponse<ModelRegistroPonto> { Success = true, Data = novaSolicitacao, ErrorMessage = "Solicitação enviada com sucesso." };
         }
 
-        public async Task<ServiceResponse<List<ModelRegistroPonto>>> GetSolicitacoesPendentesAsync(Guid empresaId)
+        public async Task<ServiceResponse<List<ModelRegistroPonto>>> GetHistoricoSolicitacoesAsync(Guid funcionarioId)
         {
+            var response = new ServiceResponse<List<ModelRegistroPonto>>();
+
+            try
+            {
+                var registros = await _context.RegistrosPonto
+                    .Where(r =>
+                        r.FuncionarioId == funcionarioId &&
+                        r.RegistroManual == true && // Apenas solicitações manuais
+                        (r.Status == StatusSolicitacao.Pendente || r.Status == StatusSolicitacao.Rejeitado)
+                    )
+                    .OrderByDescending(r => r.CreatedAt) // Mais recentes primeiro
+                    .ToListAsync();
+
+                response.Data = registros;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = $"Erro ao buscar histórico: {ex.Message}";
+            }
+
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<ModelRegistroPonto>>> GetSolicitacoesPendentesAsync(Guid funcionarioId)
+        {
+            // 1. Buscar o Funcionário para obter a EmpresaId
+            var funcionario = await _context.Funcionarios
+                                            .Include(f => f.Estabelecimento)
+                                            .FirstOrDefaultAsync(f => f.Id == funcionarioId);
+            if (funcionario is null)
+                return new ServiceResponse<List<ModelRegistroPonto>> { Success = false, ErrorMessage = "Funcionário não encontrado." };
+
+            var empresaId = funcionario.Estabelecimento?.EmpresaId;
+            if (empresaId is null)
+                return new ServiceResponse<List<ModelRegistroPonto>> { Success = false, ErrorMessage = "Empresa do funcionário não encontrada." };
+
             // Busca registros onde Status == Pendente e a empresa é a do Admin
             var pendentes = await _context.RegistrosPonto
                                             .Include(r => r.Funcionario) // Para mostrar o nome de quem pediu
