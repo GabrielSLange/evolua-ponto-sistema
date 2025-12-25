@@ -36,8 +36,6 @@ export default function HomeScreen() {
             setEspelho(response.data.data);
          }
 
-         console.log("response.data", response.data);
-
          const funcionarioResponse = await api.get('/funcionarios/id', {
             params: { funcionarioId: funcionarioId }
          });
