@@ -4,6 +4,7 @@ using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Enums;
 using EvoluaPonto.Api.Models.Shared;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 namespace EvoluaPonto.Api.Services
@@ -302,6 +303,108 @@ namespace EvoluaPonto.Api.Services
             {
                 return new ServiceResponse<bool> { Success = false, ErrorMessage = $"Erro ao processar aprovação: {ex.Message}" };
             }
+        }
+
+        public async Task<ServiceResponse<EspelhoHomeResponseDto>> GetEspelhoHomeAsync(Guid funcionarioId)
+        {
+            var response = new ServiceResponse<EspelhoHomeResponseDto>();
+
+            try
+            {
+                // 1. Definir o período (Mês Atual)
+                var hoje = DateTime.Now.Date;
+                var primeiroDiaMes = new DateTime(hoje.Year, hoje.Month, 1);
+                var ultimoDiaMes = primeiroDiaMes.AddMonths(1).AddDays(-1);
+
+                // 2. Buscar registros do funcionário neste período
+                // Trazemos apenas o necessário do banco
+                var registros = await _context.RegistrosPonto
+                    .Include(r => r.Funcionario)
+                    .Where(r => r.FuncionarioId == funcionarioId
+                             && r.TimestampMarcacao >= primeiroDiaMes.ToUniversalTime()
+                             && r.TimestampMarcacao <= ultimoDiaMes.AddDays(1).ToUniversalTime()
+                             && r.Status != StatusSolicitacao.Rejeitado) // Não mostramos rejeitados no espelho oficial
+                    .OrderBy(r => r.TimestampMarcacao)
+                    .ToListAsync();
+
+                // 3. Preparar o DTO de resposta
+                var espelho = new EspelhoHomeResponseDto
+                {
+                    MesReferencia = primeiroDiaMes.ToString("MMMM/yyyy", new CultureInfo("pt-BR")),
+                    SaldoPrevisto = "00:00" // Cálculo de saldo requer regras de Jornada complexas, deixamos zerado por enquanto
+                };
+
+                // 4. Iterar dia a dia para montar o calendário (inclusive dias sem ponto)
+                for (var dia = primeiroDiaMes; dia <= ultimoDiaMes; dia = dia.AddDays(1))
+                {
+                    // Filtra registros deste dia específico (convertendo UTC para Local)
+                    var registrosDoDia = registros
+                        .Where(r => r.TimestampMarcacao.ToLocalTime().Date == dia)
+                        .OrderBy(r => r.TimestampMarcacao)
+                        .ToList();
+
+                    var isFimDeSemana = dia.DayOfWeek == DayOfWeek.Saturday || dia.DayOfWeek == DayOfWeek.Sunday;
+
+                    // TODO: Aqui entraria a verificação na tabela de Feriados
+                    var isFeriado = false;
+
+                    var diaDto = new DiaEspelhoHomeDto
+                    {
+                        Data = dia,
+                        DiaSemana = dia.ToString("ddd", new CultureInfo("pt-BR")).ToUpper(), // SEG, TER...
+                        IsFimDeSemana = isFimDeSemana,
+                        IsFeriado = isFeriado,
+                        IsHoje = dia == hoje,
+                        Marcacoes = registrosDoDia.Select(r => new PontoHomeDto
+                        {
+                            Id = r.Id,
+                            Hora = r.TimestampMarcacao.ToLocalTime().ToString("HH:mm"),
+                            Tipo = r.Tipo.ToString(), // ENTRADA, SAIDA
+                            IsManual = r.RegistroManual,
+                            StatusSolicitacao = r.Status.ToString() // Pendente/Aprovado
+                        }).ToList()
+                    };
+
+                    // 5. Lógica simples de Status do Dia para exibir cor/alerta no Front
+                    if (registrosDoDia.Any())
+                    {
+                        // Se tem registros, verificamos se é par (entrada+saida) ou ímpar (incompleto)
+                        diaDto.Status = registrosDoDia.Count % 2 == 0 ? "Completo" : "Incompleto";
+                    }
+                    else
+                    {
+                        // Sem registros
+                        if (dia > hoje)
+                        {
+                            diaDto.Status = "Futuro"; // Dias que ainda não chegaram
+                        }
+                        else if (isFimDeSemana || isFeriado)
+                        {
+                            diaDto.Status = "Folga";
+                        }
+                        else
+                        {
+                            diaDto.Status = "Falta"; // Dia útil passado sem registro
+                        }
+                    }
+
+                    espelho.Dias.Add(diaDto);
+                }
+
+                // Ordenação: Dias mais recentes primeiro (melhor para Mobile) ou cronológico?
+                // Para "Espelho", cronológico (1..30) costuma ser melhor, mas no mobile, 
+                // ver o dia de hoje no topo ajuda. Vamos inverter.
+                espelho.Dias.Reverse();
+
+                response.Data = espelho;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = "Erro ao gerar espelho: " + ex.Message;
+            }
+
+            return response;
         }
     }
 }

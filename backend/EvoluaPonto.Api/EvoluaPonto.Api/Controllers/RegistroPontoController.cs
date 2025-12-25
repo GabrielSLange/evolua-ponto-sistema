@@ -148,5 +148,29 @@ namespace EvoluaPonto.Api.Controllers
                 });
             }
         }
+
+        [HttpGet("espelho/home")]
+        public async Task<IActionResult> GetEspelhoHome([FromQuery] Guid funcionarioId)
+        {
+            try
+            {
+                var response = await _registroPontoService.GetEspelhoHomeAsync(funcionarioId);
+
+                if (!response.Success)
+                {
+                    return BadRequest(response);
+                }
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ServiceResponse<object>
+                {
+                    Success = false,
+                    ErrorMessage = $"Erro ao obter espelho: {ex.Message}"
+                });
+            }
+        }
     }
 }
