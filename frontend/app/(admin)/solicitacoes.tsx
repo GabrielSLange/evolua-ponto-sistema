@@ -137,9 +137,9 @@ export default function SolicitacoesScreen() {
                         <Text style={styles.label}>Data/Hora:</Text>
                         <Text>{dataFormatada} às {horaFormatada}</Text>
                     </View>
-                    <View style={styles.justificativaBox}>
-                        <Text style={styles.labelJustificativa}>Justificativa do Funcionário:</Text>
-                        <Text style={styles.textoJustificativa}>{item.justificativaFuncionario || 'Sem justificativa'}</Text>
+                    <View style={[styles.justificativaBox, { backgroundColor: theme.colors.surface }]}>
+                        <Text style={[styles.labelJustificativa, { color: theme.colors.onSurface }]}>Justificativa do Funcionário:</Text>
+                        <Text style={[styles.textoJustificativa, { color: theme.colors.onSurface }]}>{item.justificativaFuncionario || 'Sem justificativa'}</Text>
                     </View>
                 </Card.Content>
 

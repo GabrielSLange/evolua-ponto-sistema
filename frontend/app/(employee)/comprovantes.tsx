@@ -190,7 +190,7 @@ export default function ComprovanteScreen() {
                     const [year, month, day] = e.target.value.split('-').map(Number);
                     setDataInicio(new Date(Date.UTC(year, month - 1, day)));
                   }}
-                  style={{ ...styles.webDatePicker, backgroundColor: paperTheme.colors.surface, color: paperTheme.colors.onSurface }}
+                  style={{ ...styles.webDatePicker, backgroundColor: paperTheme.colors.surface, color: paperTheme.colors.onSurface, colorScheme: paperTheme.dark ? 'dark' : 'light' }}
                 />
               ) : (
                 <>
@@ -216,7 +216,7 @@ export default function ComprovanteScreen() {
                     const [year, month, day] = e.target.value.split('-').map(Number);
                     setDataFim(new Date(Date.UTC(year, month - 1, day)));
                   }}
-                  style={{ ...styles.webDatePicker, backgroundColor: paperTheme.colors.surface, color: paperTheme.colors.onSurface }}
+                  style={{ ...styles.webDatePicker, backgroundColor: paperTheme.colors.surface, color: paperTheme.colors.onSurface, colorScheme: paperTheme.dark ? 'dark' : 'light' }}
                 />
               ) : (
                 <>

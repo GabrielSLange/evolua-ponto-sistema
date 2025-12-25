@@ -8,7 +8,6 @@ import { useNotification } from '@/contexts/NotificationContext';
 import api from '../../services/api';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import { SolicitacaoPontoDto } from '@/models/Dtos/SolicitacaoPontoDto';
-import { is } from 'date-fns/locale';
 
 export default function SolicitarPontoScreen() {
   const router = useRouter();
@@ -241,7 +240,8 @@ const handleSubmit = async () => {
                   borderRadius: 4,
                   border: `1px solid ${theme.colors.outline}`,
                   backgroundColor: theme.colors.surface,
-                  color: theme.colors.onSurface
+                  color: theme.colors.onSurface,
+                  colorScheme: theme.dark ? 'dark' : 'light'
                 }}
               />
             ) : (
