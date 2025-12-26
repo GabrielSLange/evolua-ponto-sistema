@@ -4,6 +4,7 @@ using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Enums;
 using EvoluaPonto.Api.Models.Shared;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
@@ -16,15 +17,20 @@ namespace EvoluaPonto.Api.Services
         private readonly SupabaseStorageService _storageService;
         private readonly ComprovanteService _comprovanteService;
         private readonly DigitalSignatureService _signatureService;
+        private readonly FeriadoService _feriadoService;
+        private readonly IMemoryCache _memoryCache;
+
 
         public RegistroPontoService(AppDbContext context, IHttpContextAccessor httpContextAcessor, SupabaseStorageService storageService,
-            ComprovanteService comprovanteService, DigitalSignatureService signatureService)
+            ComprovanteService comprovanteService, DigitalSignatureService signatureService, FeriadoService feriadoService, IMemoryCache memoryCache)
         {
             _context = context;
             _httpContextAccessor = httpContextAcessor;
             _storageService = storageService;
             _comprovanteService = comprovanteService;
             _signatureService = signatureService;
+            _feriadoService = feriadoService;
+            _memoryCache = memoryCache;
 
         }
 
@@ -311,12 +317,34 @@ namespace EvoluaPonto.Api.Services
 
             try
             {
-                // 1. Definir o período (Mês Atual)
+                // Definir o período (Mês Atual)
                 var hoje = DateTime.Now.Date;
                 var primeiroDiaMes = new DateTime(hoje.Year, hoje.Month, 1);
                 var ultimoDiaMes = primeiroDiaMes.AddMonths(1).AddDays(-1);
 
-                // 2. Buscar registros do funcionário neste período
+                // Busca Feriados (com cache)
+                // Define uma cheve única para o cache (ex: "Feriados_2025")
+                string cacheKey = $"Feriados_nacionais_{hoje.Year}";
+
+                // Tenta pegar do cache. Se não existir, roda a função dentro do 'GetOrCreateAsync'
+                var feriadosNacionais = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
+                {
+                    // Configura para expirar em 24 horas (assim atualiza 1x por dia)
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24);
+
+                    // Busca na API
+                    var dadosApi = await _feriadoService.GetFeriadosNacionaisAsync(hoje.Year);
+                    return dadosApi ?? new List<FeriadoDto>(); // Retorna lista vazia se falhar
+                });
+
+                // Pré processamento dos Feriados
+                // 1. Convertemos as strings ("2024-12-25") para DateTime puros
+                // 2. Usamos HashSet para a busca ser instantânea (O(1)) dentro do loop
+                var datasFeriados = feriadosNacionais
+                    .Select(f => DateTime.Parse(f.Data).Date) // Converte String -> DateTime
+                    .ToHashSet();
+
+                // Buscar registros do funcionário neste período
                 // Trazemos apenas o necessário do banco
                 var registros = await _context.RegistrosPonto
                     .Include(r => r.Funcionario)
@@ -327,14 +355,14 @@ namespace EvoluaPonto.Api.Services
                     .OrderBy(r => r.TimestampMarcacao)
                     .ToListAsync();
 
-                // 3. Preparar o DTO de resposta
+                // Preparar o DTO de resposta
                 var espelho = new EspelhoHomeResponseDto
                 {
                     MesReferencia = primeiroDiaMes.ToString("MMMM/yyyy", new CultureInfo("pt-BR")),
                     SaldoPrevisto = "00:00" // Cálculo de saldo requer regras de Jornada complexas, deixamos zerado por enquanto
                 };
 
-                // 4. Iterar dia a dia para montar o calendário (inclusive dias sem ponto)
+                // Iterar dia a dia para montar o calendário (inclusive dias sem ponto)
                 for (var dia = primeiroDiaMes; dia <= ultimoDiaMes; dia = dia.AddDays(1))
                 {
                     // Filtra registros deste dia específico (convertendo UTC para Local)
@@ -345,8 +373,9 @@ namespace EvoluaPonto.Api.Services
 
                     var isFimDeSemana = dia.DayOfWeek == DayOfWeek.Saturday || dia.DayOfWeek == DayOfWeek.Sunday;
 
-                    // TODO: Aqui entraria a verificação na tabela de Feriados
-                    var isFeriado = false;
+                    // Verificação na tabela de Feriados
+                    var isFeriado = datasFeriados.Contains(dia.Date);
+                    Console.WriteLine($"Dia {dia.Date} é feriado? {isFeriado}");
 
                     var diaDto = new DiaEspelhoHomeDto
                     {
@@ -365,7 +394,7 @@ namespace EvoluaPonto.Api.Services
                         }).ToList()
                     };
 
-                    // 5. Lógica simples de Status do Dia para exibir cor/alerta no Front
+                    // Lógica simples de Status do Dia para exibir cor/alerta no Front
                     if (registrosDoDia.Any())
                     {
                         // Se tem registros, verificamos se é par (entrada+saida) ou ímpar (incompleto)
