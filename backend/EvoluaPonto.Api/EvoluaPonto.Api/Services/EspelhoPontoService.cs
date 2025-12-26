@@ -1,10 +1,27 @@
-﻿using EvoluaPonto.Api.Dtos;
+﻿using EvoluaPonto.Api.Data;
+using EvoluaPonto.Api.Dtos;
+using EvoluaPonto.Api.Models.Enums;
+using EvoluaPonto.Api.Models.Shared;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using QuestPDF.Fluent;
+using System.Globalization;
 
 namespace EvoluaPonto.Api.Services
 {
     public class EspelhoPontoService
     {
+        private readonly AppDbContext _context;
+        private readonly FeriadoService _feriadoService;
+        private readonly IMemoryCache _memoryCache;
+
+        public EspelhoPontoService(AppDbContext context, FeriadoService feriadoService, IMemoryCache memoryCache)
+        {
+            _context = context;
+            _feriadoService = feriadoService;
+            _memoryCache = memoryCache;
+        }
+
         // MUDANÇA: O parâmetro agora é EspelhoPontoAgrupadoDto
         public byte[] GerarEspelhoPontoPDF(EspelhoPontoAgrupadoDto dadosEspelho)
         {
@@ -12,6 +29,129 @@ namespace EvoluaPonto.Api.Services
             var document = new EspelhoPontoDocument(dadosEspelho);
 
             return document.GeneratePdf();
+        }
+
+        public async Task<ServiceResponse<EspelhoHomeResponseDto>> GetEspelhoHomeAsync(Guid funcionarioId)
+        {
+            var response = new ServiceResponse<EspelhoHomeResponseDto>();
+
+            try
+            {
+                // Definir o período (Mês Atual)
+                var hoje = DateTime.Now.Date;
+                var primeiroDiaMes = new DateTime(hoje.Year, hoje.Month, 1);
+                var ultimoDiaMes = primeiroDiaMes.AddMonths(1).AddDays(-1);
+
+                // Busca Feriados (com cache)
+                // Define uma cheve única para o cache (ex: "Feriados_2025")
+                string cacheKey = $"Feriados_nacionais_{hoje.Year}";
+
+                // Tenta pegar do cache. Se não existir, roda a função dentro do 'GetOrCreateAsync'
+                var feriadosNacionais = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
+                {
+                    // Configura para expirar em 24 horas (assim atualiza 1x por dia)
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24);
+
+                    // Busca na API
+                    var dadosApi = await _feriadoService.GetFeriadosNacionaisAsync(hoje.Year);
+                    return dadosApi ?? new List<FeriadoDto>(); // Retorna lista vazia se falhar
+                });
+
+                // Pré processamento dos Feriados
+                // 1. Convertemos as strings ("2024-12-25") para DateTime puros
+                // 2. Usamos HashSet para a busca ser instantânea (O(1)) dentro do loop
+                var datasFeriados = feriadosNacionais
+                    .Select(f => DateTime.Parse(f.Data).Date) // Converte String -> DateTime
+                    .ToHashSet();
+
+                // Buscar registros do funcionário neste período
+                // Trazemos apenas o necessário do banco
+                var registros = await _context.RegistrosPonto
+                    .Where(r => r.FuncionarioId == funcionarioId
+                             && r.TimestampMarcacao >= primeiroDiaMes.ToUniversalTime()
+                             && r.TimestampMarcacao <= ultimoDiaMes.AddDays(1).ToUniversalTime()
+                             && r.Status != StatusSolicitacao.Rejeitado) // Não mostramos rejeitados no espelho oficial
+                    .OrderBy(r => r.TimestampMarcacao)
+                    .ToListAsync();
+
+                // Preparar o DTO de resposta
+                var espelho = new EspelhoHomeResponseDto
+                {
+                    MesReferencia = primeiroDiaMes.ToString("MMMM/yyyy", new CultureInfo("pt-BR")),
+                    SaldoPrevisto = "00:00" // Cálculo de saldo requer regras de Jornada complexas, deixamos zerado por enquanto
+                };
+
+                // Iterar dia a dia para montar o calendário (inclusive dias sem ponto)
+                for (var dia = primeiroDiaMes; dia <= ultimoDiaMes; dia = dia.AddDays(1))
+                {
+                    // Filtra registros deste dia específico (convertendo UTC para Local)
+                    var registrosDoDia = registros
+                        .Where(r => r.TimestampMarcacao.ToLocalTime().Date == dia)
+                        .OrderBy(r => r.TimestampMarcacao)
+                        .ToList();
+
+                    var isFimDeSemana = dia.DayOfWeek == DayOfWeek.Saturday || dia.DayOfWeek == DayOfWeek.Sunday;
+
+                    // Verificação na tabela de Feriados
+                    var isFeriado = datasFeriados.Contains(dia.Date);
+
+                    var diaDto = new DiaEspelhoHomeDto
+                    {
+                        Data = dia,
+                        DiaSemana = dia.ToString("ddd", new CultureInfo("pt-BR")).ToUpper(), // SEG, TER...
+                        IsFimDeSemana = isFimDeSemana,
+                        IsFeriado = isFeriado,
+                        IsHoje = dia == hoje,
+                        Marcacoes = registrosDoDia.Select(r => new PontoHomeDto
+                        {
+                            Id = r.Id,
+                            Hora = r.TimestampMarcacao.ToLocalTime().ToString("HH:mm"),
+                            Tipo = r.Tipo.ToString(), // ENTRADA, SAIDA
+                            IsManual = r.RegistroManual,
+                            StatusSolicitacao = r.Status.ToString() // Pendente/Aprovado
+                        }).ToList()
+                    };
+
+                    // Lógica simples de Status do Dia para exibir cor/alerta no Front
+                    if (registrosDoDia.Any())
+                    {
+                        // Se tem registros, verificamos se é par (entrada+saida) ou ímpar (incompleto)
+                        diaDto.Status = registrosDoDia.Count % 2 == 0 ? "Completo" : "Incompleto";
+                    }
+                    else
+                    {
+                        // Sem registros
+                        if (dia > hoje)
+                        {
+                            diaDto.Status = "Futuro"; // Dias que ainda não chegaram
+                        }
+                        else if (isFimDeSemana || isFeriado)
+                        {
+                            diaDto.Status = "Folga";
+                        }
+                        else
+                        {
+                            diaDto.Status = "Falta"; // Dia útil passado sem registro
+                        }
+                    }
+
+                    espelho.Dias.Add(diaDto);
+                }
+
+                // Ordenação: Dias mais recentes primeiro (melhor para Mobile) ou cronológico?
+                // Para "Espelho", cronológico (1..30) costuma ser melhor, mas no mobile, 
+                // ver o dia de hoje no topo ajuda. Vamos inverter.
+                espelho.Dias.Reverse();
+
+                response.Data = espelho;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = "Erro ao gerar espelho: " + ex.Message;
+            }
+
+            return response;
         }
     }
 }

@@ -28,7 +28,7 @@ export default function HomeScreen() {
          // Apenas na primeira carga mostramos o spinner tela cheia
          if (!espelho) setLoading(true);
 
-         const response = await api.get('/RegistroPonto/espelho/home', {
+         const response = await api.get('/EspelhoPonto/home', {
             params: { funcionarioId: funcionarioId}
          });
 
