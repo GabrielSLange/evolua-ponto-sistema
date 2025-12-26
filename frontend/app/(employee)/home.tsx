@@ -127,7 +127,7 @@ export default function HomeScreen() {
                      <Text variant="bodySmall" style={{ fontStyle: 'italic', color: theme.colors.outline, marginTop: 6 }}>
                         {item.status === 'Futuro' ? '---' :
                            item.status === 'Falta' ? 'Ausente' :
-                              item.isFimDeSemana ? 'Folga' : 'Sem registros'}
+                              item.isFimDeSemana || item.isFeriado ? 'Folga' : 'Sem registros'}
                      </Text>
                   )}
                </View>
