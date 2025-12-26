@@ -15,7 +15,7 @@ namespace EvoluaPonto.Api.Controllers
     {
         private readonly RegistroPontoService _registroPontoService;
 
-        public RegistroPontoController(RegistroPontoService registroPontoService)
+        public RegistroPontoController(RegistroPontoService registroPontoService, EspelhoPontoService espelhoPontoService)
         {
             _registroPontoService = registroPontoService;
         }

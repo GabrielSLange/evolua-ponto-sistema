@@ -48,7 +48,7 @@ namespace EvoluaPonto.Api.Controllers
         }
 
         [HttpGet("id")]
-        public async Task<IActionResult> GetFuncionarioId(Guid funcionarioId)
+        public async Task<IActionResult> GetFuncionarioId([FromQuery] Guid funcionarioId)
         {
             try
             {

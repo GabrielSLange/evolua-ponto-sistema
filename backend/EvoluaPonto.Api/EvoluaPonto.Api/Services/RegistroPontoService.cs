@@ -4,6 +4,7 @@ using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Enums;
 using EvoluaPonto.Api.Models.Shared;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 namespace EvoluaPonto.Api.Services
@@ -16,6 +17,7 @@ namespace EvoluaPonto.Api.Services
         private readonly ComprovanteService _comprovanteService;
         private readonly DigitalSignatureService _signatureService;
 
+
         public RegistroPontoService(AppDbContext context, IHttpContextAccessor httpContextAcessor, SupabaseStorageService storageService,
             ComprovanteService comprovanteService, DigitalSignatureService signatureService)
         {
@@ -24,7 +26,6 @@ namespace EvoluaPonto.Api.Services
             _storageService = storageService;
             _comprovanteService = comprovanteService;
             _signatureService = signatureService;
-
         }
 
         public async Task<ServiceResponse<ModelRegistroPonto>> RegistrarPontoAsync(RegistroPontoDto pontoDto)
