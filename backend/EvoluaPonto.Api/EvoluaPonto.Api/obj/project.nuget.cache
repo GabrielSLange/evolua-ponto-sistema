@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "/paw6WK17OI=",
+  "dgSpecHash": "S94hWxd4ZnA=",
   "success": true,
   "projectFilePath": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\NovaContabilidade\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\NovaContabilidade\\.nuget\\packages\\bouncycastle.cryptography\\2.6.2\\bouncycastle.cryptography.2.6.2.nupkg.sha512",
     "C:\\Users\\NovaContabilidade\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\NovaContabilidade\\.nuget\\packages\\itext\\8.0.5\\itext.8.0.5.nupkg.sha512",

@@ -1,3 +1,4 @@
+import '../constants/ignoreWarnings';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { PaperProvider, MD3LightTheme, MD3DarkTheme, Snackbar } from 'react-native-paper';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
@@ -5,6 +6,7 @@ import { useEffect, useContext } from 'react';
 import CustomLoader from '../components/CustomLoader';
 import { NotificationProvider, NotificationStateContext } from '../contexts/NotificationContext';
 import { Text, View, StyleSheet } from 'react-native';
+
 
 // SEM useFonts, SEM require. Vida que segue.
 

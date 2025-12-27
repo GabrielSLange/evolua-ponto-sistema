@@ -7,20 +7,15 @@ import { eventBus } from '../services/eventBus';
 
 // --- Nossos tipos de dados ---
 interface DecodedToken {
-   sub: string;
-   app_metadata: {
-      role: 'superadmin' | 'admin' | 'normal';
-   };
-}
-interface UserData {
-   id: string;
-   email: string;
+   FuncionarioId: string;
+   role: 'superadmin' | 'admin' | 'normal';
 }
 // **CORREÇÃO:** Alinha os nomes das propriedades com o JSON retornado pela API
 interface TokenResponse {
-   access_token: string;
+   token: string;
    refresh_token: string;
-   user: UserData;
+   nome: string;
+   perfil: string;
 }
 interface AuthContextData {
    token: string | null;
@@ -79,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
          const authData = await loadAuthData();
          if (authData?.token) {
             const decoded = jwtDecode<DecodedToken>(authData.token);
-            const userRole = decoded.app_metadata.role;
+            const userRole = decoded.role;
             api.defaults.headers.common['Authorization'] = `Bearer ${authData.token}`;
             setUserId(authData.id);
             setToken(authData.token);
@@ -90,27 +85,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loadStoragedData();
    }, []);
 
-   const signIn = async (email: string, password: string) => {
+   const signIn = async (login: string, senha: string) => {
       setIsLoading(true);
       try {
-         const response = await api.post<TokenResponse>('/auth/login', { email, password });
+         const response = await api.post<TokenResponse>('/auth/login', { login, senha });
 
-         // **CORREÇÃO:** Usa os nomes corretos (snake_case) para desestruturar a resposta
-         const { access_token, refresh_token } = response.data;
+         const { token, refresh_token, perfil } = response.data;
+         const decoded = jwtDecode<DecodedToken>(token);
+         setUserId(decoded.FuncionarioId);
 
-         const decoded = jwtDecode<DecodedToken>(access_token);
-         const userRole = decoded.app_metadata.role;
-         setUserId(decoded.sub);
-
-         setToken(access_token);
-         setRole(userRole);
-         api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+         setToken(token);
+         setRole(perfil as 'superadmin' | 'admin' | 'normal');
+         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
          await saveAuthData({
-            token: access_token,
+            token: token,
             refreshToken: refresh_token,
-            role: userRole,
-            id: decoded.sub
+            role: perfil as 'superadmin' | 'admin' | 'normal',
+            id: decoded.FuncionarioId
          });
 
       } catch (error) {

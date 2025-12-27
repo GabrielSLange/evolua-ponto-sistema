@@ -1,54 +1,35 @@
 ﻿using EvoluaPonto.Api.Dtos;
-using EvoluaPonto.Api.Services.External;
+using EvoluaPonto.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EvoluaPonto.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("auth")]
     public class AuthController : ControllerBase
     {
-        private readonly SupabaseAdminService _supabaseAdmin;
+        private readonly AuthService _authService;
 
-        public AuthController(SupabaseAdminService supabaseAdmin)
+        public AuthController(AuthService authService)
         {
-            _supabaseAdmin = supabaseAdmin;
+            _authService = authService;
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        public async Task<IActionResult> Login([FromBody] LoginDto request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var (data, error) = await _supabaseAdmin.SignInUserAsync(loginDto.Email, loginDto.Password);
-
-            if (error != null || data == null)
-            {
-                return Unauthorized(new { message = "Email ou senha inválidos.", error });
-            }
-
-            return Ok(data);
+            var response = await _authService.Login(request.Login, request.Senha);
+            if (!response.Success) return BadRequest(response.ErrorMessage);
+            return Ok(response.Data);
         }
 
-        [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
+        // Endpoint para criar o primeiro usuário (proteja ou remova depois)
+        [HttpPost("registrar")]
+        public async Task<IActionResult> Registrar([FromBody] RegistrarUsuarioDto request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var (data, error) = await _supabaseAdmin.RefreshTokenAsync(refreshTokenDto.RefreshToken);
-
-            if (error != null || data == null)
-            {
-                return BadRequest(new { message = "Refresh token inválido ou expirado.", error });
-            }
-
-            return Ok(data);
+            var response = await _authService.Registrar(request);
+            if (!response.Success) return BadRequest(response.ErrorMessage);
+            return Ok(response.Data);
         }
     }
 }

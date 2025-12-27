@@ -4,6 +4,7 @@ using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Shared;
 using EvoluaPonto.Api.Services.External;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace EvoluaPonto.Api.Services
 {
@@ -67,6 +68,78 @@ namespace EvoluaPonto.Api.Services
             };
 
             return new ServiceResponse<FuncionarioDto> { Data = funcionarioDto };
+        }
+
+        public async Task<ServiceResponse<ModelFuncionario>> CriarFuncionarioComAcesso(FuncionarioDto dto)
+        {
+            var response = new ServiceResponse<ModelFuncionario>();
+
+            // 1. Validações Básicas
+            if (await _context.Funcionarios.AnyAsync(tb => tb.Cpf == dto.Cpf))
+            {
+                response.Success = false;
+                response.ErrorMessage = "Já existe um funcionário com este CPF.";
+                return response;
+            }
+
+            if (await _context.Usuarios.AnyAsync(tb => tb.Login == dto.Email))
+            {
+                response.Success = false;
+                response.ErrorMessage = "Este e-mail já está em uso por outro usuário.";
+                return response;
+            }
+
+            // 2. Inicia a Transação (Tudo ou Nada)
+            using (IDbContextTransaction transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // A. Cria o Funcionário (RH)
+                    var novoFuncionario = new ModelFuncionario
+                    {
+                        Id = Guid.NewGuid(),
+                        Nome = dto.Nome,
+                        Cpf = dto.Cpf,
+                        Cargo = dto.Cargo,
+                        HorarioContratual = dto.HorarioContratual,
+                        EstabelecimentoId = dto.EstabelecimentoId,
+                        Ativo = true
+                    };
+
+                    _context.Funcionarios.Add(novoFuncionario);
+                    await _context.SaveChangesAsync(); // Salva para garantir que o ID exista
+
+                    // B. Cria o Usuário (Acesso)
+                    string senhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+                    var novoUsuario = new Usuario
+                    {
+                        Id = Guid.NewGuid(),
+                        Login = dto.Email, // Usamos o email como login
+                        SenhaHash = senhaHash,
+                        Perfil = dto.Role, // Admin/Colaborador
+                        FuncionarioId = novoFuncionario.Id, // Vínculo Importante!
+                        AcessoPermitido = true
+                    };
+
+                    _context.Usuarios.Add(novoUsuario);
+                    await _context.SaveChangesAsync();
+
+                    // C. Confirma tudo
+                    await transaction.CommitAsync();
+
+                    response.Data = novoFuncionario;
+                    response.ErrorMessage = "Funcionário e acesso criados com sucesso!";
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    response.Success = false;
+                    response.ErrorMessage = $"Erro ao criar funcionário: {ex.Message}";
+                }
+            }
+
+            return response;
         }
 
         public async Task<ServiceResponse<ModelFuncionario>> CreateFuncionario(FuncionarioDto funcionarioDto)

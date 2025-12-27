@@ -11,6 +11,30 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddScoped<AuthService>();
+
+var key = Encoding.ASCII.GetBytes(builder.Configuration["JwtSettings:SecretKey"]);
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(x =>
+{
+    x.RequireHttpsMetadata = false; // Mude para true em Produção
+    x.SaveToken = true;
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        ValidateLifetime = true
+    };
+});
+
 QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services.AddControllers();
@@ -45,24 +69,6 @@ builder.Services.AddCors(options =>
                                 .AllowAnyMethod();
                       });
 });
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true, // Valida a assinatura do token
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"] ?? throw new ArgumentNullException("Jwt:Secret"))), // Usa a chave secreta
-
-            ValidateIssuer = true, // Valida quem emitiu o token
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-
-            ValidateAudience = true, // Valida para quem o token foi emitido
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-
-            ClockSkew = TimeSpan.Zero // Remove a toler�ncia de tempo na expira��o do token
-        };
-    });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -131,7 +137,6 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
-        // Substitua 'AppDbContext' pelo nome exato do seu Contexto
         var context = services.GetRequiredService<AppDbContext>();
         context.Database.Migrate();
     }

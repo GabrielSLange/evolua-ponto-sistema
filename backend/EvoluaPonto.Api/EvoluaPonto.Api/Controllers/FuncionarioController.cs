@@ -70,7 +70,7 @@ namespace EvoluaPonto.Api.Controllers
         {
             try
             {
-                ServiceResponse<ModelFuncionario> responseFuncionario = await _funcionarioService.CreateFuncionario(novoFuncionario);
+                ServiceResponse<ModelFuncionario> responseFuncionario = await _funcionarioService.CriarFuncionarioComAcesso(novoFuncionario);
 
                 if (!responseFuncionario.Success)
                     return Conflict(responseFuncionario.ErrorMessage);
