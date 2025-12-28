@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Platform, Dimensions } from 'react-native';
-import { Modal, Portal, Text, IconButton, ActivityIndicator, useTheme } from 'react-native-paper';
+import { Modal, Portal, Text, IconButton, ActivityIndicator, Button, useTheme } from 'react-native-paper';
+import { Document, Page, pdfjs } from 'react-pdf';
 
-// Se for usar no mobile depois, vai precisar instalar: npx expo install react-native-webview
-// import { WebView } from 'react-native-webview';
-import Colors from '@/constants/Colors';
+// Configuração do Worker (Mantendo a versão 7 conforme conversamos)
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 interface ComprovanteModalProps {
   visible: boolean;
@@ -13,41 +13,114 @@ interface ComprovanteModalProps {
 }
 
 export const ComprovanteModal = ({ visible, onDismiss, pdfUrl }: ComprovanteModalProps) => {
-  
-  // Detecção se é Web para usar a tag HTML correta
-  const isWeb = Platform.OS === 'web';
-  
   const theme = useTheme();
-  
-  const containerStyle = { backgroundColor: theme.colors.background, padding: 20, margin: 20, borderRadius: 8, height: '90%' as const };
+  const [numPages, setNumPages] = useState<number | null>(null);
+  const [containerWidth, setContainerWidth] = useState<number>(300);
+  const [downloading, setDownloading] = useState(false);
+
+  function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
+    setNumPages(numPages);
+  }
+
+  // NOVA FUNÇÃO DE DOWNLOAD DIRETO
+  const handleDownload = async () => {
+    if (!pdfUrl) return;
+    setDownloading(true);
+
+    try {
+      // 1. Baixa o arquivo para a memória do navegador (Blob)
+      const response = await fetch(pdfUrl);
+      const blob = await response.blob();
+      
+      // 2. Cria uma URL interna temporária
+      const url = window.URL.createObjectURL(blob);
+      
+      // 3. Cria o link invisível e clica nele
+      const link = document.createElement('a');
+      link.href = url;
+      // Extrai um nome de arquivo ou gera um genérico
+      link.download = `comprovante_ponto_${new Date().getTime()}.pdf`; 
+      document.body.appendChild(link);
+      link.click();
+      
+      // 4. Limpeza
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Erro ao baixar PDF:", error);
+      alert("Erro ao iniciar download.");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const containerStyle = { 
+    backgroundColor: theme.colors.surface, 
+    padding: 20, 
+    margin: 20, 
+    borderRadius: 8, 
+    height: '85%',
+    display: 'flex',
+    flexDirection: 'column' as 'column',
+    // Limita a largura máxima do modal no Desktop para ficar mais elegante
+    maxWidth: 800, 
+    alignSelf: 'center' as 'center',
+    width: '90%'
+  } as const;
 
   return (
     <Portal>
       <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={containerStyle}>
         
-        {/* Cabeçalho do Modal */}
-        <View style={[styles.header, { backgroundColor: theme.colors.background }]}>
-          <Text variant="titleLarge">Comprovante de Ponto</Text>
+        {/* Cabeçalho */}
+        <View style={styles.header}>
+          <Text variant="titleLarge" style={{color: theme.colors.onSurface}}>Comprovante</Text>
           <IconButton icon="close" onPress={onDismiss} />
         </View>
 
-        {/* Corpo do Modal (Visualizador) */}
-        <View style={styles.content}>
+        {/* Corpo: Área do PDF */}
+        <View 
+            style={styles.content} 
+            onLayout={(event) => {
+                const { width } = event.nativeEvent.layout;
+                setContainerWidth(width);
+            }}
+        >
           {!pdfUrl ? (
-            <ActivityIndicator animating={true} size="large" />
-          ) : isWeb ? (
-            // NA WEB: Usamos um iframe nativo do HTML
-            // O TS pode reclamar do iframe, então fazemos um cast ou ignoramos
-            <iframe
-              src={pdfUrl}
-              style={{ width: '100%', height: '100%', border: 'none' }}
-              title="Comprovante PDF"
-            />
+            <ActivityIndicator animating={true} size="large" style={styles.loader} />
           ) : (
-            // NO MOBILE: Usamos WebView (Descomente se for gerar app nativo)
-            // <WebView source={{ uri: pdfUrl }} style={{ flex: 1 }} />
-            <Text>Visualização em mobile requer react-native-webview</Text>
+            <View style={styles.pdfScrollContainer}>
+                <Document
+                    file={pdfUrl}
+                    onLoadSuccess={onDocumentLoadSuccess}
+                    loading={<ActivityIndicator animating={true} color={theme.colors.primary} />}
+                    error={<Text style={{color: 'red', textAlign: 'center', marginTop: 20}}>Não foi possível carregar o PDF.</Text>}
+                >
+                    {/* AQUI ESTÁ A CORREÇÃO DO ZOOM: */}
+                    {/* Math.min garante que ele usa a largura da tela OU 500px, o que for menor. */}
+                    <Page 
+                        pageNumber={1} 
+                        width={Math.min(containerWidth, 500)} 
+                        renderTextLayer={false} 
+                        renderAnnotationLayer={false}
+                    />
+                </Document>
+            </View>
           )}
+        </View>
+
+        {/* Rodapé com Botão de Download */}
+        <View style={styles.footer}>
+            <Button 
+                mode="contained" 
+                icon="download" 
+                onPress={handleDownload}
+                loading={downloading}
+                disabled={downloading}
+                style={{ width: '100%' }}
+            >
+                {downloading ? "Baixando..." : "Baixar Comprovante"}
+            </Button>
         </View>
         
       </Modal>
@@ -61,10 +134,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
+    flexShrink: 0,
   },
   content: {
-    flex: 1,
+    flex: 1, 
+    backgroundColor: '#525659', // Cor de fundo padrão de visualizadores de PDF (Cinza escuro) fica mais bonito
     borderRadius: 4,
-    overflow: 'hidden', // Importante para o iframe não vazar as bordas arredondadas
+    overflow: 'hidden',
+    justifyContent: 'flex-start', // Garante que o PDF comece do topo
+    alignItems: 'center',
   },
+  pdfScrollContainer: {
+    overflow: 'scroll', 
+    width: '100%',
+    height: '100%',
+    alignItems: 'center', 
+    paddingVertical: 20, // Espaço extra em cima e embaixo para respirar
+  },
+  loader: {
+    marginTop: 50,
+  },
+  footer: {
+    marginTop: 15,
+    flexShrink: 0,
+  }
 });
