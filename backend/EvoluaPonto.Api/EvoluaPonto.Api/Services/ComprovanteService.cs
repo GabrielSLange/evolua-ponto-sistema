@@ -13,11 +13,13 @@ namespace EvoluaPonto.Api.Services
     public class ComprovanteService
     {
         private readonly AppDbContext _context;
+        private readonly MinioService _minioService;
 
-        public ComprovanteService(AppDbContext context)
+        public ComprovanteService(AppDbContext context, MinioService minioService)
         {
             _context = context;
             QuestPDF.Settings.License = LicenseType.Community;
+            _minioService = minioService;
         }
 
         public byte[] GerarComprovante(ModelRegistroPonto registro, ModelFuncionario funcionario, ModelEmpresa empresa, ModelEstabelecimento estabelecimento)
@@ -109,46 +111,61 @@ namespace EvoluaPonto.Api.Services
         {
             try
             {
-                // 1. Pegamos a data (ex: "2025-11-01 00:00:00")
-                // 2. Usamos DateTime.SpecifyKind() para *definir* o tipo dela como UTC.
-                //    Isso informa ao .NET que esta data deve ser tratada como UTC.
                 var inicioUtc = DateTime.SpecifyKind(dataInicio.Date, DateTimeKind.Utc);
-
-                // Fazemos o mesmo para a data final
-                // Em vez de terminar em 23:59:59 UTC, nós avançamos 4 horas no dia seguinte.
                 var fimUtc = DateTime.SpecifyKind(dataFim.Date.AddDays(1).AddHours(4), DateTimeKind.Utc);
 
+                // 1. Busca do banco (Trazemos o texto cru do banco primeiro)
                 var comprovantes = await _context.RegistrosPonto
+                    .AsNoTracking() // Boa prática para leitura
                     .Where(r =>
-                        // Filtro 1: Pertence ao funcionário
                         r.FuncionarioId == funcionarioId &&
-
-                        // Filtro 2: Está dentro do período
                         r.TimestampMarcacao >= inicioUtc &&
                         r.TimestampMarcacao <= fimUtc &&
-
-                        // Filtro 3: É um registro "oficial" (como definimos antes)
                         (r.RegistroManual == false || r.Status == StatusSolicitacao.Aprovado) &&
-
-                        // Filtro 4: REALMENTE possui um comprovante
                         !string.IsNullOrEmpty(r.ComprovanteUrl)
                     )
-                    .OrderByDescending(r => r.TimestampMarcacao) // Mais recentes primeiro
+                    .OrderByDescending(r => r.TimestampMarcacao)
                     .Select(r => new ComprovanteDto
                     {
                         Id = r.Id,
                         TimestampMarcacao = r.TimestampMarcacao,
                         Tipo = r.Tipo,
-                        ComprovanteUrl = r.ComprovanteUrl
+                        ComprovanteUrl = r.ComprovanteUrl // Aqui vem: "http://localhost:8081/..." ou "guid/arquivo.pdf"
                     })
-                    .ToListAsync();
+                    .ToListAsync(); // <--- Materializa na memória aqui
 
                 if (comprovantes == null || !comprovantes.Any())
                 {
-                    return new ServiceResponse<List<ComprovanteDto>> { Success = true, ErrorMessage = "Nenhum comprovante encontrado para este período.", Data = new List<ComprovanteDto>() };
+                    return new ServiceResponse<List<ComprovanteDto>> { Success = true, Data = new List<ComprovanteDto>() };
                 }
 
-                return new ServiceResponse<List<ComprovanteDto>> { Success = true, ErrorMessage = "Comprovantes encontrados.", Data = comprovantes };
+                // 2. Processamento Pós-Busca (Assinatura das URLs)
+                foreach (var item in comprovantes)
+                {
+                    // Verificação de Segurança: Se for link antigo do Supabase, mantém
+                    if (item.ComprovanteUrl.Contains("supabase.co"))
+                        continue;
+
+                    // Limpeza: Se o banco tiver "http://localhost:8081/comprovantes/guid.pdf",
+                    // precisamos extrair só "guid.pdf" ou "pasta/guid.pdf" para o MinIO achar.
+                    string objectKey = item.ComprovanteUrl;
+
+                    // Remove prefixos locais antigos se existirem
+                    // Ajuste essa string conforme o que exatamente está salvo no seu banco
+                    if (objectKey.Contains("localhost:8081/"))
+                    {
+                        // Remove tudo até o localhost e a barra, pegando só o final
+                        objectKey = objectKey.Replace("http://localhost:8081/", "").Replace("https://localhost:8081/", "");
+
+                        // Se o seu MinIO espera "guid/arquivo.pdf" e o localhost tinha prefixo extra, limpe aqui.
+                    }
+
+                    // GERA A URL ASSINADA (Válida por 2 horas, por exemplo)
+                    // Isso vai retornar: https://minio-seu-dominio.com/bucket/arquivo.pdf?token=XYZ...
+                    item.ComprovanteUrl = await _minioService.GetPresignedUrlAsync(objectKey);
+                }
+
+                return new ServiceResponse<List<ComprovanteDto>> { Success = true, Data = comprovantes };
             }
             catch (Exception ex)
             {

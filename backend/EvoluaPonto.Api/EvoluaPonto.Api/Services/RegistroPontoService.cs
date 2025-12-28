@@ -13,17 +13,17 @@ namespace EvoluaPonto.Api.Services
     {
         private readonly AppDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly SupabaseStorageService _storageService;
+        private readonly MinioService _minioService;
         private readonly ComprovanteService _comprovanteService;
         private readonly DigitalSignatureService _signatureService;
 
 
-        public RegistroPontoService(AppDbContext context, IHttpContextAccessor httpContextAcessor, SupabaseStorageService storageService,
+        public RegistroPontoService(AppDbContext context, IHttpContextAccessor httpContextAcessor, MinioService minioService,
             ComprovanteService comprovanteService, DigitalSignatureService signatureService)
         {
             _context = context;
             _httpContextAccessor = httpContextAcessor;
-            _storageService = storageService;
+            _minioService = minioService;
             _comprovanteService = comprovanteService;
             _signatureService = signatureService;
         }
@@ -47,13 +47,6 @@ namespace EvoluaPonto.Api.Services
             if (empresaBanco is null)
                 return new ServiceResponse<ModelRegistroPonto> { Success = false, ErrorMessage = "Empresa associada ao funcionário não encontrada" };
 
-            string? fotoUrl = null;
-
-            if (pontoDto.Foto != null)
-            {
-                fotoUrl = await _storageService.UploadAsync(pontoDto.Foto, pontoDto.FuncionarioId);
-            }
-
             DateTime timestamp = DateTime.UtcNow;
             string? ipAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
 
@@ -70,7 +63,6 @@ namespace EvoluaPonto.Api.Services
                 FuncionarioId = pontoDto.FuncionarioId,
                 TimestampMarcacao = timestamp,
                 Tipo = pontoDto.Tipo,
-                FotoUrl = fotoUrl,
                 GeolocalizacaoIp = ipAddress,
                 Nsr = novoNsr,
                 HashSha256 = hash,
@@ -88,10 +80,23 @@ namespace EvoluaPonto.Api.Services
 
             // 9. Salvar o PDF no Storage
             var nomeArquivoPdf = $"comprovante_{novoRegistro.Nsr}.pdf";
-            var comprovanteUrl = await _storageService.UploadBytesAsync(pdfAssinadoBytes, pontoDto.FuncionarioId, nomeArquivoPdf, "application/pdf");
+            string caminhoMinio = $"comprovantes/{pontoDto.FuncionarioId}/{nomeArquivoPdf}";
 
-            // 10. Atualizar o registro de ponto com a URL do comprovante
-            novoRegistro.ComprovanteUrl = comprovanteUrl;
+            try
+            {
+                using (var stream = new MemoryStream(pdfBytes))
+                {
+                    await _minioService.UploadFileAsync(stream, caminhoMinio, "application/pdf");
+                }
+
+                // 5. Atualiza o objeto com o caminho do arquivo
+                // IMPORTANTE: Agora salvamos o "Key" do MinIO, não uma URL https://...
+                novoRegistro.ComprovanteUrl = caminhoMinio;
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResponse<ModelRegistroPonto> { Success = false, ErrorMessage = $"Erro ao fazer upload do comprovante:  {nomeArquivoPdf} \nErro: {ex.Message}" };
+            }
 
 
             await _context.RegistrosPonto.AddAsync(novoRegistro);
@@ -290,9 +295,23 @@ namespace EvoluaPonto.Api.Services
 
                 // D. Salvar PDF no Storage
                 var nomeArquivoPdf = $"comprovante_{registro.Nsr}.pdf";
-                var comprovanteUrl = await _storageService.UploadBytesAsync(pdfAssinadoBytes, registro.FuncionarioId, nomeArquivoPdf, "application/pdf");
+                string caminhoMinio = $"comprovantes/{registro.FuncionarioId}/{nomeArquivoPdf}";
 
-                registro.ComprovanteUrl = comprovanteUrl;
+                try
+                {
+                    using (var stream = new MemoryStream(pdfBytes))
+                    {
+                        await _minioService.UploadFileAsync(stream, caminhoMinio, "application/pdf");
+                    }
+
+                        // 5. Atualiza o objeto com o caminho do arquivo
+                        // IMPORTANTE: Agora salvamos o "Key" do MinIO, não uma URL https://...
+                        registro.ComprovanteUrl = caminhoMinio;
+                }
+                catch (Exception ex)
+                {
+                    return new ServiceResponse<bool> { Success = false, ErrorMessage = $"Erro ao fazer upload do comprovante:  {nomeArquivoPdf} \nErro: {ex.Message}" };
+                }
 
                 // 4. Salvar tudo
                 await _context.SaveChangesAsync();

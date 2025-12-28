@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddSingleton<MinioService>();
 
 var key = Encoding.ASCII.GetBytes(builder.Configuration["JwtSettings:SecretKey"]);
 builder.Services.AddAuthentication(x =>

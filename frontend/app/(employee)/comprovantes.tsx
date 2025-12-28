@@ -5,9 +5,9 @@ import { useAuth } from '../../contexts/AuthContext'; // Ajuste o caminho se nec
 import api from "@/services/api"; // Sua instância do Axios
 import { ComprovanteDto } from '../../models/Dtos/ComprovanteDto'; // Nosso novo tipo
 import { useFocusEffect } from 'expo-router';
-import * as Linking from 'expo-linking';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
+import { ComprovanteModal } from '@/components/ComprovanteModal';
 
 
 // Função helper para formatar a data YYYY-MM-DD
@@ -51,6 +51,9 @@ export default function ComprovanteScreen() {
   // Estado para os seletores de data
   const [showPickerInicio, setShowPickerInicio] = useState(false);
   const [showPickerFim, setShowPickerFim] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
 
   // Estado da tela
   const [comprovantes, setComprovantes] = useState<ComprovanteDto[]>([]);
@@ -120,7 +123,12 @@ export default function ComprovanteScreen() {
 
   // Função para abrir o link do comprovante
   const abrirComprovante = (url: string) => {
-    Linking.openURL(url).catch(err => Alert.alert('Erro', 'Não foi possível abrir o comprovante.'));
+    if (!url) {
+      Alert.alert('Aviso', 'Comprovante ainda não disponível.');
+      return;
+    }
+    setSelectedUrl(url); // Salva a URL assinada
+    setModalVisible(true); // Abre o Modal
   };
 
   // 1. Agrupa os comprovantes por dia usando useMemo para otimização
@@ -251,6 +259,12 @@ export default function ComprovanteScreen() {
             stickySectionHeadersEnabled={false}
           />
         )}
+
+        <ComprovanteModal
+          visible={modalVisible}
+          onDismiss={() => setModalVisible(false)}
+          pdfUrl={selectedUrl}
+        />
       </View>
     </ScreenContainer>
   );
