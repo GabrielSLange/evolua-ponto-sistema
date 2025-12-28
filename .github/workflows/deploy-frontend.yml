@@ -44,6 +44,5 @@ jobs:
           build-args: |
             API_URL=${{ env.API_URL_PROD }}
 
-      - name: Avisar EasyPanel (Webhook)
-        
+      - name: Avisar EasyPanel (Webhook)        
         run: curl -X POST ${{ secrets.EASYPANEL_WEBHOOK_URL }}
