@@ -108,8 +108,7 @@ export const ComprovanteModal = ({ visible, onDismiss, pdfUrl }: ComprovanteModa
             </View>
           )}
         </View>
-
-        {/* Rodapé com Botão de Download */}
+        
         <View style={styles.footer}>
             <Button 
                 mode="contained" 
