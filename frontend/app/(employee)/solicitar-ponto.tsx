@@ -54,7 +54,7 @@ export default function SolicitarPontoScreen() {
         setHistorico(response.data.data);
       }
     } catch (error) {
-      console.log("Erro ao buscar histórico", error);
+      console.error("Erro ao buscar histórico", error);
     }
   };
 

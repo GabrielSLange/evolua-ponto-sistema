@@ -1,6 +1,5 @@
 using EvoluaPonto.Api.Data;
 using EvoluaPonto.Api.Services;
-using EvoluaPonto.Api.Services.External;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -115,7 +114,6 @@ builder.Services.AddScoped<EmpresaService>();
 builder.Services.AddScoped<FuncionarioService>();
 builder.Services.AddScoped<RegistroPontoService>();
 builder.Services.AddHttpClient();
-builder.Services.AddScoped<SupabaseAdminService>();
 builder.Services.AddScoped<SupabaseStorageService>();
 builder.Services.AddScoped<ComprovanteService>();
 builder.Services.AddScoped<EstabelecimentoService>();

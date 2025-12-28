@@ -2,7 +2,6 @@
 using EvoluaPonto.Api.Dtos;
 using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Shared;
-using EvoluaPonto.Api.Services.External;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -11,12 +10,10 @@ namespace EvoluaPonto.Api.Services
     public class FuncionarioService
     {
         private readonly AppDbContext _context;
-        private readonly SupabaseAdminService _supabaseAdmin;
 
-        public FuncionarioService(AppDbContext context, SupabaseAdminService supabaseAdmin)
+        public FuncionarioService(AppDbContext context)
         {
             _context = context;
-            _supabaseAdmin = supabaseAdmin;
         }
 
         public async Task<ServiceResponse<List<ModelFuncionario>>> GetFuncionariosEmpresa(Guid empresaId)

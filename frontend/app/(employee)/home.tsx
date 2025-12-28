@@ -42,7 +42,7 @@ export default function HomeScreen() {
          setNomeFuncionario(funcionarioResponse.data.nome);
 
       } catch (error) {
-         console.log('Erro ao buscar espelho', error);
+         console.error('Erro ao buscar espelho', error);
       } finally {
          setLoading(false);
          setRefreshing(false);

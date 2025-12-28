@@ -24,6 +24,9 @@ namespace EvoluaPonto.Api.Models
 
         public Guid FuncionarioId { get; set; }
 
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
         [ForeignKey("FuncionarioId")]
         public virtual ModelFuncionario Funcionario { get; set; }
     }

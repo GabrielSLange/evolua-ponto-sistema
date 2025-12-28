@@ -65,7 +65,6 @@ export const useAddFuncionario = (estabelecimentoId: string) => {
             setLoading(true);
             funcionario.id = null;
             funcionario.estabelecimentoId = estabelecimentoId;
-            console.log("Chamou a API")
             await api.post('/funcionarios', { ...funcionario });
             showNotification('Funcionário cadastrado com sucesso!', 'success');
             router.replace({
