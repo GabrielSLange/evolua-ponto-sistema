@@ -38,10 +38,42 @@ export default function AdminLayout() {
          }}
       >
          <Drawer.Screen
+            name="meu-ponto/home"
+            options={{
+               drawerLabel: 'Início',
+               title: 'Início',
+            }}
+         />
+
+         <Drawer.Screen
+            name="meu-ponto/bater-ponto"
+            options={{
+               drawerLabel: 'Bater ponto',
+               title: 'Bater ponto',
+            }}
+         />
+
+         <Drawer.Screen
+            name="meu-ponto/solicitar-ponto"
+            options={{
+               drawerLabel: 'Inserir batida',
+               title: 'Solicitar ponto',
+            }}
+         />
+
+         <Drawer.Screen
+            name="meu-ponto/comprovantes"
+            options={{
+               drawerLabel: 'Comprovantes',
+               title: 'Comprovantes',
+            }}
+         />
+
+         <Drawer.Screen
             name="estabelecimentos/index"
             options={{
-               drawerLabel: 'Gerenciar Estabelecimentos',
-               title: 'Gerenciar Estabelecimentos',
+               drawerLabel: 'Estabelecimentos',
+               title: 'Estabelecimentos',
             }}
          />
 
@@ -83,10 +115,10 @@ export default function AdminLayout() {
             }}
          />
          <Drawer.Screen
-            name='solicitacoes'
+            name='solicitacoes/index'
             options={{
-               drawerLabel: 'Solicitações Pendentes',
-               title: 'Solicitações Pendentes',
+               drawerLabel: 'Solicitações',
+               title: 'Solicitações',
             }}
          />
          <Drawer.Screen
@@ -96,7 +128,6 @@ export default function AdminLayout() {
                title: 'Relatórios',
             }}
          />
-         <Drawer.Screen name="relatorios" options={{ drawerLabel: 'Relatórios', title: 'Relatórios' }} />
       </Drawer>
    );
 }

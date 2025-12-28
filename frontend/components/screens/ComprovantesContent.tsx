@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, SectionList, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Platform, Text } from 'react-native';
+import React, { useState, useCallback, useMemo } from 'react';
+import { View, SectionList, StyleSheet, Alert, ActivityIndicator, Platform } from 'react-native';
 import { Button, useTheme, Text as PaperText, List, Avatar } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext'; // Ajuste o caminho se necessário
 import api from "@/services/api"; // Sua instância do Axios
@@ -33,8 +33,8 @@ const EmptyState = ({ message }: { message: string }) => (
   </View>
 );
 
-export default function ComprovanteScreen() {
-  const { userId, theme } = useAuth(); // Pegamos o ID do funcionário logado e o tema
+export default function ComprovantesContent() {
+  const { userId } = useAuth(); // Pegamos o ID do funcionário logado e o tema
   const paperTheme = useTheme();
 
   // Cria os estilos dinamicamente com base no tema

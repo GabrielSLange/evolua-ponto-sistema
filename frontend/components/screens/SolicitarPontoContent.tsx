@@ -9,7 +9,7 @@ import api from '../../services/api';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import { SolicitacaoPontoDto } from '@/models/Dtos/SolicitacaoPontoDto';
 
-export default function SolicitarPontoScreen() {
+export default function SolicitarPontoContent() {
   const router = useRouter();
   const { userId } = useAuth();
   const theme = useTheme();

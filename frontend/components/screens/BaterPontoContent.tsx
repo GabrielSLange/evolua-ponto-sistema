@@ -42,7 +42,7 @@ if (Platform.OS === "web") {
    }
 }
 
-export default function BaterPontoScreen() {
+export default function BaterPontoContent() {
    const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
    const [establishmentCoords, setEstablishmentCoords] = useState<{ latitude: number; longitude: number; } | null>(null);
    const [distance, setDistance] = useState<number | null>(null);
