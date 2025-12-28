@@ -1,38 +1,31 @@
-# Estágio 1: Build do projeto Expo para a web
+# Estágio 1: Build
 FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Instala a linha de comando do Expo
 RUN npm install -g expo-cli
 
-# Define a variável de ambiente (já chumbada como você fez)
-ENV NEXT_PUBLIC_API_URL=https://evoluaponto-api.d63v0v.easypanel.host
+# --- AQUI ESTÁ O SEGREDINHO ---
+# 1. Definimos que esse Dockerfile aceita um argumento chamado API_URL
+ARG API_URL
 
-# Copia dependências
+# 2. Pegamos esse argumento e transformamos na variável de ambiente que o seu código usa
+ENV NEXT_PUBLIC_API_URL=$API_URL
+# ------------------------------
+
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --legacy-peer-deps
 
-# Copia código fonte
 COPY frontend/. .
 
-# Builda o projeto (Gera a pasta dist)
 RUN npx expo export -p web
 
-# Estágio 2: Nginx com configuração SPA
+# Estágio 2: Nginx
 FROM nginx:stable-alpine
 
-# --- CORREÇÃO DO ERRO 404 ---
-# 1. Remove a configuração padrão do Nginx
 RUN rm /etc/nginx/conf.d/default.conf
-
-# 2. Copia a NOSSA configuração personalizada (que tem o try_files)
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
-# ----------------------------
-
-# Copia os arquivos estáticos gerados
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]

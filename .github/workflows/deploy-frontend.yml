@@ -1,0 +1,46 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: ["main"] # Confirme se sua branch é 'main' ou 'master'
+    paths:
+      - "frontend/**" # Só dispara se mexer no front
+
+env:
+  # Nome da imagem (mude SEU_USUARIO para o seu user do GitHub, tudo minúsculo)
+  IMAGE_NAME: ghcr.io/gabrielslange/evolua-ponto-frontend:latest
+
+  # --- AQUI VOCÊ CONFIGURA A URL DA API ---
+  API_URL_PROD: https://evoluaponto-api.d63v0v.easypanel.host
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Login no GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build e Push da Imagem Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: . # Contexto na raiz do repo (pq seu COPY usa frontend/...)
+          file: frontend/Dockerfile # Aponta onde está o Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_NAME }}
+          # AQUI A MÁGICA ACONTECE: Injetamos a URL no argumento do Dockerfile
+          build-args: |
+            API_URL=${{ env.API_URL_PROD }}
+
+      - name: Avisar EasyPanel (Webhook)
+        run: curl -X POST ${{ secrets.EASYPANEL_WEBHOOK_URL }}
