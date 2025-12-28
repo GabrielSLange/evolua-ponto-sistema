@@ -2,7 +2,7 @@ name: Deploy Frontend
 
 on:
   push:
-    branches: ["main"] # Confirme se sua branch é 'main' ou 'master'
+    branches: ["preview"] # Confirme se sua branch é 'main' ou 'master'
     paths:
       - "frontend/**" # Só dispara se mexer no front
 
