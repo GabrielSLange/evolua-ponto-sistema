@@ -6,6 +6,8 @@ on:
     paths:
       - "frontend/**" # Só dispara se mexer no front
 
+  workflow_dispatch:
+
 env:
   # Nome da imagem (mude SEU_USUARIO para o seu user do GitHub, tudo minúsculo)
   IMAGE_NAME: ghcr.io/gabrielslange/evolua-ponto-frontend:latest
