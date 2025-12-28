@@ -4,6 +4,7 @@ import { ModelFuncionario } from "../../models/ModelFuncionario";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useNotification } from "@/contexts/NotificationContext";
 import { ModelEstabelecimento } from "@/models/ModelEstabelecimento";
+import { useAuth } from '../../contexts/AuthContext';
 
 // Controller para a lógica de funcionários
 export const useFuncionarios = (estabelecimentoId: string | undefined) => {
@@ -56,6 +57,7 @@ export const useAddFuncionario = (estabelecimentoId: string) => {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const { showNotification } = useNotification();
+    const { role } = useAuth();
 
     const addFuncionario = async (funcionario: ModelFuncionario) => {
 
@@ -63,10 +65,11 @@ export const useAddFuncionario = (estabelecimentoId: string) => {
             setLoading(true);
             funcionario.id = null;
             funcionario.estabelecimentoId = estabelecimentoId;
+            console.log("Chamou a API")
             await api.post('/funcionarios', { ...funcionario });
             showNotification('Funcionário cadastrado com sucesso!', 'success');
             router.replace({
-                pathname: '/(superadmin)/funcionarios',
+                pathname: `/(${role})/funcionarios`,
                 params: { estabelecimentoId: estabelecimentoId }
             });
         } catch (error) {

@@ -5,6 +5,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { ScrollView, StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
 import { TextInput, Button, Menu, HelperText, useTheme } from "react-native-paper";
+import { set } from "date-fns";
 
 // Props que o formulário recebe
 interface FuncionarioFormProps {
@@ -46,6 +47,8 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     const [periodo2, setPeriodo2] = useState('');
 
     const theme = useTheme();
+
+    const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState<ModelFuncionario>({
         id: null,
@@ -143,6 +146,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     };
 
     const handleSubmit = () => {
+        setLoading(true);
         // 2. Lógica de validação para construir o objeto de erros
         const newErrors: FormErrors = {};
 
@@ -167,10 +171,6 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         }
 
         setErrors(newErrors);
-
-        if (Object.keys(newErrors).length === 0) {
-            onSubmit(formData);
-        }
 
         /* // Validação do Horário permitindo meio período
         // Verifica se tem o tamanho correto da máscara (11 caracteres: "00:00-00:00")
@@ -201,10 +201,30 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
 
         // Se não houver erros, envia o formulário
         if (Object.keys(newErrors).length === 0) {
-            onSubmit(formData);
+            try{
+                onSubmit(formData);
+                setFormData({
+                    id: null,
+                    estabelecimentoId: '',
+                    nome: '',
+                    cpf: '',
+                    email: '',
+                    password: '',
+                    cargo: '',
+                    horarioContratual: '',
+                    role: '',
+                    ativo: true, 
+                });
+            }
+            catch(error){
+                return;
+            }
+            
+
         } else {
             return;
         }
+        setLoading(false);
     };
 
     return (
@@ -402,6 +422,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
 
             {!isReadOnly && (
                 <Button
+                    disabled={loading}
                     mode="contained"
                     onPress={handleSubmit}
                 >

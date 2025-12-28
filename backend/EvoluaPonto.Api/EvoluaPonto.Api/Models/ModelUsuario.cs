@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace EvoluaPonto.Api.Models
 {
-    public class Usuario
+    public class ModelUsuario
     {
         [Key]
         public Guid Id { get; set; }

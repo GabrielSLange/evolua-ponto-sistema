@@ -7004,23 +7004,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\NovaContabilidade\\.nuget\\packages\\": {},
+    "C:\\Users\\biell\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj",
+      "projectUniqueName": "D:\\Projetos Dev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj",
       "projectName": "EvoluaPonto.Api",
-      "projectPath": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj",
-      "packagesPath": "C:\\Users\\NovaContabilidade\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\NovaContabilidade\\Documents\\ProjetosDev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\obj\\",
+      "projectPath": "D:\\Projetos Dev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\EvoluaPonto.Api.csproj",
+      "packagesPath": "C:\\Users\\biell\\.nuget\\packages\\",
+      "outputPath": "D:\\Projetos Dev\\evolua-ponto-sistema\\backend\\EvoluaPonto.Api\\EvoluaPonto.Api\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\NovaContabilidade\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\biell\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],

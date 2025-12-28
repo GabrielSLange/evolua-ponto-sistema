@@ -18,19 +18,19 @@ namespace EvoluaPonto.Api.Data
         public DbSet<ModelRegistroPonto> RegistrosPonto { get; set; }
         public DbSet<ModelEstabelecimento> Estabelecimentos { get; set; }
         public DbSet<ModelFeriadoPersonalizado> FeriadosPersonalizados { get; set; }
-        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<ModelUsuario> Usuarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
             // Garante que o Login seja único
-            builder.Entity<Usuario>()
+            builder.Entity<ModelUsuario>()
                 .HasIndex(tb => tb.Login)
                 .IsUnique();
 
             // (Opcional) Garante que um funcionário só tenha UM usuário
-            builder.Entity<Usuario>()
+            builder.Entity<ModelUsuario>()
                 .HasIndex(tb => tb.FuncionarioId)
                 .IsUnique();
         }

@@ -23,18 +23,18 @@ namespace EvoluaPonto.Api.Services
             _config = config;
         }
 
-        public async Task<ServiceResponse<Usuario>> Registrar(RegistrarUsuarioDto dto)
+        public async Task<ServiceResponse<ModelUsuario>> Registrar(RegistrarUsuarioDto dto)
         {
             if (await _context.Usuarios.AnyAsync(u => u.Login == dto.Login))
-                return new ServiceResponse<Usuario> { Success = false, ErrorMessage = "Login já existe." };
+                return new ServiceResponse<ModelUsuario> { Success = false, ErrorMessage = "Login já existe." };
 
             if (await _context.Usuarios.AnyAsync(u => u.FuncionarioId == dto.FuncionarioId))
-                return new ServiceResponse<Usuario> { Success = false, ErrorMessage = "Este funcionário já possui um usuário." };
+                return new ServiceResponse<ModelUsuario> { Success = false, ErrorMessage = "Este funcionário já possui um usuário." };
 
             // Criptografa a senha
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha);
 
-            var usuario = new Usuario
+            var usuario = new ModelUsuario
             {
                 Id = Guid.NewGuid(),
                 FuncionarioId = dto.FuncionarioId,
@@ -47,7 +47,7 @@ namespace EvoluaPonto.Api.Services
             _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();
 
-            return new ServiceResponse<Usuario> { Data = usuario };
+            return new ServiceResponse<ModelUsuario> { Data = usuario };
         }
 
         public async Task<ServiceResponse<AuthResponseDto>> Login(string login, string senha)
@@ -87,7 +87,7 @@ namespace EvoluaPonto.Api.Services
             };
         }
 
-        private string GerarTokenJwt(Usuario usuario)
+        private string GerarTokenJwt(ModelUsuario usuario)
         {
             var key = Encoding.ASCII.GetBytes(_config["JwtSettings:SecretKey"]);
             var tokenHandler = new JwtSecurityTokenHandler();
