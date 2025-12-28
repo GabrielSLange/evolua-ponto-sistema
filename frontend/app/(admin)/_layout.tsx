@@ -74,6 +74,7 @@ export default function AdminLayout() {
             options={{
                drawerLabel: 'Estabelecimentos',
                title: 'Estabelecimentos',
+               drawerItemStyle: { display: 'none' },
             }}
          />
 
@@ -119,6 +120,7 @@ export default function AdminLayout() {
             options={{
                drawerLabel: 'Solicitações',
                title: 'Solicitações',
+               drawerItemStyle: { display: 'none' },
             }}
          />
          <Drawer.Screen
@@ -126,6 +128,7 @@ export default function AdminLayout() {
             options={{
                drawerLabel: 'Relatórios',
                title: 'Relatórios',
+               drawerItemStyle: { display: 'none' },
             }}
          />
       </Drawer>
