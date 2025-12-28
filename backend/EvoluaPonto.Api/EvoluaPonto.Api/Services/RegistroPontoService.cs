@@ -232,6 +232,7 @@ namespace EvoluaPonto.Api.Services
                                             .Include(r => r.Funcionario) // Para mostrar o nome de quem pediu
                                             .Where(r =>
                                                 r.Status == StatusSolicitacao.Pendente &&
+                                                r.FuncionarioId != funcionarioId && // Excluir as próprias solicitações
                                                 r.Funcionario.Estabelecimento.EmpresaId == empresaId
                                             )
                                             .OrderByDescending(r => r.CreatedAt)

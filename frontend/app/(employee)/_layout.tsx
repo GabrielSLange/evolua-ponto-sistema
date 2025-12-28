@@ -37,7 +37,7 @@ export default function EmployeeLayout() {
          }}
       >
          <Drawer.Screen 
-            name="home" 
+            name="meu-ponto/home" 
             options={{ 
                drawerLabel: 'Início', 
                title: 'Início' 
@@ -45,7 +45,7 @@ export default function EmployeeLayout() {
          />
 
          <Drawer.Screen
-            name="bater-ponto"
+            name="meu-ponto/bater-ponto"
             options={{
                drawerLabel: 'Bater ponto',
                title: 'Bater ponto'
@@ -53,7 +53,7 @@ export default function EmployeeLayout() {
          />
 
          <Drawer.Screen
-            name="solicitar-ponto"
+            name="meu-ponto/solicitar-ponto"
             options={{
                drawerLabel: 'Inserir batida',
                title: 'Solicitar ponto',
@@ -61,7 +61,7 @@ export default function EmployeeLayout() {
          />
 
          <Drawer.Screen
-            name="comprovantes"
+            name="meu-ponto/comprovantes"
             options={{
                drawerLabel: 'Comprovantes',
                title: 'Comprovantes',

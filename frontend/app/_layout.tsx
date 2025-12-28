@@ -55,15 +55,15 @@ const RootLayoutNav = () => {
 
     if (inAuthGroup) {
       if (role === 'superadmin') router.replace('/(superadmin)/empresas');
-      else if (role === 'admin') router.replace(`/(admin)/estabelecimentos?userId=${userId}`);
-      else if (role === 'normal') router.replace('/(employee)/home');
+      else if (role === 'admin') router.replace(`/(admin)/meu-ponto/home`);
+      else if (role === 'normal') router.replace('/(employee)/meu-ponto/home');
       return;
     }
 
     if (role === 'normal' && currentRouteGroup !== '(employee)') {
-      router.replace('/(employee)/home');
+      router.replace('/(employee)/meu-ponto/home');
     } else if (role === 'admin' && currentRouteGroup !== '(admin)') {
-      router.replace(`/(admin)/estabelecimentos?userId=${userId}`);
+      router.replace(`/(admin)/meu-ponto/home`);
     } else if (role === 'superadmin' && currentRouteGroup !== '(superadmin)') {
       router.replace('/(superadmin)/empresas');
     }
