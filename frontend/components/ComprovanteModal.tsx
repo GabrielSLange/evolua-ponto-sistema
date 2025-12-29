@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Platform, Dimensions } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Modal, Portal, Text, IconButton, ActivityIndicator, Button, useTheme } from 'react-native-paper';
 import { Document, Page, pdfjs } from 'react-pdf';
+import CustomLoader from '@/components/CustomLoader';
 
 // Configuração do Worker (Mantendo a versão 7 conforme conversamos)
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
@@ -17,9 +18,11 @@ export const ComprovanteModal = ({ visible, onDismiss, pdfUrl }: ComprovanteModa
   const [numPages, setNumPages] = useState<number | null>(null);
   const [containerWidth, setContainerWidth] = useState<number>(300);
   const [downloading, setDownloading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
+    setLoading(false);
   }
 
   // NOVA FUNÇÃO DE DOWNLOAD DIRETO
@@ -93,11 +96,9 @@ export const ComprovanteModal = ({ visible, onDismiss, pdfUrl }: ComprovanteModa
                 <Document
                     file={pdfUrl}
                     onLoadSuccess={onDocumentLoadSuccess}
-                    loading={<ActivityIndicator animating={true} color={theme.colors.primary} />}
+                    loading={<CustomLoaderModal />}
                     error={<Text style={{color: 'red', textAlign: 'center', marginTop: 20}}>Não foi possível carregar o PDF.</Text>}
                 >
-                    {/* AQUI ESTÁ A CORREÇÃO DO ZOOM: */}
-                    {/* Math.min garante que ele usa a largura da tela OU 500px, o que for menor. */}
                     <Page 
                         pageNumber={1} 
                         width={Math.min(containerWidth, 500)} 
@@ -126,6 +127,20 @@ export const ComprovanteModal = ({ visible, onDismiss, pdfUrl }: ComprovanteModa
     </Portal>
   );
 };
+
+const CustomLoaderModal = () => {
+  const theme = useTheme();
+  return (
+    <Portal>
+      <Modal visible={true}>
+        <View style={styles.loaderOverlay}>
+          <CustomLoader />
+        </View>
+      </Modal>
+    </Portal>
+  );
+};
+
 
 const styles = StyleSheet.create({
   header: {
@@ -156,5 +171,11 @@ const styles = StyleSheet.create({
   footer: {
     marginTop: 15,
     flexShrink: 0,
-  }
+  },
+  loaderOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Escureci um pouco mais para contraste em telas claras
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

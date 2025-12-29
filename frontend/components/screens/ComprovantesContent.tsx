@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, SectionList, StyleSheet, Alert, ActivityIndicator, Platform } from 'react-native';
+import { View, SectionList, StyleSheet, Alert, ActivityIndicator, Platform, Modal } from 'react-native';
 import { Button, useTheme, Text as PaperText, List, Avatar } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext'; // Ajuste o caminho se necessário
 import api from "@/services/api"; // Sua instância do Axios
@@ -8,6 +8,7 @@ import { useFocusEffect } from 'expo-router';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import { ComprovanteModal } from '@/components/ComprovanteModal';
+import CustomLoader from '../CustomLoader';
 
 
 // Função helper para formatar a data YYYY-MM-DD
@@ -246,19 +247,17 @@ export default function ComprovantesContent() {
         {/* O botão de busca foi removido pois a busca é automática ao mudar as datas */}
 
         {/* Feedback de Carregamento */}
-        {isLoading && comprovantes.length === 0 ? (
-          <ActivityIndicator size="large" color={paperTheme.colors.primary} style={styles.loader} />
-        ) : (
-          <SectionList
-            sections={groupedComprovantes}
-            renderItem={renderItem}
-            keyExtractor={(item, index) => item.id.toString() + index}
-            style={styles.list}
-            ListEmptyComponent={renderEmptyList}
-            renderSectionHeader={({ section: { title } }) => <PaperText style={styles.sectionHeader}>{title}</PaperText>}
-            stickySectionHeadersEnabled={false}
-          />
-        )}
+        {!isLoading ? (
+            <SectionList
+              sections={groupedComprovantes}
+              renderItem={renderItem}
+              keyExtractor={(item, index) => item.id.toString() + index}
+              style={styles.list}
+              ListEmptyComponent={renderEmptyList}
+              renderSectionHeader={({ section: { title } }) => <PaperText style={styles.sectionHeader}>{title}</PaperText>}
+              stickySectionHeadersEnabled={false}
+            />
+        ) : null}
 
         <ComprovanteModal
           visible={modalVisible}
@@ -266,6 +265,15 @@ export default function ComprovantesContent() {
           pdfUrl={selectedUrl}
         />
       </View>
+      <Modal
+        transparent={true}
+        animationType="fade"
+        visible={isLoading}
+      >
+        <View style={styles.loaderOverlay}>
+            <CustomLoader />
+        </View>
+      </Modal>
     </ScreenContainer>
   );
 }
@@ -329,5 +337,11 @@ const getStyles = (paperTheme: any) => StyleSheet.create({
     borderRadius: 4,
     borderWidth: 1,
     borderColor: '#ccc',
+  },
+  loaderOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Escureci um pouco mais para contraste em telas claras
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

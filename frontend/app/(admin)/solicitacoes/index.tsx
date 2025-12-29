@@ -6,6 +6,7 @@ import ScreenContainer from '@/components/layouts/ScreenContainer';
 import { useFocusEffect } from 'expo-router';
 import { SolicitacaoPontoDto } from '@/models/Dtos/SolicitacaoPontoDto';
 import { useAuth } from '@/contexts/AuthContext';
+import CustomLoader from '@/components/CustomLoader';
 
 export default function SolicitacoesScreen() {
     const theme = useTheme();
@@ -180,7 +181,15 @@ export default function SolicitacoesScreen() {
             </View>
 
             {loading && solicitacoes.length === 0 ? (
-                <ActivityIndicator size="large" style={{ marginTop: 50 }} />
+                <Modal
+                    transparent={true}
+                    animationType="fade"
+                    visible={loading}
+                >
+                    <View style={styles.loaderOverlay}>
+                    <CustomLoader />
+                    </View>
+                </Modal>
             ) : (
                 <FlatList
                     data={solicitacoes}
@@ -244,6 +253,7 @@ export default function SolicitacoesScreen() {
                     </View>
                 </View>
             </Modal>
+            
 
         </ScreenContainer>
     );
@@ -308,5 +318,11 @@ const styles = StyleSheet.create({
     modalButtons: {
         flexDirection: 'row',
         gap: 10,
-    }
+    },
+    loaderOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+      alignItems: 'center',
+      justifyContent: 'center',
+   },
 });

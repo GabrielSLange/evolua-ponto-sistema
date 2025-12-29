@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, Platform, Alert, ScrollView, KeyboardAvoidingView, TouchableOpacity, RefreshControl} from 'react-native';
+import { View, StyleSheet, Platform, Alert, ScrollView, KeyboardAvoidingView, TouchableOpacity, RefreshControl, Modal} from 'react-native';
 import { Text, TextInput, Button, SegmentedButtons, useTheme, HelperText, Card, Chip, Avatar, Divider } from 'react-native-paper';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -8,6 +8,7 @@ import { useNotification } from '@/contexts/NotificationContext';
 import api from '../../services/api';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import { SolicitacaoPontoDto } from '@/models/Dtos/SolicitacaoPontoDto';
+import CustomLoader from '../CustomLoader';
 
 export default function SolicitarPontoContent() {
   const router = useRouter();
@@ -45,7 +46,7 @@ export default function SolicitarPontoContent() {
       return;
     }
     setRefreshing(true);
-
+    setIsLoading(true);
     try {
       const response = await api.get('/RegistroPonto/historico', {
         params: { funcionarioId: funcionarioId }
@@ -55,6 +56,10 @@ export default function SolicitarPontoContent() {
       }
     } catch (error) {
       console.error("Erro ao buscar histórico", error);
+    }
+    finally{
+      setIsLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -346,6 +351,15 @@ const handleSubmit = async () => {
 
         </ScrollView>
       </KeyboardAvoidingView>
+      <Modal
+        transparent={true}
+        animationType="fade"
+        visible={isLoading}
+      >
+        <View style={styles.loaderOverlay}>
+            <CustomLoader />
+        </View>
+      </Modal>
     </ScreenContainer>
   );
 }
@@ -413,5 +427,11 @@ const styles = StyleSheet.create({
      alignItems: 'center',
      padding: 20,
      opacity: 0.7
-   }
+   },
+   loaderOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      alignItems: 'center',
+      justifyContent: 'center',
+   },
 });

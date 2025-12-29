@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
-import { Text, Card, Avatar, ActivityIndicator, Chip, useTheme, Surface, IconButton, Badge } from 'react-native-paper';
+import { View, StyleSheet, FlatList, RefreshControl, Modal } from 'react-native';
+import { Text, Card, Avatar, ActivityIndicator, Chip, useTheme, Surface, IconButton, Badge, Paragraph } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '@/services/api';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import { useFocusEffect } from 'expo-router';
 import { EspelhoPontoDto, DiaEspelhoDto } from '../../models/Dtos/EspelhoPontoDto';
+import CustomLoader from '../CustomLoader';
 
 export default function EspelhoPontoContent() {
    const { userId } = useAuth();
@@ -24,9 +25,10 @@ export default function EspelhoPontoContent() {
       }
 
       try {
+         
          // Apenas na primeira carga mostramos o spinner tela cheia
          if (!espelho) setLoading(true);
-
+         
          const response = await api.get('/EspelhoPonto/home', {
             params: { funcionarioId: funcionarioId}
          });
@@ -173,9 +175,7 @@ export default function EspelhoPontoContent() {
          )}
 
          {/* --- LISTA CALENDÁRIO --- */}
-         {loading && !espelho ? (
-            <ActivityIndicator style={{ marginTop: 50 }} size="large" />
-         ) : (
+         {!loading && espelho ? (
             <FlatList
                data={espelho?.dias || []}
                renderItem={renderDia}
@@ -188,7 +188,17 @@ export default function EspelhoPontoContent() {
                   </View>
                }
             />
-         )}
+         ) : null}
+
+         <Modal
+            transparent={true}
+            animationType="fade"
+            visible={loading}
+         >
+            <View style={styles.loaderOverlay}>
+               <CustomLoader />
+            </View>
+         </Modal>
       </ScreenContainer>
    );
 }
@@ -249,5 +259,11 @@ const styles = StyleSheet.create({
       width: 30,
       alignItems: 'center',
       justifyContent: 'center',
-   }
+   },
+   loaderOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Escureci um pouco mais para contraste em telas claras
+      alignItems: 'center',
+      justifyContent: 'center',
+   },
 });

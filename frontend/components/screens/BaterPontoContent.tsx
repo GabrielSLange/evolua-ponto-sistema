@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
    },
    loaderOverlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Escureci um pouco mais para contraste em telas claras
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', 
       alignItems: 'center',
       justifyContent: 'center',
    },
