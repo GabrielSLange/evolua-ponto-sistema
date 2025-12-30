@@ -149,7 +149,8 @@ namespace EvoluaPonto.Api.Services
                 return new ServiceResponse<ModelFuncionario> { Success = false, ErrorMessage = "O funcionário não possui nenhum usuário vinculado" };
 
             usuarioBanco.Login = funcionarioAtualizado.Email;
-            if(funcionarioAtualizado.Password is not null)
+            usuarioBanco.Perfil = funcionarioAtualizado.Role;
+            if (funcionarioAtualizado.Password is not null)
                 usuarioBanco.SenhaHash = BCrypt.Net.BCrypt.HashPassword(funcionarioAtualizado.Password);
             funcionarioBanco.Nome = funcionarioAtualizado.Nome;
             funcionarioBanco.Cpf = funcionarioAtualizado.Cpf;
