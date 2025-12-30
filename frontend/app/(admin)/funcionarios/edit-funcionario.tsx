@@ -21,6 +21,11 @@ const EditFuncionarioAdminScreen = () => {
         try {
             await updateFuncionario(funcionario);
             showNotification('Funcionário atualizado com sucesso!', 'success');
+
+            router.replace({
+                pathname: '/(admin)/funcionarios', // Caminho para o admin
+                params: { estabelecimentoId: estabelecimentoId }
+            });
         } catch (error) {
             showNotification('Erro ao atualizar funcionário.', 'error');
         }
