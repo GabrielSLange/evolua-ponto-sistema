@@ -7,6 +7,7 @@ import { Fieldset } from '../layouts/FieldSet';
 import { SearchableDropdown } from '../layouts/SearchableDropdown';
 import { InteractiveMap } from '../maps/InteractiveMap';
 import { Text } from '../Themed';
+import { se } from 'date-fns/locale';
 
 // Props que o formulário recebe
 interface EstabelecimentoFormProps {
@@ -155,6 +156,19 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
             estado: data.state,
          }));
 
+         if (data.street) {
+            setErrors(prev => ({ ...prev, logradouro: undefined }));
+         }
+         if (data.neighborhood) {
+            setErrors(prev => ({ ...prev, bairro: undefined }));
+         }
+         if (data.city) {
+            setErrors(prev => ({ ...prev, cidade: undefined }));
+         }
+         if (data.state) {
+            setErrors(prev => ({ ...prev, estado: undefined }));
+         }
+
          atualizaRegiaoMapa(data.street, data.city, data.state);
       }
    };
@@ -171,14 +185,6 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
 
          if (cepFormatado.length === 9) {
             buscarCepBrasilApi(cepFormatado);
-
-            setErrors(prev => ({
-               ...prev,
-               logradouro: undefined,
-               bairro: undefined,
-               cidade: undefined,
-               estado: undefined,
-            }));
          }
          return;
       }
