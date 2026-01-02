@@ -167,10 +167,10 @@ export default function EspelhoPontoContent() {
                   <Text style={{ color: theme.colors.onPrimary, fontSize: 12, fontWeight: '600' }}>REFERÊNCIA</Text>
                   <Text variant="titleLarge" style={{ color: theme.colors.onPrimary, fontWeight: 'bold' }}>{espelho.mesReferencia}</Text>
                </View>
-               {/* <View style={{alignItems: 'flex-end'}}>
+               <View style={{alignItems: 'flex-end'}}>
                 <Text style={{color: theme.colors.onPrimary, fontSize: 12, fontWeight: '600'}}>BANCO DE HORAS</Text>
                 <Text variant="titleLarge" style={{color: theme.colors.onPrimary, fontWeight: 'bold'}}>{espelho.saldoPrevisto}</Text>
-            </View> */}
+            </View>
             </Surface>
          )}
 
