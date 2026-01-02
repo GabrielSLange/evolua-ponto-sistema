@@ -2,7 +2,7 @@ import { ModelEstabelecimento } from '@/models/ModelEstabelecimento';
 import { useFocusEffect } from 'expo-router';
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
-import { TextInput, Button, useTheme } from 'react-native-paper';
+import { TextInput, Button, useTheme, HelperText } from 'react-native-paper';
 import { Fieldset } from '../layouts/FieldSet';
 import { SearchableDropdown } from '../layouts/SearchableDropdown';
 import { InteractiveMap } from '../maps/InteractiveMap';
@@ -21,6 +21,9 @@ const defaultRegion = {
    latitudeDelta: 10, // Zoom para ver o país todo
    longitudeDelta: 10,
 };
+
+// Define a estrutura do objeto de erros
+type FormErrors = Partial<Record<keyof ModelEstabelecimento, string>>;
 
 const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
    estabelecimento,
@@ -47,6 +50,9 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
       longitude: 0,
       raioKm: 1,
    });
+
+   // Estado para armazenar as mensagens de erro
+   const [errors, setErrors] = useState<FormErrors>({});
 
    const [mapRegion, setMapRegion] = useState(() => {
       if (estabelecimento?.latitude && estabelecimento?.longitude) {
@@ -100,6 +106,8 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
          latitude,
          longitude,
       }));
+
+      setErrors(prev => ({ ...prev, latitude: undefined }));
    };
 
    const BuscarEstados = async () => {
@@ -152,12 +160,25 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
    };
 
    const handleChange = (name: keyof ModelEstabelecimento, value: string) => {
+      // Limpa o erro específico ao modificar o campo
+      if (errors[name]) {
+         setErrors(prev => ({ ...prev, [name]: undefined }));
+      }
+
       if (name === 'cep') {
          const cepFormatado = formatarCep(value);
          setFormData(prev => ({ ...prev, cep: cepFormatado }));
 
          if (cepFormatado.length === 9) {
             buscarCepBrasilApi(cepFormatado);
+
+            setErrors(prev => ({
+               ...prev,
+               logradouro: undefined,
+               bairro: undefined,
+               cidade: undefined,
+               estado: undefined,
+            }));
          }
          return;
       }
@@ -170,11 +191,35 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
    };
 
    const handleSubmit = () => {
-      const dadosParaEnviar = {
-         ...formData,
-         cep: formData.cep ? formData.cep.replace(/\D/g, '') : '',
-      };
-      onSubmit(dadosParaEnviar);
+      // Lógica para validação para construir o objeto de erros
+      const newErrors: FormErrors = {};
+
+      if (!formData.nomeFantasia) newErrors.nomeFantasia = 'O nome fantasia é obrigatório.';
+      if (!formData.cep) newErrors.cep = 'O CEP é obrigatório.';
+      if (!formData.logradouro) newErrors.logradouro = 'O logradouro é obrigatório.';
+      if (!formData.numero) newErrors.numero = 'Caso não tenha número, informe "S/N".';
+      if (!formData.bairro) newErrors.bairro = 'O bairro é obrigatório.';
+      if (!formData.cidade) newErrors.cidade = 'A cidade é obrigatória.';
+      if (!formData.estado) newErrors.estado = 'O estado é obrigatório.';
+      if (!formData.latitude || !formData.longitude) newErrors.latitude = 'A localização no mapa é obrigatória.';
+
+      setErrors(newErrors);
+
+      // Se não houver erros, envia o formulário
+      if (Object.keys(newErrors).length === 0) {
+         try  {
+            const dadosParaEnviar = {
+               ...formData,
+               cep: formData.cep ? formData.cep.replace(/\D/g, '') : '',
+            };
+            onSubmit(dadosParaEnviar);
+         } catch (error) {
+            return;
+         }
+
+      } else {
+         return;
+      }
    };
 
 
@@ -210,6 +255,8 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
             raioKm: 1,
          });
       }
+      // Limpa os erros ao carregar o formulário
+      setErrors({});
    }, [estabelecimento]);
    useFocusEffect(verificarDadosFormulario);
 
@@ -217,15 +264,22 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
 
    return (
       <View style={styles.container}>
+         <HelperText type="error" visible={!!errors.nomeFantasia}>
+            {errors.nomeFantasia}
+         </HelperText>
          <TextInput
             label="Nome Fantasia"
             value={formData.nomeFantasia}
             onChangeText={(text) => handleChange('nomeFantasia', text)}
             style={styles.input}
+            error={!!errors.nomeFantasia}
          />
          <Fieldset legend="Endereço">
             <View style={[{ flexDirection: isDesktop ? 'row' : 'column' }]}>
                <View style={{ flex: 2.5, margin: isDesktop ? 8 : 0 }}>
+                  <HelperText type="error" visible={!!errors.cep}>
+                     {errors.cep}
+                  </HelperText>
                   <TextInput
                      label="CEP"
                      value={formData.cep}
@@ -234,12 +288,20 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
                      keyboardType="number-pad"
                      maxLength={9}
                   />
+
+                  <HelperText type="error" visible={!!errors.logradouro}>
+                     {errors.logradouro}
+                  </HelperText>
                   <TextInput
                      label="Logradouro (Rua, Av.)"
                      value={formData.logradouro}
                      onChangeText={(text) => handleChange('logradouro', text)}
                      style={styles.input}
                   />
+
+                  <HelperText type="error" visible={!!errors.numero}>
+                     {errors.numero}
+                  </HelperText>
                   <TextInput
                      label="Número"
                      value={formData.numero ?? ''}
@@ -250,12 +312,19 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
                </View>
 
                <View style={{ flex: 2.5, margin: isDesktop ? 8 : 0 }}>
+                  <HelperText type="error" visible={!!errors.bairro}>
+                     {errors.bairro}
+                  </HelperText>
                   <TextInput
                      label="Bairro"
                      value={formData.bairro}
                      onChangeText={(text) => handleChange('bairro', text)}
                      style={styles.input}
                   />
+
+                  <HelperText type="error" visible={!!errors.estado}>
+                     {errors.estado}
+                  </HelperText>
                   <SearchableDropdown
                      label="Estado (UF)"
                      value={formData.estado}
@@ -263,6 +332,10 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
                      onSelect={(text) => handleChange('estado', text)}
                      style={styles.input}
                   />
+
+                  <HelperText type="error" visible={!!errors.cidade}>
+                     {errors.cidade}
+                  </HelperText>
                   <SearchableDropdown
                      label="Cidade"
                      value={formData.cidade}
@@ -312,6 +385,9 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
                }
             />
             <Text style={{ color: theme.colors.onSurface }}>Latitude: {formData.latitude} Longitude: {formData.longitude}</Text>
+            <HelperText type="error" visible={!!errors.latitude || !!errors.longitude}>
+               {errors.latitude}
+            </HelperText>
 
 
 
