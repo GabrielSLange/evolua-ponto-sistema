@@ -5,10 +5,18 @@
 namespace EvoluaPonto.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class AdcAtivoFeriado : Migration
+    public partial class RmvAtivoFeriadoRemake : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "ativo",
+                table: "feriados_personalizados");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
                 name: "ativo",
@@ -16,14 +24,6 @@ namespace EvoluaPonto.Api.Migrations
                 type: "boolean",
                 nullable: false,
                 defaultValue: false);
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropColumn(
-                name: "ativo",
-                table: "feriados_personalizados");
         }
     }
 }

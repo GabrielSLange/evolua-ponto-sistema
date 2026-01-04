@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EvoluaPonto.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260104190637_AdcAtivoFeriado")]
-    partial class AdcAtivoFeriado
+    [Migration("20260104194630_AdcAtivoFeriadosRemake")]
+    partial class AdcAtivoFeriadosRemake
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
