@@ -59,5 +59,24 @@ namespace EvoluaPonto.Api.Services
 
             return new ServiceResponse<bool> { Data = true };
         }
+
+        public async Task<List<ModelFeriadoPersonalizado>> GetFeriadosParaFuncionarioAsync(Guid empresaId, Guid estabelecimentoId, DateTime inicio, DateTime fim)
+        {
+            var dataInicio = DateTime.SpecifyKind(inicio.Date, DateTimeKind.Utc);
+            var dataFim = DateTime.SpecifyKind(fim.Date, DateTimeKind.Utc);
+
+            var feriados = await _context.FeriadosPersonalizados
+                .Where(f =>
+                    f.EmpresaId == empresaId && // Tem que ser da mesma empresa
+                    f.Ativo && // Tem que estar ativo
+                    f.Data >= dataInicio &&
+                    f.Data <= dataFim &&
+                    (f.EstabelecimentoId == null || f.EstabelecimentoId == estabelecimentoId) // GLOBAL ou LOCAL
+                )
+                .AsNoTracking()
+                .ToListAsync();
+
+            return feriados;
+        }
     }
 }
