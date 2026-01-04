@@ -19,7 +19,7 @@ namespace EvoluaPonto.Api.Services
         public async Task<ServiceResponse<List<ModelFeriadoPersonalizado>>> GetFeriadosByEmpresaAsync(Guid empresaId)
         {
             var feriados = await _context.FeriadosPersonalizados
-                .Where(f => f.EmpresaId == empresaId || f.EmpresaId == null)
+                .Where(f => f.EmpresaId == empresaId)
                 .AsNoTracking()
                 .ToListAsync();
 

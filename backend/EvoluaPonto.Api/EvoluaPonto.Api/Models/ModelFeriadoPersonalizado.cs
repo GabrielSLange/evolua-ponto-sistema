@@ -27,6 +27,9 @@ namespace EvoluaPonto.Api.Models
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 
+        [Column("ativo")]
+        public bool Ativo { get; set; }
+
         // Propriedades de navegação (opcionais, mas boas práticas)
         public ModelEmpresa? Empresa { get; set; }
         public ModelEstabelecimento? Estabelecimento { get; set; }
