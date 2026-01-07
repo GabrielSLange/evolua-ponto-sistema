@@ -13,12 +13,14 @@ namespace EvoluaPonto.Api.Services
     {
         private readonly AppDbContext _context;
         private readonly FeriadoService _feriadoService;
+        private readonly FeriadoPersonalizadoService _feriadoPersonalizadoService;
         private readonly IMemoryCache _memoryCache;
 
-        public EspelhoPontoService(AppDbContext context, FeriadoService feriadoService, IMemoryCache memoryCache)
+        public EspelhoPontoService(AppDbContext context, FeriadoService feriadoService, FeriadoPersonalizadoService feriadoPersonalizadoService, IMemoryCache memoryCache)
         {
             _context = context;
             _feriadoService = feriadoService;
+            _feriadoPersonalizadoService = feriadoPersonalizadoService;
             _memoryCache = memoryCache;
         }
 
@@ -42,6 +44,18 @@ namespace EvoluaPonto.Api.Services
                 var primeiroDiaMes = new DateTime(hoje.Year, hoje.Month, 1);
                 var ultimoDiaMes = primeiroDiaMes.AddMonths(1).AddDays(-1);
 
+                var funcionario = await _context.Funcionarios
+                    .Include(f => f.Estabelecimento)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(f => f.Id == funcionarioId);
+
+                if (funcionario == null)
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Funcionário não encontrado.";
+                    return response;
+                }
+
                 // Busca Feriados (com cache)
                 // Define uma cheve única para o cache (ex: "Feriados_2025")
                 string cacheKey = $"Feriados_nacionais_{hoje.Year}";
@@ -57,11 +71,21 @@ namespace EvoluaPonto.Api.Services
                     return dadosApi ?? new List<FeriadoDto>(); // Retorna lista vazia se falhar
                 });
 
-                // Pré processamento dos Feriados
-                // 1. Convertemos as strings ("2024-12-25") para DateTime puros
-                // 2. Usamos HashSet para a busca ser instantânea (O(1)) dentro do loop
+                // Feriados personalizados
+                var datasFeriadosPersonalizados = new List<DateTime>();
+
+                var feriadosDb = await _feriadoPersonalizadoService.GetFeriadosParaFuncionarioAsync(
+                    funcionario.Estabelecimento.EmpresaId,
+                    funcionario.EstabelecimentoId,
+                    primeiroDiaMes,
+                    ultimoDiaMes);
+
+                datasFeriadosPersonalizados = feriadosDb.Select(f => f.Data.Date).ToList();
+
+                // Merge dos feriados nacionais com os personalizados
                 var datasFeriados = feriadosNacionais
                     .Select(f => DateTime.Parse(f.Data).Date) // Converte String -> DateTime
+                    .Concat(datasFeriadosPersonalizados)
                     .ToHashSet();
 
                 // Buscar registros do funcionário neste período
@@ -92,7 +116,7 @@ namespace EvoluaPonto.Api.Services
 
                     var isFimDeSemana = dia.DayOfWeek == DayOfWeek.Saturday || dia.DayOfWeek == DayOfWeek.Sunday;
 
-                    // Verificação na tabela de Feriados
+                    // Verificação uninficada de feriado
                     var isFeriado = datasFeriados.Contains(dia.Date);
 
                     var diaDto = new DiaEspelhoHomeDto

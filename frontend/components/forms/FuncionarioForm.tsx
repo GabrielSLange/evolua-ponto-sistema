@@ -146,7 +146,6 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     };
 
     const handleSubmit = () => {
-        setLoading(true);
         // 2. Lógica de validação para construir o objeto de erros
         const newErrors: FormErrors = {};
 
@@ -164,13 +163,6 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         if (!isP1Completo || !isP2Completo) {
             newErrors.horarioContratual = "É obrigatório preencher os dois períodos completos (Entrada/Saída 1 e 2).";
         }
-        // ---------------------------------------------------------
-
-        if (!formData.id && !formData.password) {
-            newErrors.password = "A senha é obrigatória na criação.";
-        }
-
-        setErrors(newErrors);
 
         /* // Validação do Horário permitindo meio período
         // Verifica se tem o tamanho correto da máscara (11 caracteres: "00:00-00:00")
@@ -224,11 +216,13 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         } else {
             return;
         }
-        setLoading(false);
     };
 
     return (
         <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <HelperText type="error" visible={!!errors.nome}>
+                {errors.nome}
+            </HelperText>
             <TextInput
                 label="Nome"
                 value={formData.nome}
@@ -237,10 +231,10 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 error={!!errors.nome}
                 editable={!isReadOnly}
             />
-            <HelperText type="error" visible={!!errors.nome}>
-                {errors.nome}
-            </HelperText>
 
+            <HelperText type="error" visible={!!errors.cpf}>
+                {errors.cpf}
+            </HelperText>
             <TextInput
                 label="CPF"
                 value={formData.cpf}
@@ -258,10 +252,10 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 }
                 error={!!errors.cpf}
             />
-            <HelperText type="error" visible={!!errors.cpf}>
-                {errors.cpf}
-            </HelperText>
 
+            <HelperText type="error" visible={!!errors.email}>
+                {errors.email}
+            </HelperText>
             <TextInput
                 label="Email"
                 value={formData.email}
@@ -272,12 +266,12 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 error={!!errors.email}
                 editable={!isReadOnly}
             />
-            <HelperText type="error" visible={!!errors.email}>
-                {errors.email}
-            </HelperText>
 
             {!funcionario?.id && (
                 <>
+                    <HelperText type="error" visible={!!errors.password}>
+                        {errors.password}
+                    </HelperText>
                     <TextInput
                         label="Senha"
                         value={formData.password}
@@ -286,11 +280,11 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                         secureTextEntry
                         error={!!errors.password}
                     />
-                    <HelperText type="error" visible={!!errors.password}>
-                        {errors.password}
-                    </HelperText>
                 </>
             )}
+            <HelperText type="error" visible={!!errors.cargo}>
+                {errors.cargo}
+            </HelperText>
             <TextInput
                 label="Cargo"
                 value={formData.cargo}
@@ -299,10 +293,10 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 error={!!errors.cargo}
                 editable={!isReadOnly}
             />
-            <HelperText type="error" visible={!!errors.cargo}>
-                {errors.cargo}
-            </HelperText>
 
+            <HelperText type="error" visible={!!errors.role}>
+                {errors.role}
+            </HelperText>
             <Menu
                 visible={menuVisible}
                 onDismiss={closeMenu}
@@ -329,9 +323,6 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                     />
                 ))}
             </Menu>
-            <HelperText type="error" visible={!!errors.role}>
-                {errors.role}
-            </HelperText>
 
             {/* Campo de Estabelecimento - Visível apenas na edição */}
             {funcionario?.id && (
