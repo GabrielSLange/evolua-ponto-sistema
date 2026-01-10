@@ -18,7 +18,7 @@ namespace EvoluaPonto.Api.Models
         public long? Nsr { get; set; }
 
         [Required]
-        [Column("timestamp_marcacao")]
+        [Column("timestamp_marcacao", TypeName = "timestamp with time zone")]
         public DateTime TimestampMarcacao { get; set; }
 
         [Required]

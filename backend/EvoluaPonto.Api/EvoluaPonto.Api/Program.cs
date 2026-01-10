@@ -8,6 +8,8 @@ using QuestPDF.Infrastructure;
 using System.Text;
 using Microsoft.AspNetCore.HttpOverrides;
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<AuthService>();

@@ -1,5 +1,7 @@
 ﻿using EvoluaPonto.Api.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Reflection.Emit;
 
 namespace EvoluaPonto.Api.Data
 {
@@ -23,6 +25,34 @@ namespace EvoluaPonto.Api.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            var utcConverter = new ValueConverter<DateTime, DateTime>(
+                // GRAVAÇÃO (Ida): Garante que vai como UTC
+                v => v.ToUniversalTime(),
+
+                // LEITURA (Volta): O Npgsql entrega Local, nós convertemos de volta pra UTC
+                v => v.ToUniversalTime()
+            );
+
+            var nullableUtcConverter = new ValueConverter<DateTime?, DateTime?>(
+                v => v.HasValue ? v.Value.ToUniversalTime() : v,
+                v => v.HasValue ? v.Value.ToUniversalTime() : v
+            );
+
+            foreach (var entityType in builder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.ClrType == typeof(DateTime))
+                    {
+                        property.SetValueConverter(utcConverter);
+                    }
+                    else if (property.ClrType == typeof(DateTime?))
+                    {
+                        property.SetValueConverter(nullableUtcConverter);
+                    }
+                }
+            }
 
             // Garante que o Login seja único
             builder.Entity<ModelUsuario>()
