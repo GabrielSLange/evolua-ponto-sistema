@@ -45,6 +45,12 @@ const CustomDrawerContent = (props: any) => {
                      />
 
                      <Drawer.Item
+                        label="Feriados"
+                        onPress={() => router.push('/(admin)/feriados')}
+                        style={styles.nestedItem}
+                     />
+
+                     <Drawer.Item
                         label="Relatórios"
                         onPress={() => router.push('/(admin)/relatorios')}
                         style={styles.nestedItem}

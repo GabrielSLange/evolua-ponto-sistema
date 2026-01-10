@@ -22,7 +22,7 @@ namespace EvoluaPonto.Api.Controllers
         public async Task<IActionResult> GetFeriados([FromQuery] Guid empresaId)
         {
             var response = await _feriadoService.GetFeriadosByEmpresaAsync(empresaId);
-            return Ok(response);
+            return Ok(response.Data);
         }
 
         // POST: api/feriados

@@ -131,6 +131,14 @@ export default function AdminLayout() {
                drawerItemStyle: { display: 'none' },
             }}
          />
+         <Drawer.Screen
+            name='feriados/index'
+            options={{
+               drawerLabel: 'Feriados',
+               title: 'Gestão de Feriados',
+               drawerItemStyle: { display: 'none' },
+            }}
+         />
       </Drawer>
    );
 }
