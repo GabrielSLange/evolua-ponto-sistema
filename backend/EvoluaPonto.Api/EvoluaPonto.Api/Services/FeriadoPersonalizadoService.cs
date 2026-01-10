@@ -20,6 +20,7 @@ namespace EvoluaPonto.Api.Services
         {
             var feriados = await _context.FeriadosPersonalizados
                 .Where(f => f.EmpresaId == empresaId)
+                .OrderBy(f => f.Data)
                 .AsNoTracking()
                 .ToListAsync();
 
