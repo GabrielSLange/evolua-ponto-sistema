@@ -69,7 +69,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     // Sempre que periodo1 ou periodo2 mudar, atualizamos o formData.horarioContratual
     useEffect(() => {
         let horarioCompleto = periodo1;
-        
+
         // Só adiciona o segundo período se ele tiver sido preenchido
         // (Verifica se tem pelo menos alguns números para evitar traços soltos)
         if (periodo2 && periodo2.length > 4) {
@@ -96,7 +96,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
             // Preenche os períodos do horário contratual
             if (funcionario.horarioContratual) {
                 const parts = funcionario.horarioContratual.split('-');
-                
+
                 // 1º Período: Se existir, seta. Se não, limpa.
                 if (parts.length >= 2) {
                     setPeriodo1(`${parts[0]}-${parts[1]}`);
@@ -109,7 +109,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 if (parts.length >= 4) {
                     setPeriodo2(`${parts[2]}-${parts[3]}`);
                 } else {
-                    setPeriodo2(''); 
+                    setPeriodo2('');
                 }
             } else {
                 // Se não tiver horário nenhum definido
@@ -155,16 +155,16 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         if (!formData.cargo) newErrors.cargo = "O cargo é obrigatório.";
         if (!formData.role) newErrors.role = "A permissão é obrigatória.";
 
-        // --- VALIDAÇÃO ESTRITA (2 PERÍODOS OBRIGATÓRIOS) ---
+        /* // --- VALIDAÇÃO ESTRITA (2 PERÍODOS OBRIGATÓRIOS) ---
         // Verifica se ambos têm exatamente 11 caracteres (ex: "08:00-12:00")
         const isP1Completo = periodo1.length === 11;
         const isP2Completo = periodo2.length === 11;
 
         if (!isP1Completo || !isP2Completo) {
             newErrors.horarioContratual = "É obrigatório preencher os dois períodos completos (Entrada/Saída 1 e 2).";
-        }
+        } */
 
-        /* // Validação do Horário permitindo meio período
+        // Validação do Horário permitindo meio período
         // Verifica se tem o tamanho correto da máscara (11 caracteres: "00:00-00:00")
         const isP1Completo = periodo1.length === 11;
         const isP2Completo = periodo2.length === 11;
@@ -182,7 +182,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         // Regra 3: Se o usuário começou a digitar o 2º período, ele deve terminar
         else if (periodo2.length > 0 && !isP2Completo) {
             newErrors.horarioContratual = "O 2º período está incompleto (formato HH:mm-HH:mm).";
-        } */
+        }
 
         // Validação condicional da senha
         if (!formData.id && !formData.password) {
@@ -193,7 +193,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
 
         // Se não houver erros, envia o formulário
         if (Object.keys(newErrors).length === 0) {
-            try{
+            try {
                 onSubmit(formData);
                 setFormData({
                     id: null,
@@ -205,13 +205,13 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                     cargo: '',
                     horarioContratual: '',
                     role: '',
-                    ativo: true, 
+                    ativo: true,
                 });
             }
-            catch(error){
+            catch (error) {
                 return;
             }
-            
+
 
         } else {
             return;

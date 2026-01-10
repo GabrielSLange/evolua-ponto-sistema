@@ -25,12 +25,12 @@ export default function EspelhoPontoContent() {
       }
 
       try {
-         
+
          // Apenas na primeira carga mostramos o spinner tela cheia
          if (!espelho) setLoading(true);
-         
+
          const response = await api.get('/EspelhoPonto/home', {
-            params: { funcionarioId: funcionarioId}
+            params: { funcionarioId: funcionarioId }
          });
 
          if (response.data.success) {
@@ -153,8 +153,8 @@ export default function EspelhoPontoContent() {
          {/* --- CABEÇALHO --- */}
          <View style={styles.header}>
             <View>
-               <Text variant="titleMedium" style={{ color: theme.colors.secondary }}>Olá, {nomeFuncionario}</Text>
                <Text variant="headlineMedium" style={{ fontWeight: 'bold' }}>Meu Ponto</Text>
+               <Text variant="titleMedium" style={{ color: theme.colors.secondary }}>Olá, {nomeFuncionario}</Text>
             </View>
             {/* Avatar ou Logo da Empresa */}
             <Avatar.Icon icon="calendar-check" size={48} style={{ backgroundColor: theme.colors.primaryContainer }} color={theme.colors.onPrimaryContainer} />
@@ -167,10 +167,10 @@ export default function EspelhoPontoContent() {
                   <Text style={{ color: theme.colors.onPrimary, fontSize: 12, fontWeight: '600' }}>REFERÊNCIA</Text>
                   <Text variant="titleLarge" style={{ color: theme.colors.onPrimary, fontWeight: 'bold' }}>{espelho.mesReferencia}</Text>
                </View>
-               <View style={{alignItems: 'flex-end'}}>
-                <Text style={{color: theme.colors.onPrimary, fontSize: 12, fontWeight: '600'}}>BANCO DE HORAS</Text>
-                <Text variant="titleLarge" style={{color: theme.colors.onPrimary, fontWeight: 'bold'}}>{espelho.saldoPrevisto}</Text>
-            </View>
+               {/* <View style={{ alignItems: 'flex-end' }}>
+                  <Text style={{ color: theme.colors.onPrimary, fontSize: 12, fontWeight: '600' }}>BANCO DE HORAS</Text>
+                  <Text variant="titleLarge" style={{ color: theme.colors.onPrimary, fontWeight: 'bold' }}>{espelho.saldoPrevisto}</Text>
+               </View> */}
             </Surface>
          )}
 
