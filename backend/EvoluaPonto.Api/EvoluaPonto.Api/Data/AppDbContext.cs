@@ -1,7 +1,6 @@
 ﻿using EvoluaPonto.Api.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System.Reflection.Emit;
 
 namespace EvoluaPonto.Api.Data
 {
@@ -11,10 +10,7 @@ namespace EvoluaPonto.Api.Data
         {
         }
 
-        
-
-        // Estas propriedades representam as tabelas no nosso banco de dados.
-        // O Entity Framework Core vai usá-las para fazer as operações de CRUD.
+        // Tabelas do Banco de Dados
         public DbSet<ModelEmpresa> Empresas { get; set; }
         public DbSet<ModelFuncionario> Funcionarios { get; set; }
         public DbSet<ModelRegistroPonto> RegistrosPonto { get; set; }
@@ -26,19 +22,25 @@ namespace EvoluaPonto.Api.Data
         {
             base.OnModelCreating(builder);
 
+            // --- A LÓGICA DE OURO DO UTC (BLINDADA) ---
             var utcConverter = new ValueConverter<DateTime, DateTime>(
-                // GRAVAÇÃO (Ida): Garante que vai como UTC
+                // IDA (Gravar no Banco): 
+                // Garante que tudo vira UTC antes de entrar.
                 v => v.ToUniversalTime(),
 
-                // LEITURA (Volta): O Npgsql entrega Local, nós convertemos de volta pra UTC
-                v => v.ToUniversalTime()
+                // VOLTA (Ler do Banco): 
+                // A Lógica: Se o driver do banco (Npgsql) entregar "Local" (Windows),
+                // o .ToUniversalTime() converte de volta para o UTC Real.
+                // Se entregar "Utc" (Linux/Docker), ele mantém.
+                v => v.Kind == DateTimeKind.Utc ? v : v.ToUniversalTime()
             );
 
             var nullableUtcConverter = new ValueConverter<DateTime?, DateTime?>(
                 v => v.HasValue ? v.Value.ToUniversalTime() : v,
-                v => v.HasValue ? v.Value.ToUniversalTime() : v
+                v => v.HasValue ? (v.Value.Kind == DateTimeKind.Utc ? v : v.Value.ToUniversalTime()) : v
             );
 
+            // Aplica os conversores em TODAS as colunas de data de TODAS as tabelas
             foreach (var entityType in builder.Model.GetEntityTypes())
             {
                 foreach (var property in entityType.GetProperties())
@@ -53,13 +55,13 @@ namespace EvoluaPonto.Api.Data
                     }
                 }
             }
+            // -------------------------------------------
 
-            // Garante que o Login seja único
+            // Configurações de Índices e Chaves Únicas
             builder.Entity<ModelUsuario>()
                 .HasIndex(tb => tb.Login)
                 .IsUnique();
 
-            // (Opcional) Garante que um funcionário só tenha UM usuário
             builder.Entity<ModelUsuario>()
                 .HasIndex(tb => tb.FuncionarioId)
                 .IsUnique();

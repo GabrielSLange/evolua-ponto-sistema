@@ -72,7 +72,7 @@ public class EspelhoPontoDocument : IDocument
                 {
                     table.Cell().Element(CellStyle).Text($"{dia.Dia:dd/MM (ddd)}");
 
-                    var horarios = string.Join("  ", dia.Marcacoes.Select(m => m.TimestampMarcacao.ToLocalTime().ToString("HH:mm")));
+                    var horarios = string.Join("  ", dia.Marcacoes.Select(m => m.TimestampMarcacao.ToString("HH:mm")));
                     if (dia.Observacoes.Any()) horarios += $" ({string.Join(", ", dia.Observacoes)})";
 
                     table.Cell().Element(CellStyle).Text(horarios);

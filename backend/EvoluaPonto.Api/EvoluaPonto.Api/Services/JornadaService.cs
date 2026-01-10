@@ -41,12 +41,43 @@ namespace EvoluaPonto.Api.Services
 
             // 2. Feriados e Registros (Busca TOTAL)
             // ... (Sua lógica de busca de feriados aqui, igual ao anterior) ...
-            var feriadosDoAno = await ObterFeriadosUnificados(ano, funcionario, dataInicioTotal, dataFimTotal); // *Extraí para limpar
+            var feriadosDoAno = await ObterFeriadosUnificados(ano, funcionario, dataInicioTotal, dataFimTotal);
 
             var todosRegistros = await _context.RegistrosPonto
                 .Where(r => r.FuncionarioId == funcionarioId && r.TimestampMarcacao >= dataInicioTotal.ToUniversalTime() && r.TimestampMarcacao <= dataFimTotal.ToUniversalTime().AddDays(1))
                 .OrderBy(r => r.TimestampMarcacao)
                 .ToListAsync();
+
+            TimeZoneInfo fusoBrasilia;
+            try
+            {
+                fusoBrasilia = TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo");
+            }
+            catch
+            {
+                fusoBrasilia = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
+            }
+
+            // O Select Inteligente
+            var todosOsRegistrosConvertido = todosRegistros.Select(r =>
+            {
+                // CASO 1: É UTC explícito? Converte.
+                if (r.TimestampMarcacao.Kind == DateTimeKind.Utc)
+                {
+                    r.TimestampMarcacao = TimeZoneInfo.ConvertTimeFromUtc(r.TimestampMarcacao, fusoBrasilia);
+                }
+                // CASO 2: O banco devolveu sem etiqueta (Unspecified)?
+                // Assume que é UTC (já que seu banco salva em UTC) e converte.
+                else if (r.TimestampMarcacao.Kind == DateTimeKind.Unspecified)
+                {
+                    var dataCorrigida = DateTime.SpecifyKind(r.TimestampMarcacao, DateTimeKind.Utc);
+                    r.TimestampMarcacao = TimeZoneInfo.ConvertTimeFromUtc(dataCorrigida, fusoBrasilia);
+                }
+
+                // CASO 3: Se for DateTimeKind.Local, ele ignora e mantem o valor.
+
+                return r;
+            }).ToList();
 
             // 3. Montagem do Objeto de Retorno
             var resultado = new EspelhoPontoAgrupadoDto
@@ -57,7 +88,8 @@ namespace EvoluaPonto.Api.Services
             };
 
             TimeSpan horasContratuaisNoDia = (horariosContratuais[0].Saida - horariosContratuais[0].Entrada) + (horariosContratuais[1].Saida - horariosContratuais[1].Entrada);
-
+            
+            
             // 4. O LOOP MÁGICO (Itera mês a mês)
             for (int mesAtual = mesInicio; mesAtual <= mesFim; mesAtual++)
             {
@@ -75,7 +107,7 @@ namespace EvoluaPonto.Api.Services
                 // Processa cada dia do mês atual
                 for (DateTime dia = inicioMes; dia <= fimMes; dia = dia.AddDays(1))
                 {
-                    var registrosDia = todosRegistros.Where(r => r.TimestampMarcacao.ToLocalTime().Date == dia.Date).ToList();
+                    var registrosDia = todosOsRegistrosConvertido.Where(r => r.TimestampMarcacao.Date == dia.Date).ToList();
 
                     // *Extraí a lógica de cálculo do dia para um método privado para não repetir código*
                     var jornada = CalcularJornadaDoDia(dia, registrosDia, feriadosDoAno, horasContratuaisNoDia);
@@ -130,8 +162,8 @@ namespace EvoluaPonto.Api.Services
                 if (i + 1 < jornada.Marcacoes.Count)
                 {
                     // Temos um par (Entrada e Saída)
-                    var entrada = jornada.Marcacoes[i].TimestampMarcacao.ToLocalTime();
-                    var saida = jornada.Marcacoes[i + 1].TimestampMarcacao.ToLocalTime();
+                    var entrada = jornada.Marcacoes[i].TimestampMarcacao;
+                    var saida = jornada.Marcacoes[i + 1].TimestampMarcacao;
                     trabalhado += (saida - entrada);
                 }
                 else
