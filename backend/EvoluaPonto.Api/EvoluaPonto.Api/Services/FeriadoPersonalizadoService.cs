@@ -37,6 +37,7 @@ namespace EvoluaPonto.Api.Services
                 EmpresaId = dto.EmpresaId,
                 EstabelecimentoId = dto.EstabelecimentoId,
                 CreatedAt = DateTime.UtcNow
+                Ativo = true
             };
 
             await _context.FeriadosPersonalizados.AddAsync(novoFeriado);
@@ -45,17 +46,15 @@ namespace EvoluaPonto.Api.Services
             return new ServiceResponse<ModelFeriadoPersonalizado> { Data = novoFeriado };
         }
 
-        // Deletar um feriado
-        public async Task<ServiceResponse<bool>> DeleteFeriadoAsync(Guid id)
+        public async Task<ServiceResponse<bool>> ToggleAtivoAsync(Guid feriadoId)
         {
-            var feriado = await _context.FeriadosPersonalizados.FindAsync(id);
+            ModelFeriadoPersonalizado? feriadoBanco = await _context.FeriadosPersonalizados.FirstOrDefaultAsync(tb => tb.Id == feriadoId);
 
-            if (feriado == null)
-            {
-                return new ServiceResponse<bool> { Success = false, ErrorMessage = "Feriado não encontrado." };
-            }
-
-            _context.FeriadosPersonalizados.Remove(feriado);
+            if (feriadoBanco is null)
+                return new ServiceResponse<bool> { Success = false, ErrorMessage = "Nenhum feriado encontrado com o ID informado" };
+            feriadoBanco.Data = DateTime.SpecifyKind(feriadoBanco.Data, DateTimeKind.Utc);
+            feriadoBanco.Ativo = !feriadoBanco.Ativo;
+            _context.Update(feriadoBanco);
             await _context.SaveChangesAsync();
 
             return new ServiceResponse<bool> { Data = true };

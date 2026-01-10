@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { FlatList, View, StyleSheet, useWindowDimensions, Platform } from 'react-native';
-import { Card, Text, IconButton, Chip, useTheme, Portal, FAB } from 'react-native-paper';
+import { Card, Text, IconButton, Chip, useTheme, Portal, FAB, Switch } from 'react-native-paper';
 import { FeriadoPersonalizado } from '@/hooks/admin/useFeriado';
 import { useFocusEffect, useRouter } from 'expo-router/build/exports';
 
@@ -8,12 +8,12 @@ interface Props {
     feriados: FeriadoPersonalizado[];
     permissao: string;
     userId: string | null;
+    toggleFeriadoAtivo: (id: string) => void;
 }
 
-export default function ListFeriados({ feriados, permissao, userId }: Props) {
+export default function ListFeriados({ feriados, permissao, userId, toggleFeriadoAtivo }: Props) {
     const router = useRouter();
     const theme = useTheme();
-    const iconColor = theme.colors.secondary;
 
     const { width } = useWindowDimensions();
     const isDesktop = Platform.OS === 'web' && width > 768;
@@ -56,18 +56,16 @@ export default function ListFeriados({ feriados, permissao, userId }: Props) {
                         </View>
                     </View>
 
-                    <View style={{ flexDirection: 'row' }}>
-                        <IconButton
-                            icon="pencil"
-                            iconColor={iconColor}
-                        //onPress={() => }
-                        />
-                        <IconButton
-                            icon="trash-can-outline"
-                            iconColor={iconColor}
-                        //onPress={() => }
+                    <View style={styles.switchContainer}>
+                        <Text style={{ marginRight: 8 }}>{item.ativo ? 'Ativo' : 'Inativo'}</Text>
+                        <Switch
+                            value={item.ativo}
+                            onValueChange={() => {
+                                toggleFeriadoAtivo(item.id as string);
+                            }}
                         />
                     </View>
+                                    
                 </Card.Content>
             </Card>
         );
@@ -88,11 +86,15 @@ export default function ListFeriados({ feriados, permissao, userId }: Props) {
             />
             {isFocused && (
                 <Portal>
-                <FAB
-                    style={[styles.fab, isDesktop && styles.fabDesktop]}
-                    icon="plus"
-                    //onPress={() => }
-                />
+                    <FAB
+                        style={[styles.fab, isDesktop && styles.fabDesktop]}
+                        icon="plus"
+                        onPress={() => {
+                            router.push({
+                                pathname: `/(${permissao})/feriados/add-feriado`,
+                            });
+                        }}
+                    />
                 </Portal>
             )}
         </View>
@@ -116,5 +118,9 @@ const styles = StyleSheet.create({
     },
     fabDesktop: {
         right: '13%',
+    },
+    switchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
 });

@@ -1,4 +1,5 @@
-﻿using EvoluaPonto.Api.Dtos;
+﻿using EvoluaPonto.Api.Models.Shared;
+using EvoluaPonto.Api.Dtos;
 using EvoluaPonto.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -43,17 +44,22 @@ namespace EvoluaPonto.Api.Controllers
             return CreatedAtAction(nameof(GetFeriados), new { empresaId = response.Data.EmpresaId }, response);
         }
 
-        // DELETE: api/feriados/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFeriado(Guid id)
+        [HttpPatch]
+        public async Task<IActionResult> ToggleAtivo(Guid feriadoId)
         {
-            var response = await _feriadoService.DeleteFeriadoAsync(id);
-            if (!response.Success)
+            try
             {
-                return NotFound(response.ErrorMessage);
-            }
+                ServiceResponse<bool> responseFeriado = await _feriadoService.ToggleAtivoAsync(feriadoId);
 
-            return NoContent(); // Retorno padrão para delete com sucesso
+                if (!responseFeriado.Success)
+                    return NotFound(responseFeriado.ErrorMessage);
+
+                return Ok(responseFeriado.Data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

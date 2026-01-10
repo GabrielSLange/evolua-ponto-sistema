@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, use } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotification } from '@/contexts/NotificationContext';
 import api from '@/services/api';
@@ -12,7 +12,7 @@ export interface FeriadoPersonalizado {
     empresaId: string;
     estabelecimentoId?: string | null;
     ativo: boolean;
-    estabelecimento?: {nomeFantasia: string; };
+    estabelecimento?: { nomeFantasia: string; };
 }
 
 export interface FeriadoFormSchema {
@@ -46,23 +46,12 @@ export const useFeriado = (userId: string | null) => {
                 const feriadosResp = await api.get(`/Feriados?empresaId=${empresaId}`);
                 setFeriados(feriadosResp.data);
 
-                for(let f of feriadosResp.data) {
-                    if(f.estabelecimentoId && !f.estabelecimento) {
+                for (let f of feriadosResp.data) {
+                    if (f.estabelecimentoId && !f.estabelecimento) {
                         const estResp = await api.get(`/Estabelecimento/Id?estabelecimentoId=${f.estabelecimentoId}`);
                         f.estabelecimento = { nomeFantasia: estResp.data.nomeFantasia };
                     }
                 }
-
-                // 2. Buscar Estabelecimentos para o Dropdown
-                const estResp = await api.get(`/Estabelecimento?empresaId=${empresaId}`);
-                const listaEst = Array.isArray(estResp.data) ? estResp.data : [estResp.data];
-
-                const opcoes: DropdownItem[] = listaEst.map((e: any) => ({
-                    id: e.id,
-                    name: e.nomeFantasia,
-                }));
-
-                setEstabelecimentosOpcoes([{ id: 'GLOBAL', name: 'Toda a Empresa (Global)' }, ...opcoes]);
             }
         } catch (error) {
             console.error(error);
@@ -72,73 +61,88 @@ export const useFeriado = (userId: string | null) => {
         }
     }, [userId]);
 
+    const toggleFeriadoAtivo = async (feriadoId: string) => {
+        const originalFeriados = [...feriados];
+
+        setFeriados(prevFeriados =>
+            prevFeriados.map(f =>
+                f.id === feriadoId ? { ...f, ativo: !f.ativo } : f
+            )
+        );
+
+        try {
+            await api.patch(`/Feriados?feriadoId=${feriadoId}`);
+        } catch (error) {
+            console.error("Erro ao atualizar status do feriado:", error);
+            setFeriados(originalFeriados);
+        }
+    };
+
     useFocusEffect(
         useCallback(() => {
             fetchDados();
         }, [])
     );
 
-    return { feriados, loading, estabelecimentosOpcoes };
+    return { feriados, loading, toggleFeriadoAtivo };
 };
 
-// Criar
-/* const createFeriado = async (data: FeriadoFormSchema) => {
-    setLoading(true);
-    try {
+export const useAddFeriado = (userId: string) => {
+    const [loading, setLoading] = useState(false);
+    const [estabelecimentosOpcoes, setEstabelecimentosOpcoes] = useState<DropdownItem[]>([]);
+    const [empresaId, setEmpresaId] = useState<string>('');
+
+    const router = useRouter();
+    const { showNotification } = useNotification();
+
+    const fetchDados = async () => {
+        if (!userId) return;
+        // Buscar Estabelecimentos para o Dropdown
         const funcResp = await api.get(`Funcionarios/id?funcionarioId=${userId}`);
         const empresaId = funcResp.data?.estabelecimento?.empresaId;
+        setEmpresaId(empresaId);
 
-        const payload = {
-            descricao: data.descricao,
-            data: data.data.toISOString(),
-            empresaId,
-            estabelecimentoId: data.estabelecimentoId === 'GLOBAL' ? null : data.estabelecimentoId,
-            ativo: true
-        };
+        const estResp = await api.get(`/Estabelecimento?empresaId=${empresaId}`);
+        const listaEst = Array.isArray(estResp.data) ? estResp.data : [estResp.data];
 
-        await api.post('/Feriados', payload);
-        showNotification('Feriado criado com sucesso!', 'success');
-        router.back();
-    } catch (error) {
-        console.error(error);
-        showNotification('Erro ao criar feriado.', 'error');
-    } finally {
-        setLoading(false);
-    }
-}; */
+        const opcoes: DropdownItem[] = listaEst.map((e: any) => ({
+            id: e.id,
+            name: e.nomeFantasia,
+        }));
 
-// Editar (Nota: Backend precisa suportar PUT /Feriados ou PUT /Feriados/{id})
-/* const updateFeriado = async (id: string, data: FeriadoFormSchema) => {
-    setLoading(true);
-    try {
-        // Se o seu backend não tiver update, teremos que fazer Delete + Create
-        // Assumindo aqui que você criará um endpoint PUT
-        const payload = {
-            id,
-            descricao: data.descricao,
-            data: data.data.toISOString(),
-            estabelecimentoId: data.estabelecimentoId === 'GLOBAL' ? null : data.estabelecimentoId,
-            ativo: true
-        };
+        setEstabelecimentosOpcoes([{ id: 'GLOBAL', name: 'Toda a Empresa (Global)' }, ...opcoes]);
+    };
 
-        await api.put('/Feriados', payload);
-        showNotification('Feriado atualizado!', 'success');
-        router.back();
-    } catch (error) {
-        console.error(error);
-        showNotification('Erro ao atualizar feriado.', 'error');
-    } finally {
-        setLoading(false);
-    }
-}; */
+    useFocusEffect(
+        useCallback(() => {
+            fetchDados();
+        }, [])
+    );
 
-// Deletar
-/* const deleteFeriado = async (id: string) => {
-    try {
-        await api.delete(`/Feriados/${id}`);
-        showNotification('Feriado removido.', 'success');
-        setFeriados(prev => prev.filter(f => f.id !== id));
-    } catch (error) {
-        showNotification('Erro ao remover feriado.', 'error');
-    }
-}; */
+    const addFeriado = async (data: FeriadoFormSchema) => {
+        try {
+            setLoading(true);
+
+            const payload = {
+                descricao: data.descricao,
+                data: data.data.toISOString(),
+                empresaId,
+                estabelecimentoId: data.estabelecimentoId === 'GLOBAL' ? null : data.estabelecimentoId,
+                ativo: true
+            };
+
+            await api.post('/Feriados', payload);
+            showNotification('Feriado criado com sucesso!', 'success');
+            router.push({
+                pathname: '/(admin)/feriados',
+            });
+        } catch (error) {
+            console.error(error);
+            showNotification('Erro ao criar feriado.', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return { loading, addFeriado, estabelecimentosOpcoes };
+};

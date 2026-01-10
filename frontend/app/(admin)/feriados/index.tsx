@@ -12,7 +12,7 @@ const FeriadosScreen = () => {
     const { userId } = useAuth();
     const theme = useTheme();
 
-    const { feriados, loading } = useFeriado(userId || null);
+    const { feriados, loading, toggleFeriadoAtivo } = useFeriado(userId || null);
 
     return (
         <View style={{ flex: 1 }}>
@@ -34,6 +34,7 @@ const FeriadosScreen = () => {
                             feriados={feriados}
                             permissao="admin"
                             userId={userId}
+                            toggleFeriadoAtivo={toggleFeriadoAtivo}
                         />
                     </View>
                     <Modal
