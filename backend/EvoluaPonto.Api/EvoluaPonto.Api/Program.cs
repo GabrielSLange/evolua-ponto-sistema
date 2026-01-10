@@ -132,6 +132,7 @@ builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
+//Lógica para atualizar o banco de acordo com as migrations toda vez que a API iniciar
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

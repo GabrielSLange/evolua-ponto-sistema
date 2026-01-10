@@ -119,6 +119,16 @@ namespace EvoluaPonto.Api.Services
                     // Verificação uninficada de feriado
                     var isFeriado = datasFeriados.Contains(dia.Date);
 
+                    TimeZoneInfo fusoBrasilia;
+                    try
+                    {
+                        fusoBrasilia = TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo");
+                    }
+                    catch
+                    {
+                        fusoBrasilia = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
+                    }
+
                     var diaDto = new DiaEspelhoHomeDto
                     {
                         Data = dia,
@@ -129,7 +139,7 @@ namespace EvoluaPonto.Api.Services
                         Marcacoes = registrosDoDia.Select(r => new PontoHomeDto
                         {
                             Id = r.Id,
-                            Hora = r.TimestampMarcacao.ToLocalTime().ToString("HH:mm"),
+                            Hora = TimeZoneInfo.ConvertTimeFromUtc(r.TimestampMarcacao, fusoBrasilia).ToString("HH:mm"),
                             Tipo = r.Tipo.ToString(), // ENTRADA, SAIDA
                             IsManual = r.RegistroManual,
                             StatusSolicitacao = r.Status.ToString() // Pendente/Aprovado
