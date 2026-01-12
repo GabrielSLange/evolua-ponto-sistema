@@ -1,17 +1,16 @@
 import React, { useCallback, useState } from 'react';
 import { FlatList, View, StyleSheet, useWindowDimensions, Platform } from 'react-native';
-import { Card, Text, IconButton, Chip, useTheme, Portal, FAB, Switch } from 'react-native-paper';
-import { FeriadoPersonalizado } from '@/hooks/admin/useFeriado';
+import { Card, Text, Chip, useTheme, Portal, FAB, Switch } from 'react-native-paper';
+import { FeriadoView } from '@/hooks/admin/useFeriado';
 import { useFocusEffect, useRouter } from 'expo-router/build/exports';
 
 interface Props {
-    feriados: FeriadoPersonalizado[];
+    feriados: FeriadoView[];
     permissao: string;
-    userId: string | null;
     toggleFeriadoAtivo: (id: string) => void;
 }
 
-export default function ListFeriados({ feriados, permissao, userId, toggleFeriadoAtivo }: Props) {
+export default function ListFeriados({ feriados, permissao, toggleFeriadoAtivo }: Props) {
     const router = useRouter();
     const theme = useTheme();
 
@@ -28,15 +27,30 @@ export default function ListFeriados({ feriados, permissao, userId, toggleFeriad
         }, [])
     );
 
-    const renderItem = ({ item }: { item: FeriadoPersonalizado }) => {
+    const renderItem = ({ item }: { item: FeriadoView }) => {
         const dataObj = new Date(item.data);
-        // Ajuste visual de timezone se necessário
         dataObj.setMinutes(dataObj.getMinutes() + dataObj.getTimezoneOffset());
 
-        const isGlobal = !item.estabelecimentoId;
+        const isNacional = item.tipo === 'NACIONAL';
+        const isGlobalPersonalizado = item.tipo === 'PERSONALIZADO' && !item.estabelecimentoId;
+
+        // Define cor e ícone da Chip
+        let chipIcon = "store";
+        let chipLabel = item.estabelecimento?.nomeFantasia || "Unidade";
+        let chipColor = undefined;
+
+        if (isNacional) {
+            chipIcon = "flag-variant";
+            chipLabel = "Nacional";
+            chipColor = theme.colors.tertiaryContainer;
+        } else if (isGlobalPersonalizado) {
+            chipIcon = "earth";
+            chipLabel = "Global (Empresa)";
+            chipColor = theme.colors.secondaryContainer
+        }
 
         return (
-            <Card style={[styles.card, { borderLeftColor: isGlobal ? theme.colors.primary : theme.colors.tertiary, borderLeftWidth: 4 }]}>
+            <Card style={[styles.card, { borderLeftColor: isNacional ? theme.colors.tertiary : (isGlobalPersonalizado ? theme.colors.primary : theme.colors.outline), borderLeftWidth: 4 }]}>
                 <Card.Content style={styles.cardContent}>
                     <View>
                         <Text variant="titleMedium">{item.descricao}</Text>
@@ -46,26 +60,34 @@ export default function ListFeriados({ feriados, permissao, userId, toggleFeriad
 
                         <View style={{ flexDirection: 'row', marginTop: 6 }}>
                             <Chip
-                                icon={isGlobal ? "earth" : "store"}
+                                icon={chipIcon}
                                 compact
                                 textStyle={{ fontSize: 10 }}
-                                style={{ backgroundColor: isGlobal ? theme.colors.elevation.level2 : undefined }}
+                                style={{ backgroundColor: chipColor }}
                             >
-                                {isGlobal ? "Global" : item.estabelecimento?.nomeFantasia || "Unidade Específica"}
+                                {chipLabel}
                             </Chip>
                         </View>
                     </View>
 
-                    <View style={styles.switchContainer}>
-                        <Text style={{ marginRight: 8 }}>{item.ativo ? 'Ativo' : 'Inativo'}</Text>
-                        <Switch
-                            value={item.ativo}
-                            onValueChange={() => {
-                                toggleFeriadoAtivo(item.id as string);
-                            }}
-                        />
-                    </View>
-                                    
+                    {!isNacional && (
+                        <View style={styles.switchContainer}>
+                            <Text style={{ marginRight: 8 }}>{item.ativo ? 'Ativo' : 'Inativo'}</Text>
+                            <Switch
+                                value={item.ativo}
+                                onValueChange={() => {
+                                    toggleFeriadoAtivo(item.id as string);
+                                }}
+                            />
+                        </View>
+                    )}
+
+                    {isNacional && (
+                        <View style={{opacity: 0.5}}>
+                            <Text variant="labelSmall">Feriado Fixo</Text>
+                        </View>
+                    )}
+
                 </Card.Content>
             </Card>
         );

@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, SectionList, StyleSheet, Alert, ActivityIndicator, Platform, Modal } from 'react-native';
-import { Button, useTheme, Text as PaperText, List, Avatar } from 'react-native-paper';
+import { Button, useTheme, Text as PaperText, Text, List, Avatar, Divider } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext'; // Ajuste o caminho se necessário
 import api from "@/services/api"; // Sua instância do Axios
 import { ComprovanteDto } from '../../models/Dtos/ComprovanteDto'; // Nosso novo tipo
@@ -181,7 +181,9 @@ export default function ComprovantesContent() {
   return (
     <ScreenContainer>
       <View style={styles.container}>
-        <PaperText variant="headlineSmall" style={styles.title}>Filtrar Período</PaperText>
+        <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: paperTheme.colors.primary }}>Filtrar Período</Text>
+
+        <Divider style={{ marginVertical: 16 }}/>
 
         <List.Accordion
           title="Filtros"

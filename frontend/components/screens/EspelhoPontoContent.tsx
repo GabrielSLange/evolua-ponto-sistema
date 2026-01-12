@@ -153,7 +153,7 @@ export default function EspelhoPontoContent() {
          {/* --- CABEÇALHO --- */}
          <View style={styles.header}>
             <View>
-               <Text variant="headlineMedium" style={{ fontWeight: 'bold' }}>Meu Ponto</Text>
+               <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>Meu Ponto</Text>
                <Text variant="titleMedium" style={{ color: theme.colors.secondary }}>Olá, {nomeFuncionario}</Text>
             </View>
             {/* Avatar ou Logo da Empresa */}
@@ -209,6 +209,7 @@ const styles = StyleSheet.create({
       justifyContent: 'space-between',
       alignItems: 'center',
       paddingHorizontal: 16,
+      paddingTop: 10,
       marginBottom: 16,
       marginTop: 8
    },

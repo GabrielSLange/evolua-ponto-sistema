@@ -12,10 +12,12 @@ namespace EvoluaPonto.Api.Controllers
     public class FeriadosController : ControllerBase
     {
         private readonly FeriadoPersonalizadoService _feriadoService;
+        private readonly FeriadoService _feriadoNacionalService;
 
-        public FeriadosController(FeriadoPersonalizadoService feriadoService)
+        public FeriadosController(FeriadoPersonalizadoService feriadoService, FeriadoService feriadoNacionalService)
         {
             _feriadoService = feriadoService;
+            _feriadoNacionalService = feriadoNacionalService;
         }
 
         // GET: api/feriados?empresaId=...
@@ -24,6 +26,18 @@ namespace EvoluaPonto.Api.Controllers
         {
             var response = await _feriadoService.GetFeriadosByEmpresaAsync(empresaId);
             return Ok(response.Data);
+        }
+
+        // GET: api/feriados/nacionais?ano=...
+        [HttpGet("nacionais")]
+        public async Task<IActionResult> GetFeriadosNacionais([FromQuery] int ano)
+        {
+            var feriadosNacionais = await _feriadoNacionalService.GetFeriadosNacionaisAsync(ano);
+            if (feriadosNacionais is null)
+            {
+                return BadRequest("Não foi possível obter os feriados nacionais.");
+            }
+            return Ok(new ServiceResponse<List<FeriadoDto>> { Data = feriadosNacionais });
         }
 
         // POST: api/feriados

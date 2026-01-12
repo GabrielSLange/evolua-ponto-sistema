@@ -1,17 +1,17 @@
-import { useState, useCallback, use } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useNotification } from '@/contexts/NotificationContext';
 import api from '@/services/api';
 import { useFocusEffect, useRouter } from 'expo-router';
 
-// Tipagem
-export interface FeriadoPersonalizado {
+// Interface Unificada para a View de Feriados
+export interface FeriadoView {
     id: string;
     descricao: string;
     data: string;
-    empresaId: string;
-    estabelecimentoId?: string | null;
+    tipo: 'NACIONAL' | 'PERSONALIZADO';
     ativo: boolean;
+    empresaId?: string;
+    estabelecimentoId?: string | null;
     estabelecimento?: { nomeFantasia: string; };
 }
 
@@ -26,11 +26,14 @@ export interface DropdownItem {
     name: string;
 }
 
+export type FiltroFeriado = 'TODOS' | 'NACIONAIS' | 'PERSONALIZADOS';
+
 export const useFeriado = (userId: string | null) => {
     const { showNotification } = useNotification();
-    const [feriados, setFeriados] = useState<FeriadoPersonalizado[]>([]);
+
+    const [todosFeriados, setTodosFeriados] = useState<FeriadoView[]>([]);
+    const [filtro, setFiltro] = useState<FiltroFeriado>('TODOS');
     const [loading, setLoading] = useState(false);
-    const [estabelecimentosOpcoes, setEstabelecimentosOpcoes] = useState<DropdownItem[]>([]);
 
     // Buscar Feriados e Opções de Estabelecimento
     const fetchDados = useCallback(async () => {
@@ -42,7 +45,58 @@ export const useFeriado = (userId: string | null) => {
             const empresaId = funcResp.data?.estabelecimento?.empresaId;
 
             if (empresaId) {
-                // 1. Buscar Feriados
+                const anoAtual = new Date().getFullYear();
+
+                // Busca Personalizados e Nacionais em paralelo
+                const [respPersonalizados, respNacionais] = await Promise.all([
+                    api.get(`/Feriados?empresaId=${empresaId}`),
+                    api.get(`/Feriados/Nacionais?ano=${anoAtual}`)
+                ]);
+
+                // Normaliza Personalizados
+                const personalizados: FeriadoView[] = [];
+                for (let f of respPersonalizados.data) {
+                    let nomeEst = "Global";
+                    
+                    if (f.estabelecimentoId) {
+                        try {
+                            const estabelecimentoResp = await api.get(`/Estabelecimento/Id?estabelecimentoId=${f.estabelecimentoId}`);
+                            nomeEst = estabelecimentoResp.data.nomeFantasia;
+                        } catch {
+                            nomeEst = "Unidade Específica";
+                        }
+                    }
+
+                    personalizados.push({
+                        id: f.id,
+                        descricao: f.descricao,
+                        data: f.data,
+                        tipo: 'PERSONALIZADO',
+                        ativo: f.ativo,
+                        empresaId: f.empresaId,
+                        estabelecimentoId: f.estabelecimentoId,
+                        estabelecimento: { nomeFantasia: nomeEst }
+                    });
+                }
+
+                // Normaliza Nacionais
+                const nacionais: FeriadoView[] = (respNacionais.data.data || []).map((f: any, index: number) => ({
+                    id: `nac-${index}-${f.date}`, // ID fictício para chave do React
+                    descricao: f.name,
+                    data: new Date(f.date).toISOString(),
+                    tipo: "NACIONAL",
+                    ativo: true,
+                    estabelecimento: { nomeFantasia: "Nacional" }
+                }));
+
+                // Unifica e ordena os feriados
+                const listaUnificada = [...nacionais, ...personalizados].sort((a, b) =>
+                    new Date(a.data).getTime() - new Date(b.data).getTime()
+                );
+
+                setTodosFeriados(listaUnificada);
+
+                /* // Buscar Feriados
                 const feriadosResp = await api.get(`/Feriados?empresaId=${empresaId}`);
                 setFeriados(feriadosResp.data);
 
@@ -51,7 +105,7 @@ export const useFeriado = (userId: string | null) => {
                         const estResp = await api.get(`/Estabelecimento/Id?estabelecimentoId=${f.estabelecimentoId}`);
                         f.estabelecimento = { nomeFantasia: estResp.data.nomeFantasia };
                     }
-                }
+                } */
             }
         } catch (error) {
             console.error(error);
@@ -62,7 +116,26 @@ export const useFeriado = (userId: string | null) => {
     }, [userId]);
 
     const toggleFeriadoAtivo = async (feriadoId: string) => {
-        const originalFeriados = [...feriados];
+        const originalFeriados = [...todosFeriados];
+
+        // Encontra o feriado para verificar se é personalizado
+        const alvoFeriado = todosFeriados.find(f => f.id === feriadoId);
+        if (!alvoFeriado || alvoFeriado.tipo === 'NACIONAL') return;
+
+        setTodosFeriados(prev => prev.map(f =>
+            f.id === feriadoId ? { ...f, ativo: !f.ativo } : f
+        ));
+
+        try {
+            await api.patch(`/Feriados?feriadoId=${feriadoId}`);
+        } catch (error) {
+            console.error("Erro ao atualizar status do feriado:", error);
+            showNotification('Erro ao atualizar status do feriado.', 'error');
+            setTodosFeriados(originalFeriados);
+        }
+
+
+        /* const originalFeriados = [...feriados];
 
         setFeriados(prevFeriados =>
             prevFeriados.map(f =>
@@ -75,8 +148,13 @@ export const useFeriado = (userId: string | null) => {
         } catch (error) {
             console.error("Erro ao atualizar status do feriado:", error);
             setFeriados(originalFeriados);
-        }
+        } */
     };
+
+    const feriadosFiltrados = useMemo(() => {
+        if (filtro === 'TODOS') return todosFeriados;
+        return todosFeriados.filter(f => f.tipo === (filtro === 'NACIONAIS' ? 'NACIONAL' : 'PERSONALIZADO'));
+    }, [todosFeriados, filtro]);
 
     useFocusEffect(
         useCallback(() => {
@@ -84,7 +162,7 @@ export const useFeriado = (userId: string | null) => {
         }, [])
     );
 
-    return { feriados, loading, toggleFeriadoAtivo };
+    return { feriados: feriadosFiltrados, filtro, loading, setFiltro, toggleFeriadoAtivo };
 };
 
 export const useAddFeriado = (userId: string) => {
