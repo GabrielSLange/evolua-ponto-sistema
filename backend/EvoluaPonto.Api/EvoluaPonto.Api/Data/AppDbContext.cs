@@ -17,6 +17,8 @@ namespace EvoluaPonto.Api.Data
         public DbSet<ModelEstabelecimento> Estabelecimentos { get; set; }
         public DbSet<ModelFeriadoPersonalizado> FeriadosPersonalizados { get; set; }
         public DbSet<ModelUsuario> Usuarios { get; set; }
+        public DbSet<ModelEscala> Escalas { get; set; }
+        public DbSet<ModelEscalaDia> EscalaDias { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -65,6 +67,12 @@ namespace EvoluaPonto.Api.Data
             builder.Entity<ModelUsuario>()
                 .HasIndex(tb => tb.FuncionarioId)
                 .IsUnique();
+
+            builder.Entity<ModelEscala>()
+                .HasMany(e => e.Dias)
+                .WithOne(d => d.Escala)
+                .HasForeignKey(d => d.EscalaId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
