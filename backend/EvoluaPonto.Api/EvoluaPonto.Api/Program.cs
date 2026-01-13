@@ -129,6 +129,7 @@ builder.Services.AddScoped<FeriadoPersonalizadoService>();
 builder.Services.AddScoped<AejService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMemoryCache();
+builder.Services.AddScoped<EscalaService>();
 
 var app = builder.Build();
 
