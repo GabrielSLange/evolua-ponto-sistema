@@ -2,7 +2,7 @@ import React, { use, useCallback, useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { TextInput, Button, Text, useTheme, Menu } from 'react-native-paper';
 import { SearchableDropdown } from '@/components/layouts/SearchableDropdown';
-import { DropdownItem, FeriadoFormSchema, FeriadoPersonalizado } from '@/hooks/admin/useFeriado';
+import { DropdownItem, FeriadoFormSchema } from '@/hooks/admin/useFeriado';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { set } from 'date-fns';
 import { useFocusEffect, useRouter } from 'expo-router';

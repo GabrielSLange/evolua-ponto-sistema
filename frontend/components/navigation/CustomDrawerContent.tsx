@@ -39,6 +39,12 @@ const CustomDrawerContent = (props: any) => {
                      />
 
                      <Drawer.Item
+                        label="Escalas"
+                        onPress={() => router.push('/(admin)/escalas')}
+                        style={styles.nestedItem}
+                     />
+
+                     <Drawer.Item
                         label="Solicitações"
                         onPress={() => router.push('/(admin)/solicitacoes')}
                         style={styles.nestedItem}

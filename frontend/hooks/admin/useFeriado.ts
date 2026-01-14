@@ -95,17 +95,6 @@ export const useFeriado = (userId: string | null) => {
                 );
 
                 setTodosFeriados(listaUnificada);
-
-                /* // Buscar Feriados
-                const feriadosResp = await api.get(`/Feriados?empresaId=${empresaId}`);
-                setFeriados(feriadosResp.data);
-
-                for (let f of feriadosResp.data) {
-                    if (f.estabelecimentoId && !f.estabelecimento) {
-                        const estResp = await api.get(`/Estabelecimento/Id?estabelecimentoId=${f.estabelecimentoId}`);
-                        f.estabelecimento = { nomeFantasia: estResp.data.nomeFantasia };
-                    }
-                } */
             }
         } catch (error) {
             console.error(error);
@@ -133,22 +122,6 @@ export const useFeriado = (userId: string | null) => {
             showNotification('Erro ao atualizar status do feriado.', 'error');
             setTodosFeriados(originalFeriados);
         }
-
-
-        /* const originalFeriados = [...feriados];
-
-        setFeriados(prevFeriados =>
-            prevFeriados.map(f =>
-                f.id === feriadoId ? { ...f, ativo: !f.ativo } : f
-            )
-        );
-
-        try {
-            await api.patch(`/Feriados?feriadoId=${feriadoId}`);
-        } catch (error) {
-            console.error("Erro ao atualizar status do feriado:", error);
-            setFeriados(originalFeriados);
-        } */
     };
 
     const feriadosFiltrados = useMemo(() => {

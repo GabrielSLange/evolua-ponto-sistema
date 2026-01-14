@@ -116,6 +116,27 @@ export default function AdminLayout() {
             }}
          />
          <Drawer.Screen
+            name='escalas/index'
+            options={{
+               drawerItemStyle: { display: 'none' },
+               title: 'Gestão de Escalas'
+            }}
+         />
+         <Drawer.Screen
+            name="escalas/add-escala"
+            options={{
+               drawerItemStyle: { display: 'none' },
+               title: 'Nova Escala',
+            }}
+         />
+         <Drawer.Screen
+            name="escalas/edit-escala"
+            options={{
+               drawerItemStyle: { display: 'none' },
+               title: 'Editar Escala',
+            }}
+         />
+         <Drawer.Screen
             name='solicitacoes/index'
             options={{
                drawerLabel: 'Solicitações',
