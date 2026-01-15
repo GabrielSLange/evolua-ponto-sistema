@@ -32,7 +32,7 @@ namespace EvoluaPonto.Api.Services
         {
             var novoFeriado = new ModelFeriadoPersonalizado
             {
-                Data = dto.Data.Date, // Salva apenas a data, sem a hora
+                Data = DateTime.SpecifyKind(dto.Data.Date, DateTimeKind.Utc), // Garantir que a data seja UTC
                 Descricao = dto.Descricao,
                 EmpresaId = dto.EmpresaId,
                 EstabelecimentoId = dto.EstabelecimentoId,
@@ -52,7 +52,7 @@ namespace EvoluaPonto.Api.Services
 
             if (feriadoBanco is null)
                 return new ServiceResponse<bool> { Success = false, ErrorMessage = "Nenhum feriado encontrado com o ID informado" };
-            feriadoBanco.Data = DateTime.SpecifyKind(feriadoBanco.Data, DateTimeKind.Utc);
+
             feriadoBanco.Ativo = !feriadoBanco.Ativo;
             _context.Update(feriadoBanco);
             await _context.SaveChangesAsync();

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Modal } from 'react-native';
-import { Appbar, Divider, useTheme, Text } from 'react-native-paper';
+import { Divider, useTheme, Text, SegmentedButtons } from 'react-native-paper';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import CustomLoader from '@/components/CustomLoader';
 import ListFeriados from '@/components/lists/listFeriados';
@@ -12,28 +12,52 @@ const FeriadosScreen = () => {
     const { userId } = useAuth();
     const theme = useTheme();
 
-    const { feriados, loading, toggleFeriadoAtivo } = useFeriado(userId || null);
+    const { feriados, filtro, loading, setFiltro, toggleFeriadoAtivo } = useFeriado(userId || null);
 
     return (
         <View style={{ flex: 1 }}>
             <ScreenContainer>
                 <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
                     <View style={{ marginBottom: 8 }}>
-                        <Text variant="headlineSmall" style={{ fontWeight: 'bold', color: theme.colors.primary }}>
-                            Feriados Personalisados
+                        <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>
+                            Feriados
                         </Text>
-                        <Text variant="bodyMedium" style={{ color: theme.colors.onBackground }}>
-                            Gerencie os feriados personalizados para sua empresa.
+                        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                            Visualize os feriados nacionais e gerencie os personalizados da sua empresa.
                         </Text>
                     </View>
 
                     <Divider style={{ marginVertical: 16 }} />
 
+                    {/* Filtros */}
+                    <SegmentedButtons
+                        value={filtro}
+                        onValueChange={(val) => setFiltro(val as any)}
+                        buttons={[
+                            {
+                                value: 'TODOS',
+                                label: 'Todos',
+                                icon: 'calendar-multiselect',
+                            },
+                            {
+                                value: 'NACIONAIS',
+                                label: 'Nacionais',
+                                icon: 'flag-variant',
+                            },
+                            {
+                                value: 'PERSONALIZADOS',
+                                label: 'Personalizados',
+                                icon: 'office-building',
+                            },
+                        ]}
+                        density="medium"
+                        style={{ marginBottom: 16 }}
+                    />
+
                     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
                         <ListFeriados
                             feriados={feriados}
                             permissao="admin"
-                            userId={userId}
                             toggleFeriadoAtivo={toggleFeriadoAtivo}
                         />
                     </View>
@@ -60,8 +84,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     container: {
-    padding: 16,
-  }
+        padding: 16,
+    }
 });
 
 export default FeriadosScreen;

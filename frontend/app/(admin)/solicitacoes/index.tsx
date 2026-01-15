@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, FlatList, StyleSheet, Alert, Modal, TouchableOpacity } from 'react-native';
-import { Text, Card, Button, Avatar, ActivityIndicator, TextInput, useTheme, IconButton, HelperText } from 'react-native-paper';
+import { Text, Card, Button, Avatar, ActivityIndicator, TextInput, useTheme, IconButton, HelperText, Divider } from 'react-native-paper';
 import api from '@/services/api';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import { useFocusEffect } from 'expo-router';
@@ -174,10 +174,14 @@ export default function SolicitacoesScreen() {
     return (
         <ScreenContainer>
             <View style={styles.header}>
-                <Text variant="headlineSmall" style={{ fontWeight: 'bold' }}>Solicitações Pendentes</Text>
+                <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>Solicitações Pendentes</Text>
                 <Text variant="bodyMedium" style={{ color: '#666' }}>
                     {solicitacoes.length} solicitações aguardando análise
                 </Text>
+            </View>
+
+            <View style={{ paddingHorizontal: 16 }}>
+                <Divider style={{ marginBottom: 16, marginTop: 8}} />
             </View>
 
             {loading && solicitacoes.length === 0 ? (

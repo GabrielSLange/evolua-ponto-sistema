@@ -201,7 +201,9 @@ const handleSubmit = async () => {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
         >
           
-          <Text variant="headlineMedium" style={styles.title}>Solicitar Ajuste</Text>
+          <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>Solicitar Ajuste</Text>
+
+          <Divider style={{ marginVertical: 16 }} />
 
           {/* 1. Seleção de Tipo */}
           <View style={styles.inputGroup}>
@@ -366,7 +368,7 @@ const handleSubmit = async () => {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    padding: 20,
+    padding: 16,
     flexGrow: 1,
   },
   title: {
