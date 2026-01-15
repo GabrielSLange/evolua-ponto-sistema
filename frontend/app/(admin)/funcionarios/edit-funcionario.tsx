@@ -5,7 +5,7 @@ import FuncionarioForm from "../../../components/forms/FuncionarioForm";
 import CustomLoader from "../../../components/CustomLoader";
 import { ModelFuncionario } from "../../../models/ModelFuncionario";
 import ScreenContainer from "@/components/layouts/ScreenContainer";
-import { useEditFuncionario } from "@/hooks/superadmin/useFuncionario";
+import { useEditFuncionario } from "@/hooks/admin/useFuncionario";
 import { Modal, StyleSheet, View } from "react-native";
 
 const EditFuncionarioAdminScreen = () => {
@@ -15,7 +15,7 @@ const EditFuncionarioAdminScreen = () => {
     const { showNotification } = useNotification();
     const isReadOnly = isReadOnlyParam === 'true';
 
-    const { loading, funcionario, estabelecimentos, updateFuncionario } = useEditFuncionario(funcionarioId as string, estabelecimentoId as string);
+    const { loading, funcionario, estabelecimentos, escalas, updateFuncionario } = useEditFuncionario(funcionarioId as string, estabelecimentoId as string);
 
     const handleUpdate = async (funcionario: ModelFuncionario) => {
         try {
@@ -47,6 +47,7 @@ const EditFuncionarioAdminScreen = () => {
                         funcionario={funcionario}
                         submitButtonLabel={isReadOnly ? "" : "Salvar Alterações"}
                         estabelecimentos={funcionario ? estabelecimentos : []}
+                        escalas={escalas}
                         isReadOnly={isReadOnly}
                     />
                     <Modal
