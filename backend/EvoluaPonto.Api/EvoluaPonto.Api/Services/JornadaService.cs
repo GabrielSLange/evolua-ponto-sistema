@@ -27,17 +27,16 @@ namespace EvoluaPonto.Api.Services
             // 1. Buscas no Banco (Mantive sua lógica de includes)
             var funcionario = await _context.Funcionarios
                 .Include(f => f.Estabelecimento).ThenInclude(e => e.Empresa)
+                .Include(func => func.Escala).ThenInclude(escala => escala.Dias)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(f => f.Id == funcionarioId);
 
             if (funcionario == null)
                 return new ServiceResponse<EspelhoPontoAgrupadoDto> { Success = false, ErrorMessage = "Funcionário não encontrado." };
 
-            if (string.IsNullOrEmpty(funcionario.HorarioContratual))
-                return new ServiceResponse<EspelhoPontoAgrupadoDto> { Success = false, ErrorMessage = "Horário contratual inválido." };
+            if (funcionario.Escala is null)
+                return new ServiceResponse<EspelhoPontoAgrupadoDto> { Success = false, ErrorMessage = $"Funcionário: {funcionario.Nome} sem escala cadastrada!." };
 
-            var horariosContratuais = ParseHorarioContratual(funcionario.HorarioContratual); // Seu método auxiliar existente
-            if (horariosContratuais.Count == 0) return new ServiceResponse<EspelhoPontoAgrupadoDto> { Success = false, ErrorMessage = "Erro no horário contratual." };
 
             // 2. Feriados e Registros (Busca TOTAL)
             // ... (Sua lógica de busca de feriados aqui, igual ao anterior) ...
@@ -87,9 +86,6 @@ namespace EvoluaPonto.Api.Services
                 Empresa = funcionario.Estabelecimento.Empresa
             };
 
-            TimeSpan horasContratuaisNoDia = (horariosContratuais[0].Saida - horariosContratuais[0].Entrada) + (horariosContratuais[1].Saida - horariosContratuais[1].Entrada);
-            
-            
             // 4. O LOOP MÁGICO (Itera mês a mês)
             for (int mesAtual = mesInicio; mesAtual <= mesFim; mesAtual++)
             {
@@ -110,7 +106,7 @@ namespace EvoluaPonto.Api.Services
                     var registrosDia = todosOsRegistrosConvertido.Where(r => r.TimestampMarcacao.Date == dia.Date).ToList();
 
                     // *Extraí a lógica de cálculo do dia para um método privado para não repetir código*
-                    var jornada = CalcularJornadaDoDia(dia, registrosDia, feriadosDoAno, horasContratuaisNoDia);
+                    var jornada = CalcularJornadaDoDia(dia, registrosDia, feriadosDoAno, funcionario.Escala.Dias);
 
                     dtoMes.Jornadas.Add(jornada);
 
@@ -128,21 +124,25 @@ namespace EvoluaPonto.Api.Services
         }
 
         // Método auxiliar com a sua lógica de cálculo diário (copiada e isolada)
-        private JornadaDiaria CalcularJornadaDoDia(DateTime dia, List<ModelRegistroPonto> marcacoes, List<DateTime> feriados, TimeSpan cargaHorariaDiaria)
+        private JornadaDiaria CalcularJornadaDoDia(DateTime dia, List<ModelRegistroPonto> marcacoes, List<DateTime> feriados, List<ModelEscalaDia> escalasDias)
         {
             var jornada = new JornadaDiaria
             {
                 Dia = dia,
                 Marcacoes = marcacoes.OrderBy(m => m.TimestampMarcacao).ToList()
             };
-
-            bool isFimDeSemana = dia.DayOfWeek == DayOfWeek.Saturday || dia.DayOfWeek == DayOfWeek.Sunday;
             bool isFeriado = feriados.Contains(dia.Date);
+
+            ModelEscalaDia? DiaEscala = escalasDias.FirstOrDefault(tb => tb.DiaSemana == dia.DayOfWeek);
+
+            bool DiaInvalido = DiaEscala is null ? true : DiaEscala.IsFolga;
+
+            TimeSpan cargaHorariaDiaria = (DiaEscala is null || DiaEscala.IsFolga == true) ? TimeSpan.Zero : CalcularHorasDia(DiaEscala);
 
             // Se não tem marcações
             if (!jornada.Marcacoes.Any())
             {
-                if (isFimDeSemana) jornada.Observacoes.Add("Folga DSR");
+                if (DiaInvalido) jornada.Observacoes.Add("Folga DSR");
                 else if (isFeriado) jornada.Observacoes.Add("Feriado");
                 else
                 {
@@ -176,7 +176,7 @@ namespace EvoluaPonto.Api.Services
             jornada.TotalTrabalhado = trabalhado;
 
             // Definição da Carga Esperada para o dia
-            TimeSpan cargaEsperada = (isFimDeSemana || isFeriado) ? TimeSpan.Zero : cargaHorariaDiaria;
+            TimeSpan cargaEsperada = (DiaInvalido || isFeriado) ? TimeSpan.Zero : cargaHorariaDiaria;
 
             // Cálculo do Saldo (Trabalhado - Esperado)
             var saldo = trabalhado - cargaEsperada;
@@ -196,25 +196,6 @@ namespace EvoluaPonto.Api.Services
             return jornada;
         }
 
-        private List<(TimeSpan Entrada, TimeSpan Saida)> ParseHorarioContratual(string horarioContratual)
-        {
-            var pares = new List<(TimeSpan, TimeSpan)>();
-            var horarios = horarioContratual.Split('-');
-
-            if (horarios.Length != 4) return pares;
-
-            try
-            {
-                pares.Add((TimeSpan.Parse(horarios[0]), TimeSpan.Parse(horarios[1])));
-                pares.Add((TimeSpan.Parse(horarios[2]), TimeSpan.Parse(horarios[3])));
-            }
-            catch (FormatException)
-            {
-                return new List<(TimeSpan, TimeSpan)>();
-            }
-
-            return pares;
-        }
 
         private async Task<List<DateTime>> ObterFeriadosUnificados(int ano, ModelFuncionario funcionario, DateTime dataInicio, DateTime dataFim)
         {
@@ -245,6 +226,20 @@ namespace EvoluaPonto.Api.Services
 
             // --- FIM DA LÓGICA DE FERIADOS ---
             return feriadosDoAno;
+        }
+
+        private TimeSpan CalcularHorasDia(ModelEscalaDia Dia)
+        {
+            bool temIntervalo = Dia.SaidaIntervalo.HasValue && Dia.VoltaIntervalo.HasValue;
+
+            if (temIntervalo)
+            {
+                return (Dia.SaidaIntervalo.Value - Dia.Entrada.Value) + (Dia.Saida.Value - Dia.VoltaIntervalo.Value);
+            }
+            else
+            {
+                return Dia.Saida.Value - Dia.Entrada.Value;
+            }
         }
     }
 }
