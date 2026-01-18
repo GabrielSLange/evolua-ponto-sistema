@@ -148,7 +148,7 @@ export default function RelatoriosScreen() {
            funcionariosIds: idsParaEnviar,
            ano: periodo.ano,
            MesInicio: periodo.mesInicio,
-           MesFim: periodo.mesFim, // Excel Service espera um mês único por enquanto
+           MesFim: periodo.mesFim // Excel Service espera um mês único por enquanto
         }, { responseType: 'blob' });
 
       }
