@@ -35,5 +35,7 @@ namespace EvoluaPonto.Api.Dtos
         public Guid EstabelecimentoId { get; set; }
 
         public ModelEstabelecimento? Estabelecimento { get; set; }
+
+        public Guid? EscalaId { get; set; }
     }
 }

@@ -5,7 +5,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { ScrollView, StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
 import { TextInput, Button, Menu, HelperText, useTheme } from "react-native-paper";
-import { set } from "date-fns";
+import { DropdownItem } from "@/hooks/admin/useFuncionario";
 
 // Props que o formulário recebe
 interface FuncionarioFormProps {
@@ -13,6 +13,7 @@ interface FuncionarioFormProps {
     onSubmit: (data: ModelFuncionario) => void;
     submitButtonLabel?: string;
     estabelecimentos?: ModelEstabelecimento[]; // Lista de estabelecimentos para o dropdown
+    escalas?: DropdownItem[]; // Lista de escalas para o dropdown
     isReadOnly?: boolean;
 }
 
@@ -24,6 +25,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     onSubmit,
     submitButtonLabel = 'Salvar',
     estabelecimentos = [],
+    escalas = [],
     isReadOnly = false,
 }) => {
     // Opções para o dropdown de permissões
@@ -41,6 +43,11 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     const [estabelecimentoMenuVisible, setEstabelecimentoMenuVisible] = useState(false);
     const openEstabelecimentoMenu = () => setEstabelecimentoMenuVisible(true);
     const closeEstabelecimentoMenu = () => setEstabelecimentoMenuVisible(false);
+
+    // Estado para o menu de Escalas
+    const [escalaMenuVisible, setEscalaMenuVisible] = useState(false);
+    const openEscalaMenu = () => setEscalaMenuVisible(true);
+    const closeEscalaMenu = () => setEscalaMenuVisible(false);
 
     // Divisão dos periodos do dia para o horário contratual
     const [periodo1, setPeriodo1] = useState('');
@@ -61,6 +68,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         horarioContratual: '',
         role: '',
         ativo: true,
+        escalaId: '',
     });
 
     // 1. Estado para armazenar as mensagens de erro
@@ -91,7 +99,10 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     const verificarDadosFormulario = useCallback(() => {
 
         if (funcionario?.id !== null && funcionario?.id !== undefined) {
-            setFormData(funcionario);
+            setFormData({
+                ...funcionario,
+                escalaId: funcionario.escalaId || '',
+            });
 
             // Preenche os períodos do horário contratual
             if (funcionario.horarioContratual) {
@@ -129,6 +140,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 horarioContratual: '',
                 role: '',
                 ativo: true,
+                escalaId: '',
             });
         }
         // Limpa os erros ao carregar o formulário
@@ -154,6 +166,9 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         if (!formData.email) newErrors.email = "O e-mail é obrigatório.";
         if (!formData.cargo) newErrors.cargo = "O cargo é obrigatório.";
         if (!formData.role) newErrors.role = "A permissão é obrigatória.";
+        if (!formData.escalaId) newErrors.escalaId = "A escala é obrigatória.";
+
+        // Validação do Horário Contratual
 
         /* // --- VALIDAÇÃO ESTRITA (2 PERÍODOS OBRIGATÓRIOS) ---
         // Verifica se ambos têm exatamente 11 caracteres (ex: "08:00-12:00")
@@ -320,6 +335,36 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                             closeMenu();
                         }}
                         title={option.label}
+                    />
+                ))}
+            </Menu>
+
+            <HelperText type="error" visible={!!errors.escalaId}>
+                {errors.escalaId}
+            </HelperText>
+            <Menu
+                visible={escalaMenuVisible}
+                onDismiss={closeEscalaMenu}
+                anchor={
+                    <TouchableOpacity onPress={openEscalaMenu} disabled={isReadOnly}>
+                        <TextInput
+                            label="Escala de Trabalho"
+                            value={escalas.find(e => e.value === formData.escalaId)?.label || ''}
+                            style={styles.input}
+                            editable={false}
+                            right={<TextInput.Icon icon="menu-down" />}
+                            error={!!errors.escalaId}
+                        />
+                    </TouchableOpacity>
+                }>
+                {escalas.map((opt) => (
+                    <Menu.Item
+                        key={opt.value}
+                        onPress={() => {
+                            handleChange('escalaId', opt.value);
+                            closeEscalaMenu();
+                        }}
+                        title={opt.label}
                     />
                 ))}
             </Menu>

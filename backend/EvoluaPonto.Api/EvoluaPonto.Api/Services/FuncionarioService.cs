@@ -62,6 +62,7 @@ namespace EvoluaPonto.Api.Services
                 Estabelecimento = funcionario.Estabelecimento,
                 Email = usuarioBanco.Login,
                 Role = usuarioBanco.Perfil,
+                EscalaId = funcionario.EscalaId
             };
 
             return new ServiceResponse<FuncionarioDto> { Data = funcionarioDto };
@@ -91,7 +92,8 @@ namespace EvoluaPonto.Api.Services
                 HorarioContratual = funcionarioDto.HorarioContratual,
                 CreatedAt = DateTime.UtcNow,
                 Ativo = true,
-                EstabelecimentoId = funcionarioDto.EstabelecimentoId
+                EstabelecimentoId = funcionarioDto.EstabelecimentoId,
+                EscalaId = funcionarioDto.EscalaId
             };
 
             try
@@ -157,6 +159,7 @@ namespace EvoluaPonto.Api.Services
             funcionarioBanco.Cargo = funcionarioAtualizado.Cargo;
             funcionarioBanco.HorarioContratual = funcionarioAtualizado.HorarioContratual;
             funcionarioBanco.EstabelecimentoId = funcionarioAtualizado.EstabelecimentoId;
+            funcionarioBanco.EscalaId = funcionarioAtualizado.EscalaId;
 
             _context.Update(usuarioBanco);
             _context.Update(funcionarioBanco);

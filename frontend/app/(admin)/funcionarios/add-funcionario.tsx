@@ -3,7 +3,7 @@ import { Modal, View, StyleSheet } from "react-native";
 import { Appbar } from "react-native-paper";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import FuncionarioForm from "../../../components/forms/FuncionarioForm";
-import { useAddFuncionario } from "@/hooks/superadmin/useFuncionario";
+import { useAddFuncionario } from "@/hooks/admin/useFuncionario";
 import ScreenContainer from "@/components/layouts/ScreenContainer";
 import CustomLoader from "@/components/CustomLoader";
 
@@ -11,7 +11,8 @@ const AddFuncionarioScreen = () => {
     const router = useRouter();
     const { estabelecimentoId } = useLocalSearchParams<{ estabelecimentoId: string }>();
 
-    const { loading, addFuncionario } = useAddFuncionario(estabelecimentoId as string);
+    const { loading, addFuncionario, escalas } = useAddFuncionario(estabelecimentoId as string);
+
 
     return (
         <View style={{ flex: 1 }}>
@@ -27,6 +28,7 @@ const AddFuncionarioScreen = () => {
                     <FuncionarioForm
                         onSubmit={addFuncionario}
                         submitButtonLabel="Cadastrar"
+                        escalas={escalas}
                     />
                     <Modal
                         transparent={true}
