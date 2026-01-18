@@ -59,6 +59,10 @@
               "target": "Package",
               "version": "[2.6.2, )"
             },
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.105.0, )"
+            },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
               "version": "[8.0.19, )"

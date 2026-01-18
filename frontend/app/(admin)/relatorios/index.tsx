@@ -1,24 +1,30 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, Platform, Alert, ScrollView } from 'react-native';
-import { Text, RadioButton, Button, useTheme, Divider, Card } from 'react-native-paper';
+import { Text, RadioButton, Button, useTheme, Divider, Card, Avatar } from 'react-native-paper'; // Adicionei Avatar para usar icones customizados se quiser
 import { useFocusEffect } from 'expo-router';
 
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import { Fieldset } from '@/components/layouts/FieldSet';
 import { SearchableDropdown } from '@/components/layouts/SearchableDropdown';
-import { useNotification } from '@/contexts/NotificationContext'; // Supondo que você tenha
+import { useNotification } from '@/contexts/NotificationContext';
 import CustomLoader from '@/components/CustomLoader';
 import api from '@/services/api';
 import { relatorios } from '@/hooks/admin/useRelatorios';
 import { MultiSelectDropdown } from '@/components/layouts/MultiSelectDropdown';
 
-// Definição dos Tipos de Relatório (Fácil de expandir depois)
+// --- MUDANÇA 1: Adicionado o tipo EXCEL na lista ---
 const REPORT_TYPES = [
   { 
     id: 'ESPELHO', 
     label: 'Espelho de Ponto (PDF)', 
     description: 'Relatório individual ou em lote (ZIP) com assinatura.',
     icon: 'file-pdf-box'
+  },
+  { 
+    id: 'EXCEL', 
+    label: 'Espelho de Ponto (Excel)', 
+    description: 'Planilha (.xlsx) com abas separadas por funcionário.',
+    icon: 'file-excel' // Ícone de Excel
   },
   { 
     id: 'AFD', 
@@ -30,11 +36,10 @@ const REPORT_TYPES = [
     id: 'AEJ', 
     label: 'Arquivo Eletrônico - AEJ (.txt)', 
     description: 'Para tribunais trabalhistas (Assinado .p7s).',
-    icon: 'file-document-outline' // Ícone diferente para distinguir
+    icon: 'file-document-outline'
   },
 ];
 
-// Lista de Meses para o Filtro
 const MONTHS = [
   { id: '1', name: 'Janeiro' }, { id: '2', name: 'Fevereiro' }, { id: '3', name: 'Março' },
   { id: '4', name: 'Abril' }, { id: '5', name: 'Maio' }, { id: '6', name: 'Junho' },
@@ -47,19 +52,14 @@ export default function RelatoriosScreen() {
   const { showNotification } = useNotification();
   const { loading, funcionarios, estabelecimentoId, SetLoading } = relatorios();
   
-  // --- Estados dos Filtros ---
   const [selectedMonthStart, setSelectedMonthStart] = useState(String(new Date().getMonth() + 1));
   const [selectedMonthEnd, setSelectedMonthEnd] = useState(String(new Date().getMonth() + 1));
   const [selectedYear, setSelectedYear] = useState(String(new Date().getFullYear()));
   const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>([]);
   
-  // --- Estado do Tipo de Relatório ---
   const [reportType, setReportType] = useState<string>('ESPELHO');
-
-  // --- Estados de Dados e Loading ---
   const [employees, setEmployees] = useState<{ id: string, nome: string }[]>([]);
 
-  // 1. Busca Funcionários para o Dropdown
   const fetchEmployees = useCallback(async () => {
     try { 
       if (funcionarios) {
@@ -75,19 +75,16 @@ export default function RelatoriosScreen() {
     useCallback(() => { fetchEmployees(); }, [fetchEmployees])
   );
 
-  // 2. A Lógica de Download (Onde a mágica acontece)
   const getPeriodo = () => {
     const year = parseInt(selectedYear);
     const startM = parseInt(selectedMonthStart);
     let endM = parseInt(selectedMonthEnd);
 
-    // Validação simples: Se o usuário escolher Fim menor que Início, forçamos serem iguais
     if (endM < startM) {
       endM = startM;
     }
 
     const dataInicio = new Date(year, startM - 1, 1);
-    // O dia 0 do mês seguinte ao endM pega o último dia do mês endM
     const dataFim = new Date(year, endM, 0); 
 
     return {
@@ -111,40 +108,50 @@ export default function RelatoriosScreen() {
 
       // --- Lógica para ESPELHO DE PONTO (PDF ou ZIP) ---
       if (reportType === 'ESPELHO') {
-        
-        // CENÁRIO 1: Selecionou APENAS UM funcionário (Gera PDF Individual)
         if (selectedEmployeeIds.length === 1) {
           const unicoId = selectedEmployeeIds[0];
           const funcNome = employees.find(e => e.id === unicoId)?.nome || 'Funcionario';
-          
           fileName += `_${funcNome}.pdf`;
           
           response = await api.get(`/relatorios/espelho-ponto/${unicoId}`, {
             params: { ano: periodo.ano, mesInicio: periodo.mesInicio, mesFim: periodo.mesFim },
             responseType: 'blob'
           });
-        } 
-        // CENÁRIO 2: Selecionou VÁRIOS ou NENHUM (Gera ZIP em Lote)
-        else {
+        } else {
           fileName += `_Lote.zip`;
-          
-          // Se o array estiver vazio, assumimos TODOS. 
-          // Se tiver itens, mandamos apenas os selecionados.
           let idsParaEnviar = selectedEmployeeIds;
-
           if (idsParaEnviar.length === 0) {
-             // Se vazio, pegamos todos da lista carregada
              idsParaEnviar = employees.map(e => e.id);
           }
           
           response = await api.post(`/relatorios/espelho-ponto/lote`, {
-             funcionariosIds: idsParaEnviar, // Agora mandamos a lista filtrada ou completa
+             funcionariosIds: idsParaEnviar,
              ano: periodo.ano,
              mesInicio: periodo.mesInicio,
              mesFim: periodo.mesFim
           }, { responseType: 'blob' });
         }
       } 
+      // --- MUDANÇA 2: Lógica para EXCEL (.xlsx) ---
+      else if (reportType === 'EXCEL') {
+        fileName += `.xlsx`;
+
+        let idsParaEnviar = selectedEmployeeIds;
+        if (idsParaEnviar.length === 0) {
+           // Se vazio, pegamos todos
+           idsParaEnviar = employees.map(e => e.id);
+        }
+
+        // Chamada para o endpoint que criamos anteriormente
+        // Nota: O Excel geralmente é mensal, estamos mandando o mêsInicio como referência
+        response = await api.post(`/relatorios/excel-em-lote`, {
+           funcionariosIds: idsParaEnviar,
+           ano: periodo.ano,
+           MesInicio: periodo.mesInicio,
+           MesFim: periodo.mesFim, // Excel Service espera um mês único por enquanto
+        }, { responseType: 'blob' });
+
+      }
       // --- Lógica para FISCAIS (AFD/AEJ) ---
       else if (reportType === 'AFD' || reportType === 'AEJ') {
         const endpoint = reportType === 'AFD' ? '/relatorios/afd' : '/relatorios/aej';
@@ -153,14 +160,14 @@ export default function RelatoriosScreen() {
         response = await api.get(endpoint, {
           params: {
             estabelecimentoId: estabelecimentoId, 
-            dataInicio: periodo.dataInicio, // Já calculados corretamente no helper
+            dataInicio: periodo.dataInicio,
             dataFim: periodo.dataFim
           },
           responseType: 'blob'
         });
       }
 
-      // --- Processamento do Download (Igual ao seu anterior) ---
+      // --- Processamento do Download ---
       if (Platform.OS === 'web') {
         if(response !== undefined) {
           const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -174,13 +181,15 @@ export default function RelatoriosScreen() {
           showNotification("Download concluído com sucesso!", "success");
         }
       } else {
-        // Lógica Mobile aqui (expo-file-system)
         Alert.alert("Sucesso", "Arquivo gerado. Verifique sua pasta de downloads.");
       }
 
     } catch (error: any) {
       console.error("Erro no download:", error);
-      const msgErro = error.response?.data ? await error.response.data.text() : "Falha ao conectar com o servidor.";
+      const msgErro = error.response?.data && error.response.data instanceof Blob 
+          ? "Erro ao gerar arquivo (verifique logs do servidor)" // Blobs não mostram texto de erro fácil
+          : "Falha ao conectar com o servidor.";
+      
       showNotification(`Erro: ${msgErro}`, "error");
     } finally {
       SetLoading(false);
@@ -201,10 +210,8 @@ export default function RelatoriosScreen() {
 
       <Divider style={{ marginVertical: 16 }} />
 
-      {/* --- ETAPA 1: FILTROS (CONTEXTO) --- */}
+      {/* --- ETAPA 1: FILTROS --- */}
       <Fieldset legend="1. Período e Abrangência">
-        
-        {/* Linha 1: Seleção do Ano */}
         <View style={{ marginBottom: 12 }}>
             <SearchableDropdown
                 label="Ano de Referência"
@@ -215,7 +222,6 @@ export default function RelatoriosScreen() {
             />
         </View>
 
-        {/* Linha 2: Mês Início e Mês Fim (Lado a Lado) */}
         <View style={styles.row}>
           <View style={{ flex: 1, marginRight: 8 }}>
             <SearchableDropdown
@@ -244,24 +250,21 @@ export default function RelatoriosScreen() {
           </View>
         </View>
 
-        {/* Linha 3: Funcionário */}
         <View style={{ marginTop: 12 }}>
           <MultiSelectDropdown
             label="Funcionários"
             placeholder="Todos os funcionários"
-            items={employees} // Passa a lista completa {id, nome}
-            selectedIds={selectedEmployeeIds} // Passa o array de IDs
-            onSave={(newIds) => {
-                setSelectedEmployeeIds(newIds);
-            }}
+            items={employees}
+            selectedIds={selectedEmployeeIds}
+            onSave={(newIds) => setSelectedEmployeeIds(newIds)}
           />
           <Text style={{ fontSize: 12, color: theme.colors.outline, marginTop: 4 }}>
-             * Deixe vazio para gerar de todos, ou selecione específicos para filtrar.
+             * Deixe vazio para gerar de todos, ou selecione específicos.
           </Text>
       </View>
       </Fieldset>
 
-      {/* --- ETAPA 2: TIPO DE RELATÓRIO (MODELO) --- */}
+      {/* --- ETAPA 2: TIPO DE RELATÓRIO --- */}
       <Fieldset legend="2. Tipo de Relatório">
         <RadioButton.Group onValueChange={value => setReportType(value)} value={reportType}>
           {REPORT_TYPES.map((type) => (
@@ -269,15 +272,23 @@ export default function RelatoriosScreen() {
               key={type.id} 
               style={[
                 styles.reportCard, 
-                reportType === type.id && { borderColor: theme.colors.primary, borderWidth: 2 }
+                reportType === type.id && { borderColor: theme.colors.primary, borderWidth: 2, backgroundColor: theme.colors.elevation.level1 }
               ]}
               onPress={() => setReportType(type.id)}
             >
               <Card.Content style={styles.cardContent}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <RadioButton value={type.id} />
-                  <View style={{ marginLeft: 8 }}>
-                    <Text variant="titleMedium">{type.label}</Text>
+                  <Avatar.Icon 
+                    size={40} 
+                    icon={type.icon} 
+                    style={{ backgroundColor: 'transparent', marginHorizontal: 8 }} 
+                    color={reportType === type.id ? theme.colors.primary : theme.colors.onSurfaceVariant}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <Text variant="titleMedium" style={{ fontWeight: reportType === type.id ? 'bold' : 'normal' }}>
+                        {type.label}
+                    </Text>
                     <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
                       {type.description}
                     </Text>
@@ -289,19 +300,19 @@ export default function RelatoriosScreen() {
         </RadioButton.Group>
       </Fieldset>
 
-      {/* --- ETAPA 3: AÇÃO (DOWNLOAD) --- */}
+      {/* --- ETAPA 3: AÇÃO --- */}
       <View style={styles.actionContainer}>
         <Button 
           mode="contained" 
           icon="download"
           onPress={handleDownload}
           disabled={loading}
+          contentStyle={{ height: 50 }}
         >
-          Gerar e Baixar Relatório
+          {loading ? "Gerando Arquivo..." : "Gerar e Baixar Relatório"}
         </Button>
       </View>
 
-      {/* --- LOADING GLOBAL --- */}
       {loading && <CustomLoader/>} 
 
       </ScrollView>
@@ -324,6 +335,7 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     paddingVertical: 8,
+    paddingHorizontal: 8,
   },
   actionContainer: {
     marginTop: 24,

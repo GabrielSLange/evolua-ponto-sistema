@@ -127,6 +127,7 @@ builder.Services.AddScoped<EspelhoPontoService>();
 builder.Services.AddHttpClient<FeriadoService>();
 builder.Services.AddScoped<FeriadoPersonalizadoService>();
 builder.Services.AddScoped<AejService>();
+builder.Services.AddScoped<RelatorioExcelService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<EscalaService>();

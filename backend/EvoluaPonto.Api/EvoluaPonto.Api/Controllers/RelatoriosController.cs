@@ -18,19 +18,22 @@ namespace EvoluaPonto.Api.Controllers
         private readonly JornadaService _jornadaService;
         private readonly EspelhoPontoService _espelhoPontoService;
         private readonly AejService _aejService;
+        private readonly RelatorioExcelService _relatorioExcelService;
 
         public RelatoriosController(
            AfdService afdService,
            DigitalSignatureService signatureService,
            JornadaService jornadaService,
            EspelhoPontoService espelhoPontoService,
-           AejService aejService) // Adiciona o novo serviço
+           AejService aejService,
+           RelatorioExcelService relatorioExcelService) // Adiciona o novo serviço
         {
             _afdService = afdService;
             _signatureService = signatureService;
             _jornadaService = jornadaService;
             _espelhoPontoService = espelhoPontoService;
             _aejService = aejService; // Atribui o novo serviço
+            _relatorioExcelService = relatorioExcelService;
         }
 
         // GET: api/relatorios/afd?estabelecimentoId=...&dataInicio=...&dataFim=...
@@ -183,6 +186,33 @@ namespace EvoluaPonto.Api.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("excel-em-lote")]
+        public async Task<IActionResult> GerarRelatorioExcelLote([FromBody] RelatorioLoteRequest request)
+        {
+            if (request.FuncionariosIds == null || !request.FuncionariosIds.Any())
+                return BadRequest("Selecione ao menos um funcionário.");
+
+            try
+            {
+                // MUDANÇA: Passamos Inicio e Fim agora
+                var arquivoBytes = await _relatorioExcelService.GerarRelatorioEspelhoPontoExcelAsync(
+                    request.FuncionariosIds,
+                    request.Ano,
+                    request.MesInicio,
+                    request.MesFim
+                );
+
+                var nomeArquivo = $"Espelhos_Ponto_{request.MesInicio:D2}_a_{request.MesFim:D2}_{request.Ano}.xlsx";
+
+                return File(arquivoBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nomeArquivo);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERRO FATAL EXCEL: {ex.Message} \n {ex.StackTrace}");
+                return StatusCode(500, "Erro ao gerar Excel: " + ex.Message);
             }
         }
     }
