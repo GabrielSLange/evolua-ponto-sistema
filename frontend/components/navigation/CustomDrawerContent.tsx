@@ -31,7 +31,7 @@ const CustomDrawerContent = (props: any) => {
                      titleStyle={{ color: theme.colors.onSurface }}
                      right={props => 
                         (!isGestaoExpanded && pendingCount > 0)
-                        ? <Badge size={8} style={{ alignSelf: 'center', marginRight: 16, backgroundColor: theme.colors.error }} />
+                        ? <Badge size={8} style={{ alignSelf: 'center', marginRight: 16, backgroundColor: theme.colors.error, color: theme.colors.surface }} />
                         : <List.Icon {...props} icon={isGestaoExpanded ? "chevron-up" : "chevron-down"} />
                      }
                   >
@@ -59,7 +59,7 @@ const CustomDrawerContent = (props: any) => {
                                     size={20} 
                                     style={{ 
                                        backgroundColor: theme.colors.error, 
-                                       color: 'white', 
+                                       color: theme.colors.surface, 
                                        fontWeight: 'bold' 
                                     }}
                                  >
