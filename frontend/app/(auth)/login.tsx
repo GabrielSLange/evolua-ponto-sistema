@@ -4,6 +4,7 @@ import { TextInput, Button, Text, useTheme } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import ScreenContainer from '../../components/layouts/ScreenContainer';
 import CustomLoader from '@/components/CustomLoader';
+import { useNotification } from '@/contexts/NotificationContext';
 
 const LoginScreen = () => {
    const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ const LoginScreen = () => {
    const [loading, setLoading] = useState(false);
    const { signIn } = useAuth();
    const theme = useTheme(); // Pega o tema
+   const { showNotification } = useNotification();
 
    // Chama a nossa "fábrica" para criar os estilos com base no tema atual
    const styles = getStyles(theme);
@@ -21,7 +23,9 @@ const LoginScreen = () => {
       setError('');
       try {
          await signIn(email, password);
+         showNotification('Login realizado com sucesso!', 'success');
       } catch (err: any) {
+         showNotification('Erro ao fazer login. Verifique suas credenciais.', 'error');
          setError(err.message || 'Erro ao tentar fazer login.');
       } finally {
          setLoading(false);
