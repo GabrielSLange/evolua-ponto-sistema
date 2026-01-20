@@ -324,5 +324,37 @@ namespace EvoluaPonto.Api.Services
                 return new ServiceResponse<bool> { Success = false, ErrorMessage = $"Erro ao processar aprovação: {ex.Message}" };
             }
         }
+    
+        public async Task<ServiceResponse<int>> ContarSolicitacoesPendentesAsync(Guid funcionarioIdSolicitante)
+        {
+            try
+            {
+                // 1. Precisamos saber quem é o gestor para filtrar a empresa/estabelecimento dele
+                ModelFuncionario? funcionario = await _context.Funcionarios
+                    .Include(f => f.Estabelecimento)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(f => f.Id == funcionarioIdSolicitante);
+
+                if (funcionario == null)
+                    return new ServiceResponse<int> { Success = false, ErrorMessage = "Funcionário não encontrado" };
+
+                // 2. Query Otimizada: Só conta, não traz dados
+                var query = _context.RegistrosPonto.AsQueryable();
+
+                // Filtra pela empresa do gestor
+                query = query.Where(r => r.Funcionario.Estabelecimento.EmpresaId == funcionario.Estabelecimento.EmpresaId);
+
+                int contagem = await query
+                    .Where(r => r.Status == Models.Enums.StatusSolicitacao.Pendente && r.FuncionarioId != funcionario.Id)
+                    .CountAsync();
+
+                return new ServiceResponse<int> { Data = contagem };
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResponse<int> { Success = false, ErrorMessage = "Erro ao contar pendências: " + ex.Message };
+            }
+        }
+
     }
 }

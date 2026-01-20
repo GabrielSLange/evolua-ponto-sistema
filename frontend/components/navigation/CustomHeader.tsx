@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Appbar, Divider, Menu, Switch, Text } from 'react-native-paper';
+import { Appbar, Badge, Divider, Menu, Switch, Text, useTheme } from 'react-native-paper';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../contexts/AuthContext';
 import { View } from 'react-native';
+import { useBadge } from '@/contexts/BadgeContext';
 
 // O nome da tela será passado como propriedade (prop)
 interface CustomHeaderProps {
@@ -14,6 +15,10 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, isDesktop }: CustomH
    const navigation = useNavigation();
    const { theme, toggleTheme } = useAuth();
    const [menuVisible, setMenuVisible] = useState(false);
+   const { pendingCount } = useBadge();
+
+   const themes = useTheme();
+   
 
    const openMenu = () => setMenuVisible(true);
    const closeMenu = () => setMenuVisible(false);
@@ -23,10 +28,29 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, isDesktop }: CustomH
       <Appbar.Header >
          {/* Ícone de Menu Lateral (Sanduíche) à Esquerda */}
          {!isDesktop && (
+            <View style={{ marginRight: 10 }}>
             <Appbar.Action
                icon="menu"
                onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
             />
+            {/* 3. O Badge Flutuante */}
+            {pendingCount > 0 && (
+               <Badge
+                  size={16}
+                  style={{
+                  position: 'absolute',
+                  top: 6,      // Ajuste fino vertical
+                  right: 6,    // Ajuste fino horizontal
+                  backgroundColor: themes.colors.error,
+                  color: themes.colors.surface,
+                  fontWeight: 'bold',
+                  zIndex: 10
+                  }}
+               >
+                  {pendingCount > 99 ? '99+' : pendingCount}
+               </Badge>
+            )}
+            </View>
          )}
          {/* Título no Meio */}
          <Appbar.Content title={title} />

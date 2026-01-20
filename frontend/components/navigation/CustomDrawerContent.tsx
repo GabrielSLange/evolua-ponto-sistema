@@ -1,28 +1,26 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
-import { Button, Divider, Drawer, List, useTheme } from 'react-native-paper';
+import { Button, Divider, Drawer, List, useTheme, Badge, Text } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import { router } from 'expo-router';
+import { useBadge } from '../../contexts/BadgeContext';
 
-// Este componente recebe todas as props do Drawer e as repassa para o DrawerItemList
 const CustomDrawerContent = (props: any) => {
    const { role, userId, signOut } = useAuth();
    const theme = useTheme();
+   const { pendingCount } = useBadge(); 
 
-   // Estado exclusivo para o Admin
+   console.log("ADMIN DRAWER - Pending Count:", pendingCount);
+
    const [isGestaoExpanded, setIsGestaoExpanded] = useState(false);
-
-   // Verifica se é admin
    const isAdmin = role === 'admin';
 
    return (
       <View style={{ flex: 1, backgroundColor: theme.colors.surface }}>
          <DrawerContentScrollView {...props} >
-            {/* Renderiza todos os itens de menu padrão (definidos nos _layout.tsx) */}
             <DrawerItemList {...props} />
 
-            {/* Itens adicionais exclusivos para Admin */}
             {isAdmin && (
                <>
                   <List.Accordion
@@ -31,6 +29,11 @@ const CustomDrawerContent = (props: any) => {
                      onPress={() => setIsGestaoExpanded(!isGestaoExpanded)}
                      style={{ borderRadius: 56, paddingVertical: 3 }}
                      titleStyle={{ color: theme.colors.onSurface }}
+                     right={props => 
+                        (!isGestaoExpanded && pendingCount > 0)
+                        ? <Badge size={8} style={{ alignSelf: 'center', marginRight: 16, backgroundColor: theme.colors.error }} />
+                        : <List.Icon {...props} icon={isGestaoExpanded ? "chevron-up" : "chevron-down"} />
+                     }
                   >
                      <Drawer.Item
                         label='Estabelecimentos'
@@ -44,8 +47,27 @@ const CustomDrawerContent = (props: any) => {
                         style={styles.nestedItem}
                      />
 
+                     {/* --- CORREÇÃO AQUI --- */}
+                     {/* O label volta a ser texto puro (String) para parar o erro */}
+                     {/* Usamos a prop 'right' para renderizar o Badge na direita */}
                      <Drawer.Item
                         label="Solicitações"
+                        right={() => (
+                           pendingCount > 0 ? (
+                              <View style={{ justifyContent: 'center', paddingRight: 8 }}>
+                                 <Badge 
+                                    size={20} 
+                                    style={{ 
+                                       backgroundColor: theme.colors.error, 
+                                       color: 'white', 
+                                       fontWeight: 'bold' 
+                                    }}
+                                 >
+                                    {pendingCount > 99 ? '99+' : pendingCount}
+                                 </Badge>
+                              </View>
+                           ) : null
+                        )}
                         onPress={() => router.push('/(admin)/solicitacoes')}
                         style={styles.nestedItem}
                      />
@@ -66,7 +88,6 @@ const CustomDrawerContent = (props: any) => {
             )}
          </DrawerContentScrollView>
 
-         {/* Seção inferior do menu */}
          <View style={[styles.bottomSection, { borderTopColor: theme.colors.outlineVariant }]}>
             <Divider />
             <Button

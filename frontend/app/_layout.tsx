@@ -6,6 +6,7 @@ import { useEffect, useContext } from 'react';
 import CustomLoader from '../components/CustomLoader';
 import { NotificationProvider, NotificationStateContext } from '../contexts/NotificationContext';
 import { Text, View, StyleSheet } from 'react-native';
+import { BadgeProvider } from '@/contexts/BadgeContext';
 
 
 // SEM useFonts, SEM require. Vida que segue.
@@ -98,7 +99,9 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <NotificationProvider>
-        <ThemedApp />
+        <BadgeProvider>
+          <ThemedApp />
+        </BadgeProvider>
       </NotificationProvider>
     </AuthProvider>
   );

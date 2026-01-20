@@ -148,5 +148,49 @@ namespace EvoluaPonto.Api.Controllers
                 });
             }
         }
+
+        [HttpGet("pendentes/contagem")]
+        public async Task<ActionResult<ServiceResponse<int>>> GetContagemPendentes()
+        {
+            try
+            {
+                string? funcionarioIdString = User.FindFirstValue("FuncionarioId");
+
+                // 2. Converte para Guid (Validando se não veio nulo para evitar erro 500)
+                Guid userId = Guid.Empty;
+
+                if (!string.IsNullOrEmpty(funcionarioIdString))
+                {
+                    userId = Guid.Parse(funcionarioIdString);
+                }
+                else
+                {
+                    // Opcional: Tratar caso o token não tenha esse ID (ex: lançar erro ou retornar Unauthorized)
+                    throw new Exception("Claim 'FuncionarioId' não encontrada no token.");
+                }
+
+                ServiceResponse<int> response = await _registroPontoService.ContarSolicitacoesPendentesAsync(userId);
+
+                if (!response.Success)
+                    return BadRequest(response);
+
+
+
+                //return Ok(new ServiceResponse<int>
+                //{
+                //    Success = true,
+                //    Data = 10
+                //});
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ServiceResponse<int>
+                {
+                    Success = false,
+                    ErrorMessage = $"Erro ao contar pendências: {ex.Message}"
+                });
+            }
+        }
     }
 }
