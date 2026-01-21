@@ -9,7 +9,7 @@ export interface MarcacaoDto {
 export interface DiaEspelhoDto {
     data: string;
     diaSemana: string;
-    isFimDeSemana: boolean;
+    isFolga: boolean;
     isFeriado: boolean;
     isHoje: boolean;
     status: string; // 'Completo', 'Incompleto', 'Falta', 'Folga', 'Futuro'
