@@ -76,11 +76,10 @@ namespace EvoluaPonto.Api.Services
             }
         }
 
-        // Atualizar Escala
+        // Atualizar Escala (somente o nome)
         public async Task<ServiceResponse<ModelEscala>> UpdateEscalaAsync(Guid id, EscalaCreateDto dto)
         {
             var escalaDb = await _context.Escalas
-                .Include(e => e.Dias)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             if (escalaDb == null)
@@ -88,23 +87,6 @@ namespace EvoluaPonto.Api.Services
 
             // Atualiza dados básicos
             escalaDb.Nome = dto.Nome;
-            escalaDb.CargaHorariaSemanal = dto.CargaHorariaSemanal;
-
-            // Estratégia de Atualização dos Dias:
-            // Removemos os dias antigos e adicionamos os novos.
-            // Isso é mais seguro e limpo do que tentar dar update linha a linha.
-            _context.EscalaDias.RemoveRange(escalaDb.Dias);
-
-            escalaDb.Dias = dto.Dias.Select(d => new ModelEscalaDia
-            {
-                EscalaId = id, // Vincula ao ID pai
-                DiaSemana = (DayOfWeek)d.DiaSemana,
-                IsFolga = d.IsFolga,
-                Entrada = d.Entrada,
-                SaidaIntervalo = d.SaidaIntervalo,
-                VoltaIntervalo = d.VoltaIntervalo,
-                Saida = d.Saida
-            }).ToList();
 
             await _context.SaveChangesAsync();
 

@@ -9,6 +9,7 @@ interface Props {
     onSubmit: (data: EscalaFormSchema) => void;
     loading: boolean;
     onCancel: () => void;
+    isEdit?: boolean;
 }
 
 // Nomes dos dias para exibição
@@ -21,7 +22,10 @@ const EscalaForm: React.FC<Props> = ({
     initialData,
     onSubmit,
     loading,
-    onCancel }) => {
+    onCancel,
+    isEdit = false }) => {
+
+    const theme = useTheme();
 
     // Estados
     const [nome, setNome] = useState('');
@@ -145,9 +149,14 @@ const EscalaForm: React.FC<Props> = ({
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Checkbox
                             status={dia.isFolga ? 'checked' : 'unchecked'}
-                            onPress={() => handleDiaChange(diaIndex, 'isFolga', !dia.isFolga)}
+                            onPress={() => !isEdit && handleDiaChange(diaIndex, 'isFolga', !dia.isFolga)}
+                            disabled={isEdit}
                         />
-                        <Text onPress={() => handleDiaChange(diaIndex, 'isFolga', !dia.isFolga)}>Folga</Text>
+                        <Text 
+                            onPress={() => !isEdit && handleDiaChange(diaIndex, 'isFolga', !dia.isFolga)}
+                            style={{ color: isEdit ? theme.colors.outline : theme.colors.onSurface }}
+                        >
+                            Folga</Text>
                     </View>
                 </View>
 
@@ -157,21 +166,25 @@ const EscalaForm: React.FC<Props> = ({
                             label="Entrada"
                             value={dia.entrada}
                             onChange={v => handleDiaChange(diaIndex, 'entrada', v)}
+                            disabled={isEdit}
                         />
                         <TimeInput
                             label="Saída Int."
                             value={dia.saidaIntervalo}
                             onChange={v => handleDiaChange(diaIndex, 'saidaIntervalo', v)}
+                            disabled={isEdit}
                         />
                         <TimeInput
                             label="Volta Int."
                             value={dia.voltaIntervalo}
                             onChange={v => handleDiaChange(diaIndex, 'voltaIntervalo', v)}
+                            disabled={isEdit}
                         />
                         <TimeInput
                             label="Saída"
                             value={dia.saida}
                             onChange={v => handleDiaChange(diaIndex, 'saida', v)}
+                            disabled={isEdit}
                         />
                     </View>
                 )}
@@ -182,6 +195,14 @@ const EscalaForm: React.FC<Props> = ({
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 50 }}>
+            {isEdit && (
+                <View style={{marginBottom: 16, backgroundColor: theme.colors.secondaryContainer, padding: 10, borderRadius: 8}}>
+                    <Text variant='bodySmall' style={{color: theme.colors.onSecondaryContainer}}>
+                        Nota: Apenas o nome da escala pode ser alterado para garantir a integridade dos registros de ponto.
+                    </Text>
+                </View>
+            )}
+
             <TextInput
                 mode="outlined"
                 label="Nome da Escala (Ex: Comercial)"
@@ -197,11 +218,14 @@ const EscalaForm: React.FC<Props> = ({
                 onChangeText={setCargaHoraria}
                 keyboardType="numeric"
                 style={styles.input}
+                disabled={isEdit}
             />
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, marginBottom: 10 }}>
                 <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>Horários</Text>
-                <Button mode="text" compact onPress={replicarSegunda}>Copiar Seg p/ Sex</Button>
+                {!isEdit && (
+                    <Button mode="text" compact onPress={replicarSegunda}>Copiar Seg p/ Sex</Button>
+                )}    
             </View>
 
             <View style={styles.tabelaContainer}>
@@ -219,7 +243,7 @@ const EscalaForm: React.FC<Props> = ({
 }
 
 // Componente Pequeno para Input de Hora
-const TimeInput = ({ label, value, onChange }: { label: string, value?: string, onChange: (t: string) => void }) => {
+const TimeInput = ({ label, value, onChange, disabled }: { label: string, value?: string, onChange: (t: string) => void, disabled?: boolean }) => {
     // Máscara simples de hora (pode melhorar com biblioteca de mask)
     const handleChange = (text: string) => {
         // Lógica simples para adicionar : automaticamente
@@ -246,6 +270,8 @@ const TimeInput = ({ label, value, onChange }: { label: string, value?: string, 
                 dense
                 style={{ textAlign: 'center', fontSize: 12, height: 40 }}
                 contentStyle={{ paddingVertical: 0 }}
+                disabled={disabled}
+                editable={!disabled}
             />
         </View>
     );
