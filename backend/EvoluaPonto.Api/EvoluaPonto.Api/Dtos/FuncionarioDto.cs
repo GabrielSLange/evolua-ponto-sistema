@@ -26,9 +26,6 @@ namespace EvoluaPonto.Api.Dtos
         [Required]
         public string Cargo { get; set; }
 
-        [Required]
-        public string HorarioContratual { get; set; }
-
         public bool Ativo { get; set; }
 
         [Required] 

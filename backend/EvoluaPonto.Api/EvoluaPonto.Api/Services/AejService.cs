@@ -105,7 +105,7 @@ namespace EvoluaPonto.Api.Services
 
         private string GerarRegistro40(long nsr, ModelFuncionario func)
         {
-            var horarioFormatado = (func.HorarioContratual ?? "").Replace(":", "").Replace("-", "");
+            var horarioFormatado = "";
             return "40" +
                    nsr.ToString().PadLeft(9, '0') +
                    "0001" +

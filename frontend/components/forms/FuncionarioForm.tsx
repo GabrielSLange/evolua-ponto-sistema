@@ -49,10 +49,6 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     const openEscalaMenu = () => setEscalaMenuVisible(true);
     const closeEscalaMenu = () => setEscalaMenuVisible(false);
 
-    // Divisão dos periodos do dia para o horário contratual
-    const [periodo1, setPeriodo1] = useState('');
-    const [periodo2, setPeriodo2] = useState('');
-
     const theme = useTheme();
 
     const [loading, setLoading] = useState(false);
@@ -65,7 +61,6 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         email: '',
         password: '',
         cargo: '',
-        horarioContratual: '',
         role: '',
         ativo: true,
         escalaId: '',
@@ -74,28 +69,6 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     // 1. Estado para armazenar as mensagens de erro
     const [errors, setErrors] = useState<FormErrors>({});
 
-    // Sempre que periodo1 ou periodo2 mudar, atualizamos o formData.horarioContratual
-    useEffect(() => {
-        let horarioCompleto = periodo1;
-
-        // Só adiciona o segundo período se ele tiver sido preenchido
-        // (Verifica se tem pelo menos alguns números para evitar traços soltos)
-        if (periodo2 && periodo2.length > 4) {
-            horarioCompleto += `-${periodo2}`;
-        }
-
-        // Atualiza o estado principal sem recriar o objeto inteiro desnecessariamente
-        setFormData(prev => {
-            if (prev.horarioContratual === horarioCompleto) return prev;
-            return { ...prev, horarioContratual: horarioCompleto };
-        });
-
-        // Limpa erro se tiver preenchido algo
-        if (periodo1 && errors.horarioContratual) {
-            setErrors(prev => ({ ...prev, horarioContratual: undefined }));
-        }
-    }, [periodo1, periodo2]);
-
     const verificarDadosFormulario = useCallback(() => {
 
         if (funcionario?.id !== null && funcionario?.id !== undefined) {
@@ -103,30 +76,6 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 ...funcionario,
                 escalaId: funcionario.escalaId || '',
             });
-
-            // Preenche os períodos do horário contratual
-            if (funcionario.horarioContratual) {
-                const parts = funcionario.horarioContratual.split('-');
-
-                // 1º Período: Se existir, seta. Se não, limpa.
-                if (parts.length >= 2) {
-                    setPeriodo1(`${parts[0]}-${parts[1]}`);
-                } else {
-                    setPeriodo1('');
-                }
-
-                // 2º Período: AQUI ESTÁ A CORREÇÃO IMPORTANTE
-                // Se tiver 4 partes, preenche. Se tiver menos, FORÇA VAZIO.
-                if (parts.length >= 4) {
-                    setPeriodo2(`${parts[2]}-${parts[3]}`);
-                } else {
-                    setPeriodo2('');
-                }
-            } else {
-                // Se não tiver horário nenhum definido
-                setPeriodo1('');
-                setPeriodo2('');
-            }
         } else {
             // Limpa o formulário no modo de criação
             setFormData({
@@ -137,7 +86,6 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 email: '',
                 password: '',
                 cargo: '',
-                horarioContratual: '',
                 role: '',
                 ativo: true,
                 escalaId: '',
@@ -168,37 +116,6 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         if (!formData.role) newErrors.role = "A permissão é obrigatória.";
         if (!formData.escalaId) newErrors.escalaId = "A escala é obrigatória.";
 
-        // Validação do Horário Contratual
-
-        /* // --- VALIDAÇÃO ESTRITA (2 PERÍODOS OBRIGATÓRIOS) ---
-        // Verifica se ambos têm exatamente 11 caracteres (ex: "08:00-12:00")
-        const isP1Completo = periodo1.length === 11;
-        const isP2Completo = periodo2.length === 11;
-
-        if (!isP1Completo || !isP2Completo) {
-            newErrors.horarioContratual = "É obrigatório preencher os dois períodos completos (Entrada/Saída 1 e 2).";
-        } */
-
-        // Validação do Horário permitindo meio período
-        // Verifica se tem o tamanho correto da máscara (11 caracteres: "00:00-00:00")
-        const isP1Completo = periodo1.length === 11;
-        const isP2Completo = periodo2.length === 11;
-        const isP2Vazio = periodo2.length === 0;
-
-        // Regra 1: O 1º período é obrigatório se o 2º estiver vazio, 
-        // ou pelo menos um dos dois deve estar 100% completo.
-        if (!isP1Completo && isP2Vazio) {
-            newErrors.horarioContratual = "É necessário preencher ao menos o 1º período completo.";
-        }
-        // Regra 2: Se o usuário começou a digitar o 1º período, ele deve terminar
-        else if (periodo1.length > 0 && !isP1Completo) {
-            newErrors.horarioContratual = "O 1º período está incompleto (formato HH:mm-HH:mm).";
-        }
-        // Regra 3: Se o usuário começou a digitar o 2º período, ele deve terminar
-        else if (periodo2.length > 0 && !isP2Completo) {
-            newErrors.horarioContratual = "O 2º período está incompleto (formato HH:mm-HH:mm).";
-        }
-
         // Validação condicional da senha
         if (!formData.id && !formData.password) {
             newErrors.password = "A senha é obrigatória na criação.";
@@ -218,7 +135,6 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                     email: '',
                     password: '',
                     cargo: '',
-                    horarioContratual: '',
                     role: '',
                     ativo: true,
                 });
@@ -397,64 +313,6 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                     ))}
                 </Menu>
             )}
-
-            <View style={styles.input}>
-                <View style={{ flexDirection: 'row', gap: 12 }}>
-                    {/* 1º PERÍODO */}
-                    <View style={{ flex: 1 }}>
-                        <TextInput
-                            mode="outlined"
-                            label="Jornada (1º Período)"
-                            placeholder={isReadOnly ? "" : "08:00-12:00"}
-                            value={periodo1}
-                            error={!!errors.horarioContratual}
-                            // Adicionamos um ícone para dar contexto visual
-                            left={<TextInput.Icon icon="clock-time-four-outline" color={theme.colors.onSurfaceVariant} />}
-                            //style={{ backgroundColor: theme.colors.surface }}
-                            render={props =>
-                                <MaskedTextInput
-                                    {...props}
-                                    editable={!isReadOnly}
-                                    mask="99:99-99:99"
-                                    onChangeText={(text, raw) => setPeriodo1(text)}
-                                />
-                            }
-                        />
-                    </View>
-
-                    {/* 2º PERÍODO */}
-                    <View style={{ flex: 1 }}>
-                        <TextInput
-                            mode="outlined"
-                            label="Jornada (2º Período)"
-                            placeholder={isReadOnly ? "" : "13:00-18:00"}
-                            value={periodo2}
-                            error={!!errors.horarioContratual}
-                            left={<TextInput.Icon icon="clock-time-eight-outline" color={theme.colors.onSurfaceVariant} />}
-                            style={{ backgroundColor: theme.colors.surface }}
-                            render={props =>
-                                <MaskedTextInput
-                                    {...props}
-                                    editable={!isReadOnly}
-                                    mask="99:99-99:99"
-                                    onChangeText={(text, raw) => setPeriodo2(text)}
-                                />
-                            }
-                        />
-                    </View>
-                </View>
-
-                {/* Helper Text Unificado: Só aparece se tiver erro ou se quiser dar uma dica sutil */}
-                {errors.horarioContratual ? (
-                    <HelperText type="error" visible={true}>
-                        {errors.horarioContratual}
-                    </HelperText>
-                ) : (
-                    <HelperText type="info" visible={!isReadOnly} style={{ color: theme.colors.outline }}>
-                        Formato: Entrada-Saída (Ex: 08:00-12:00)
-                    </HelperText>
-                )}
-            </View>
 
             {!isReadOnly && (
                 <Button

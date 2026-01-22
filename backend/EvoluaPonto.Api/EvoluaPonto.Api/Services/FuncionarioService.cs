@@ -56,7 +56,6 @@ namespace EvoluaPonto.Api.Services
                 Nome = funcionario.Nome,
                 Cpf = funcionario.Cpf,
                 Cargo = funcionario.Cargo,
-                HorarioContratual = funcionario.HorarioContratual,
                 Ativo = funcionario.Ativo,
                 EstabelecimentoId = funcionario.EstabelecimentoId,
                 Estabelecimento = funcionario.Estabelecimento,
@@ -89,7 +88,6 @@ namespace EvoluaPonto.Api.Services
                 Nome = funcionarioDto.Nome,
                 Cpf = funcionarioDto.Cpf,
                 Cargo = funcionarioDto.Cargo,
-                HorarioContratual = funcionarioDto.HorarioContratual,
                 CreatedAt = DateTime.UtcNow,
                 Ativo = true,
                 EstabelecimentoId = funcionarioDto.EstabelecimentoId,
@@ -157,7 +155,6 @@ namespace EvoluaPonto.Api.Services
             funcionarioBanco.Nome = funcionarioAtualizado.Nome;
             funcionarioBanco.Cpf = funcionarioAtualizado.Cpf;
             funcionarioBanco.Cargo = funcionarioAtualizado.Cargo;
-            funcionarioBanco.HorarioContratual = funcionarioAtualizado.HorarioContratual;
             funcionarioBanco.EstabelecimentoId = funcionarioAtualizado.EstabelecimentoId;
             funcionarioBanco.EscalaId = funcionarioAtualizado.EscalaId;
 
