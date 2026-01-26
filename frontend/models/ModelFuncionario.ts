@@ -9,7 +9,6 @@ export interface ModelFuncionario {
     role: string;
     estabelecimentoId: string;
     estabelecimento?: ModelEstabelecimento;
-    horarioContratual?: string;
     ativo: boolean;
     escalaId?: string | null;
 }

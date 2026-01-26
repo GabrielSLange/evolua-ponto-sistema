@@ -1,15 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Platform, useWindowDimensions } from 'react-native';
-import { TextInput, Button, Text, useTheme, Checkbox, Divider, IconButton } from 'react-native-paper';
+import { TextInput, Button, Text, useTheme, Checkbox, Divider, IconButton, HelperText } from 'react-native-paper';
 import { Escala, EscalaDiaDto, EscalaFormSchema } from '@/hooks/admin/useEscala';
 import { ThemeContext } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
 
 interface Props {
     initialData?: Escala;
     onSubmit: (data: EscalaFormSchema) => void;
     loading: boolean;
     onCancel: () => void;
+    isEdit?: boolean;
 }
+
+// Define a estrutura do objeto de erros (Seguindo padrão do FuncionarioForm)
+type FormErrors = {
+    nome?: string;
+    cargaHoraria?: string;
+    dias?: string; // Erro genérico para a tabela
+};
 
 // Nomes dos dias para exibição
 const DIA_NAMES = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
@@ -21,7 +30,10 @@ const EscalaForm: React.FC<Props> = ({
     initialData,
     onSubmit,
     loading,
-    onCancel }) => {
+    onCancel,
+    isEdit = false }) => {
+
+    const theme = useTheme();
 
     // Estados
     const [nome, setNome] = useState('');
@@ -30,17 +42,27 @@ const EscalaForm: React.FC<Props> = ({
     // Inicializa os 7 dias vazios ou com dados
     const [dias, setDias] = useState<EscalaDiaDto[]>([]);
 
-    useEffect(() => {
+    // Estados de Erro
+    const [errors, setErrors] = useState<FormErrors>({});
+    const [diasComErro, setDiasComErro] = useState<number[]>([]); // Lista de dias com erro
+
+    const verificarDadosFormulario = useCallback(() => {
         if (initialData) {
             setNome(initialData.nome);
             setCargaHoraria(String(initialData.cargaHorariaSemanal));
             // Garante que o array tenha os 7 dias preenchidos (merge com default)
             setDias(preencherDiasFaltantes(initialData.dias));
         } else {
+            setNome('');
+            setCargaHoraria('');
             // Novo: Cria 7 dias zerados
             setDias(preencherDiasFaltantes([]));
         }
-    }, [initialData]);
+        setErrors({});
+        setDiasComErro([]); // Limpa os erros
+    }, [initialData])
+
+    useFocusEffect(verificarDadosFormulario);
 
     const preencherDiasFaltantes = (existentes: EscalaDiaDto[]) => {
         const completo: EscalaDiaDto[] = [];
@@ -69,6 +91,13 @@ const EscalaForm: React.FC<Props> = ({
     const formatTime = (t?: string) => t ? t.substring(0, 5) : '';
 
     const handleDiaChange = (diaSemana: number, field: keyof EscalaDiaDto, value: any) => {
+        setDiasComErro(prev => {
+            if (prev.includes(diaSemana)) {
+                return prev.filter(d => d !== diaSemana);
+            }
+            return prev;
+        });
+
         setDias(prev => prev.map(d => {
             if (d.diaSemana !== diaSemana) return d;
 
@@ -107,6 +136,7 @@ const EscalaForm: React.FC<Props> = ({
             }
             return d;
         }));
+        setDiasComErro([]); // Limpa os erros
     };
 
     // Função auxiliar para formatar HH:mm -> HH:mm:ss ou retornar null
@@ -117,6 +147,13 @@ const EscalaForm: React.FC<Props> = ({
     };
 
     const handleSubmit = () => {
+        const newErrors: FormErrors = {};
+        const newDiasComErro: number[] = [];
+
+        // Validações básicas
+        if (!nome) newErrors.nome = "O nome é obrigatório.";
+        if (!cargaHoraria || Number(cargaHoraria) <= 0) newErrors.cargaHoraria = "Informe uma carga horária válida.";
+
         // Formata os dias garantindo que horas vazias sejam null e horas preenchidas tenham segundos
         const diasFormatados = dias.map(d => ({
             ...d,
@@ -126,11 +163,40 @@ const EscalaForm: React.FC<Props> = ({
             saida: formatForApi(d.saida)
         }));
 
-        onSubmit({
-            nome,
-            cargaHorariaSemanal: cargaHoraria,
-            dias: diasFormatados
+        // Validação dos Dias
+        diasFormatados.forEach(dia => {
+            if (!dia.isFolga) {
+                const temEntrada = !!dia.entrada;
+                const temSaida = !!dia.saida;
+                const temSaidaInt = !!dia.saidaIntervalo;
+                const temVoltaInt = !!dia.voltaIntervalo;
+
+                // Cenário 1: Turno único (Entrada e saída)
+                const isTurnoUnico = temEntrada && temSaida && !temSaidaInt && !temVoltaInt;
+
+                // Cenário 2: Turno Completo (Os 4 horários)
+                const isTurnoCompleto = temEntrada && temSaida && temSaidaInt && temVoltaInt;
+
+                if (!isTurnoUnico && !isTurnoCompleto) {
+                    newDiasComErro.push(dia.diaSemana);
+                }
+            }
         });
+
+        if (newDiasComErro.length > 0) {
+            newErrors.dias = "Existem dias com horários inconsistentes.";
+        }
+
+        setErrors(newErrors);
+        setDiasComErro(newDiasComErro);
+
+        if (Object.keys(newErrors).length === 0 && newDiasComErro.length === 0) {
+            onSubmit({
+                nome,
+                cargaHorariaSemanal: cargaHoraria,
+                dias: diasFormatados
+            });
+        }
     };
 
     // Componente de Linha (Renderizado dentro do loop)
@@ -138,16 +204,27 @@ const EscalaForm: React.FC<Props> = ({
         const dia = dias.find(d => d.diaSemana === diaIndex);
         if (!dia) return null;
 
+        const isInvalid = diasComErro.includes(diaIndex);
+
         return (
-            <View key={diaIndex} style={styles.diaRow}>
+            <View key={diaIndex} style={[
+                styles.diaRow,
+                isInvalid && styles.diaRowError
+            ]}>
                 <View style={styles.diaHeader}>
-                    <Text style={{ fontWeight: 'bold', width: 80 }}>{DIA_NAMES[diaIndex]}</Text>
+                    <Text style={{ fontWeight: 'bold', width: 80, color: isInvalid ? theme.colors.error : theme.colors.onSurface }}>{DIA_NAMES[diaIndex]}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Checkbox
                             status={dia.isFolga ? 'checked' : 'unchecked'}
-                            onPress={() => handleDiaChange(diaIndex, 'isFolga', !dia.isFolga)}
+                            onPress={() => !isEdit && handleDiaChange(diaIndex, 'isFolga', !dia.isFolga)}
+                            disabled={isEdit}
+                            color={isInvalid ? theme.colors.error : undefined}
                         />
-                        <Text onPress={() => handleDiaChange(diaIndex, 'isFolga', !dia.isFolga)}>Folga</Text>
+                        <Text
+                            onPress={() => !isEdit && handleDiaChange(diaIndex, 'isFolga', !dia.isFolga)}
+                            style={{ color: isEdit ? theme.colors.outline : (isInvalid ? theme.colors.error : theme.colors.onSurface) }}
+                        >
+                            Folga</Text>
                     </View>
                 </View>
 
@@ -157,21 +234,29 @@ const EscalaForm: React.FC<Props> = ({
                             label="Entrada"
                             value={dia.entrada}
                             onChange={v => handleDiaChange(diaIndex, 'entrada', v)}
+                            disabled={isEdit}
+                            error={isInvalid}
                         />
                         <TimeInput
                             label="Saída Int."
                             value={dia.saidaIntervalo}
                             onChange={v => handleDiaChange(diaIndex, 'saidaIntervalo', v)}
+                            disabled={isEdit}
+                            error={isInvalid}
                         />
                         <TimeInput
                             label="Volta Int."
                             value={dia.voltaIntervalo}
                             onChange={v => handleDiaChange(diaIndex, 'voltaIntervalo', v)}
+                            disabled={isEdit}
+                            error={isInvalid}
                         />
                         <TimeInput
                             label="Saída"
                             value={dia.saida}
                             onChange={v => handleDiaChange(diaIndex, 'saida', v)}
+                            disabled={isEdit}
+                            error={isInvalid}
                         />
                     </View>
                 )}
@@ -182,27 +267,54 @@ const EscalaForm: React.FC<Props> = ({
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 50 }}>
+            {isEdit && (
+                <View style={{ marginBottom: 16, backgroundColor: theme.colors.secondaryContainer, padding: 10, borderRadius: 8 }}>
+                    <Text variant='bodySmall' style={{ color: theme.colors.onSecondaryContainer }}>
+                        Nota: Apenas o nome da escala pode ser alterado.
+                    </Text>
+                </View>
+            )}
+
+            {errors.nome && <HelperText type="error" visible={true}>{errors.nome}</HelperText>}
             <TextInput
                 mode="outlined"
                 label="Nome da Escala (Ex: Comercial)"
                 value={nome}
-                onChangeText={setNome}
+                onChangeText={(t) => {
+                    setNome(t);
+                    if (errors.nome) setErrors(prev => ({ ...prev, nome: undefined }));
+                }}
                 style={styles.input}
+                error={!!errors.nome}
             />
 
+            {errors.cargaHoraria && <HelperText type="error" visible={true}>{errors.cargaHoraria}</HelperText>}
             <TextInput
                 mode="outlined"
                 label="Carga Horária Semanal (Ex: 44)"
                 value={cargaHoraria}
-                onChangeText={setCargaHoraria}
+                onChangeText={(t) => {
+                    setCargaHoraria(t);
+                    if (errors.cargaHoraria) setErrors(prev => ({ ...prev, cargaHoraria: undefined }));
+                }}
                 keyboardType="numeric"
                 style={styles.input}
+                disabled={isEdit}
+                error={!!errors.cargaHoraria}
             />
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, marginBottom: 10 }}>
                 <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>Horários</Text>
-                <Button mode="text" compact onPress={replicarSegunda}>Copiar Seg p/ Sex</Button>
+                {!isEdit && (
+                    <Button mode="text" compact onPress={replicarSegunda}>Copiar Seg p/ Sex</Button>
+                )}
             </View>
+
+            {errors.dias && (
+                <View style={{ backgroundColor: theme.colors.errorContainer, padding: 8, borderRadius: 4, marginBottom: 10 }}>
+                    <Text style={{ color: theme.colors.onErrorContainer }}>{errors.dias}</Text>
+                </View>
+            )}
 
             <View style={styles.tabelaContainer}>
                 {DIA_ORDER.map(diaIndex => renderDiaRow(diaIndex))}
@@ -219,7 +331,7 @@ const EscalaForm: React.FC<Props> = ({
 }
 
 // Componente Pequeno para Input de Hora
-const TimeInput = ({ label, value, onChange }: { label: string, value?: string, onChange: (t: string) => void }) => {
+const TimeInput = ({ label, value, onChange, disabled, error }: { label: string, value?: string, onChange: (t: string) => void, disabled?: boolean, error?: boolean }) => {
     // Máscara simples de hora (pode melhorar com biblioteca de mask)
     const handleChange = (text: string) => {
         // Lógica simples para adicionar : automaticamente
@@ -246,6 +358,9 @@ const TimeInput = ({ label, value, onChange }: { label: string, value?: string, 
                 dense
                 style={{ textAlign: 'center', fontSize: 12, height: 40 }}
                 contentStyle={{ paddingVertical: 0 }}
+                disabled={disabled}
+                editable={!disabled}
+                error={error}
             />
         </View>
     );
@@ -266,6 +381,10 @@ const styles = StyleSheet.create({
     diaRow: {
         marginBottom: 8
     },
+    diaRowError: {
+        borderWidth: 1,
+        borderColor: '#ef5350'
+    }, // Estilo para linha com erro
     diaHeader: {
         flexDirection: 'row',
         alignItems: 'center',

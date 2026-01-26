@@ -77,8 +77,8 @@ export default function EspelhoPontoContent() {
          borderWidth = 2;
          cardColor = theme.colors.elevation.level2;
       }
-      // 2. Fim de semana ou Folga
-      else if (item.isFimDeSemana || item.status === 'Folga') {
+      // 2. Folga
+      else if (item.status === 'Folga') {
          cardColor = theme.colors.background; // Cor de fundo (mais apagado)
          diaTextColor = theme.colors.outline;
       }
@@ -128,7 +128,8 @@ export default function EspelhoPontoContent() {
                      <Text variant="bodySmall" style={{ fontStyle: 'italic', color: theme.colors.outline, marginTop: 6 }}>
                         {item.status === 'Futuro' ? '---' :
                            item.status === 'Falta' ? 'Ausente' :
-                              item.isFimDeSemana || item.isFeriado ? 'Folga' : 'Sem registros'}
+                              item.isFeriado ? 'Feriado' :
+                                 item.isFolga ? 'Folga' : 'Sem registros'}
                      </Text>
                   )}
                </View>

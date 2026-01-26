@@ -35,6 +35,7 @@ const EditEscalaScreen = () => {
                         onCancel={() => router.push({
                             pathname: '/(admin)/escalas',
                         })}
+                        isEdit={true}
                     />
                     <Modal
                         transparent={true}

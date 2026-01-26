@@ -14,7 +14,7 @@ namespace EvoluaPonto.Api.Dtos
     {
         public DateTime Data { get; set; }
         public string DiaSemana { get; set; } // "Seg", "Ter", etc.
-        public bool IsFimDeSemana { get; set; }
+        public bool IsFolga { get; set; }
         public bool IsFeriado { get; set; }
         public bool IsHoje { get; set; }
         public string Status { get; set; } // "Completo", "Incompleto", "Falta", "Folga", "Feriado"

@@ -21,10 +21,6 @@ namespace EvoluaPonto.Api.Models
         [Column("cargo")]
         public string? Cargo { get; set; }
 
-        // OLD - Será removida em breve
-        [Column("horario_contratual")]
-        public string? HorarioContratual { get; set; }
-
         [Column("escala_id")]
         public Guid? EscalaId { get; set; }
 

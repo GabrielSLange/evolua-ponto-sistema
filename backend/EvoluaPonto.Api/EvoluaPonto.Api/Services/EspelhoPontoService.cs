@@ -46,6 +46,8 @@ namespace EvoluaPonto.Api.Services
 
                 var funcionario = await _context.Funcionarios
                     .Include(f => f.Estabelecimento)
+                    .Include(f => f.Escala)
+                        .ThenInclude(e => e.Dias)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(f => f.Id == funcionarioId);
 
@@ -114,10 +116,39 @@ namespace EvoluaPonto.Api.Services
                         .OrderBy(r => r.TimestampMarcacao)
                         .ToList();
 
-                    var isFimDeSemana = dia.DayOfWeek == DayOfWeek.Saturday || dia.DayOfWeek == DayOfWeek.Sunday;
-
                     // Verificação uninficada de feriado
                     var isFeriado = datasFeriados.Contains(dia.Date);
+
+                    var isFolga = false;
+
+                    if (!isFeriado)
+                    {
+                        if (funcionario.Escala != null && funcionario.Escala.Dias.Any())
+                        {
+                            // Se tem escala: respeita a regra
+                            var regraDia = funcionario.Escala.Dias.FirstOrDefault(d => d.DiaSemana == dia.DayOfWeek);
+
+                            // Se existe regra para o dia e não está marcado como folga
+                            if (regraDia != null && !regraDia.IsFolga)
+                            {
+                                isFolga = false;
+                            }
+                            else
+                            {
+                                // Se a regra diz IsFolga=true ou não tem regra
+                                isFolga = true;
+                            }
+                        }
+                        else
+                        {
+                            // Fallback (Sem Escala): Mantém a lógica antiga para legados
+                            // Sabado e Domingo = Folga
+                            if (dia.DayOfWeek == DayOfWeek.Saturday || dia.DayOfWeek == DayOfWeek.Sunday)
+                                isFolga = true;
+                            else
+                                isFolga = false;
+                        }
+                    }
 
                     TimeZoneInfo fusoBrasilia;
                     try
@@ -133,7 +164,7 @@ namespace EvoluaPonto.Api.Services
                     {
                         Data = dia,
                         DiaSemana = dia.ToString("ddd", new CultureInfo("pt-BR")).ToUpper(), // SEG, TER...
-                        IsFimDeSemana = isFimDeSemana,
+                        IsFolga = isFolga,
                         IsFeriado = isFeriado,
                         IsHoje = dia == hoje,
                         Marcacoes = registrosDoDia.Select(r => new PontoHomeDto
@@ -159,7 +190,7 @@ namespace EvoluaPonto.Api.Services
                         {
                             diaDto.Status = "Futuro"; // Dias que ainda não chegaram
                         }
-                        else if (isFimDeSemana || isFeriado)
+                        else if (isFolga || isFeriado)
                         {
                             diaDto.Status = "Folga";
                         }
