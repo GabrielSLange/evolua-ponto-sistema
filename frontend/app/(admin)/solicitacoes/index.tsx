@@ -1,16 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, FlatList, StyleSheet, Alert, Modal, TouchableOpacity } from 'react-native';
-import { Text, Card, Button, Avatar, ActivityIndicator, TextInput, useTheme, IconButton, HelperText, Divider } from 'react-native-paper';
+import React, { useState, useCallback } from 'react';
+import { View, FlatList, StyleSheet, Platform, KeyboardAvoidingView } from 'react-native'; // Removi Modal daqui
+import { Text, Card, Button, Avatar, ActivityIndicator, TextInput, useTheme, HelperText, Divider, Modal, Portal } from 'react-native-paper'; // Adicionei Modal e Portal aqui
 import api from '@/services/api';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import { useFocusEffect } from 'expo-router';
 import { SolicitacaoPontoDto } from '@/models/Dtos/SolicitacaoPontoDto';
 import { useAuth } from '@/contexts/AuthContext';
 import CustomLoader from '@/components/CustomLoader';
+import { useBadge } from '@/contexts/BadgeContext';
+import { useNotification } from '@/contexts/NotificationContext';
 
 export default function SolicitacoesScreen() {
     const theme = useTheme();
     const { userId } = useAuth();
+    const { refreshBadges } = useBadge();
+    const { showNotification } = useNotification();
 
     const [solicitacoes, setSolicitacoes] = useState<SolicitacaoPontoDto[]>([]);
     const [loading, setLoading] = useState(false);
@@ -39,7 +43,7 @@ export default function SolicitacoesScreen() {
             }
         } catch (error) {
             console.error(error);
-            Alert.alert('Erro', 'Falha ao buscar solicitações pendentes.');
+            showNotification('Falha ao buscar solicitações pendentes.', 'error');
         } finally {
             setLoading(false);
         }
@@ -62,14 +66,14 @@ export default function SolicitacoesScreen() {
             });
 
             if (response.data.success) {
-                // Remove da lista localmente para ser rápido
                 setSolicitacoes(prev => prev.filter(item => item.id !== id));
-                Alert.alert("Sucesso", "Ponto aprovado!");
+                refreshBadges();
+                showNotification('Ponto aprovado!', 'success');
             } else {
-                Alert.alert("Erro", response.data.errorMessage || "Não foi possível aprovar.");
+                showNotification(response.data.errorMessage === null ? "Não foi possível aprovar." : response.data.errorMessage, 'error');
             }
         } catch (error) {
-            Alert.alert("Erro", "Erro de conexão ao aprovar.");
+            showNotification("Erro de conexão ao aprovar.", 'error');
         } finally {
             setProcessingId(null);
         }
@@ -90,7 +94,7 @@ export default function SolicitacoesScreen() {
         }
 
         setProcessingId(selectedId);
-        setRejectModalVisible(false); // Fecha modal visualmente enquanto processa
+        setRejectModalVisible(false);
 
         try {
             const response = await api.put(`/RegistroPonto/avaliar/${selectedId}`, {
@@ -100,12 +104,13 @@ export default function SolicitacoesScreen() {
 
             if (response.data.success) {
                 setSolicitacoes(prev => prev.filter(item => item.id !== selectedId));
-                Alert.alert("Sucesso", "Solicitação rejeitada.");
+                refreshBadges();
+                showNotification('Ponto rejeitado!', 'success');
             } else {
-                Alert.alert("Erro", response.data.errorMessage || "Erro ao rejeitar.");
+                showNotification(response.data.errorMessage === null ? "Não foi possível rejeitar." : response.data.errorMessage, 'error');
             }
         } catch (error) {
-            Alert.alert("Erro", "Erro ao processar rejeição.");
+            showNotification("Erro de conexão ao rejeitar.", 'error');
         } finally {
             setProcessingId(null);
             setSelectedId(null);
@@ -181,19 +186,16 @@ export default function SolicitacoesScreen() {
             </View>
 
             <View style={{ paddingHorizontal: 16 }}>
-                <Divider style={{ marginBottom: 16, marginTop: 8}} />
+                <Divider style={{ marginBottom: 16, marginTop: 8 }} />
             </View>
 
             {loading && solicitacoes.length === 0 ? (
-                <Modal
-                    transparent={true}
-                    animationType="fade"
-                    visible={loading}
-                >
-                    <View style={styles.loaderOverlay}>
-                    <CustomLoader />
-                    </View>
-                </Modal>
+                // Usando Portal para o Loader também, para garantir consistência
+                <Portal>
+                    <Modal visible={true} dismissable={false} contentContainerStyle={styles.loaderContainer}>
+                         <CustomLoader />
+                    </Modal>
+                </Portal>
             ) : (
                 <FlatList
                     data={solicitacoes}
@@ -209,18 +211,33 @@ export default function SolicitacoesScreen() {
                 />
             )}
 
-            {/* --- MODAL DE REJEIÇÃO --- */}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={rejectModalVisible}
-                onRequestClose={() => setRejectModalVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={[styles.modalContent, { backgroundColor: theme.colors.background }]}>
-                        <Text variant="titleLarge" style={{ marginBottom: 10 }}>Motivo da Rejeição</Text>
-                        <Text variant="bodyMedium" style={{ marginBottom: 10, color: '#666' }}>
-                            Por que você está rejeitando este ponto? O funcionário verá esta mensagem.
+            {/* --- MODAL DE REJEIÇÃO COM PORTAL (React Native Paper) --- */}
+            <Portal>
+                <Modal
+                    visible={rejectModalVisible}
+                    onDismiss={() => setRejectModalVisible(false)}
+                    // AQUI ESTÁ A CORREÇÃO: Passamos o estilo diretamente aqui para garantir a sobreposição
+                    contentContainerStyle={{
+                        backgroundColor: theme.colors.background,
+                        padding: 20,
+                        borderRadius: 12,
+                        // TRUQUE PARA RESPEITAR LIMITES:
+                        alignSelf: 'center', // Centraliza horizontalmente
+                        width: '90%',        // No celular, ocupa 90% da tela
+                        maxWidth: 500,       // No desktop/tablet, trava em 500px
+                        // Se o teclado subir, isso ajuda a não quebrar:
+                        maxHeight: '80%',    
+                    }}
+                >
+                    {/* KeyboardAvoidingView ajuda o modal a subir quando o teclado aparece */}
+                    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+                        
+                        <Text variant="titleLarge" style={{ marginBottom: 10, fontWeight: 'bold' }}>
+                            Motivo da Rejeição
+                        </Text>
+                        
+                        <Text variant="bodyMedium" style={{ marginBottom: 12, color: theme.colors.onSurfaceVariant }}>
+                            O funcionário verá esta mensagem ao visualizar o ponto rejeitado.
                         </Text>
 
                         <TextInput
@@ -234,15 +251,19 @@ export default function SolicitacoesScreen() {
                                 if (text.trim().length > 0) setErrorMotivo(false);
                             }}
                             error={errorMotivo}
-                            style={{ backgroundColor: theme.colors.surface }}
+                            style={{ backgroundColor: theme.colors.surface, marginBottom: 5 }}
                         />
 
-                        <HelperText type="error" visible={errorMotivo} style={{ marginBottom: 10 }}>
+                        <HelperText type="error" visible={errorMotivo} style={{ marginBottom: 5 }}>
                             O motivo da rejeição é obrigatório.
                         </HelperText>
 
                         <View style={styles.modalButtons}>
-                            <Button onPress={() => setRejectModalVisible(false)} style={{ flex: 1, borderColor: theme.colors.outline, borderWidth: 1 }} mode="outlined">
+                            <Button 
+                                onPress={() => setRejectModalVisible(false)} 
+                                style={{ flex: 1, borderColor: theme.colors.outline }} 
+                                mode="outlined"
+                            >
                                 Cancelar
                             </Button>
                             <Button
@@ -251,13 +272,12 @@ export default function SolicitacoesScreen() {
                                 onPress={handleConfirmarRejeicao}
                                 style={{ flex: 1 }}
                             >
-                                Confirmar Rejeição
+                                Confirmar
                             </Button>
                         </View>
-                    </View>
-                </View>
-            </Modal>
-            
+                    </KeyboardAvoidingView>
+                </Modal>
+            </Portal>
 
         </ScreenContainer>
     );
@@ -308,25 +328,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 50,
     },
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        padding: 20,
-    },
-    modalContent: {
-        padding: 20,
-        borderRadius: 8,
-        elevation: 5,
-    },
     modalButtons: {
         flexDirection: 'row',
         gap: 10,
+        marginTop: 10, // Um pouco mais de espaço
     },
-    loaderOverlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)', 
-      alignItems: 'center',
-      justifyContent: 'center',
-   },
+    // Estilos novos para o Modal do Paper
+    paperModalContainer: {
+        margin: 20, // Garante que não encoste nas bordas
+        padding: 20,
+        borderRadius: 12,
+    },
+    loaderContainer: {
+        alignSelf: 'center',
+        padding: 20,
+        backgroundColor: 'white',
+        borderRadius: 10
+    }
 });

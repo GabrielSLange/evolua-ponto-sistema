@@ -11,19 +11,24 @@ const BadgeContext = createContext<BadgeContextData>({} as BadgeContextData);
 
 export const BadgeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [pendingCount, setPendingCount] = useState(0);
-  const { isAuthenticated } = useAuth(); // Só busca se estiver logado
+  const { isAuthenticated, role } = useAuth(); // Só busca se estiver logado
 
   const refreshBadges = useCallback(async () => {
     if (!isAuthenticated) return;
 
-    try {
-      const response = await api.get('/RegistroPonto/pendentes/contagem');
-      if (response.data.success) {
-        setPendingCount(response.data.data);
+    if(role === 'admin' || role === 'superadmin') {
+      try {
+        const response = await api.get('/RegistroPonto/pendentes/contagem');
+        if (response.data.success) {
+          setPendingCount(response.data.data);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar badges:', error);
+        // Não precisa alertar erro aqui para não irritar o usuário, falha silenciosa é melhor em badge
       }
-    } catch (error) {
-      console.error('Erro ao buscar badges:', error);
-      // Não precisa alertar erro aqui para não irritar o usuário, falha silenciosa é melhor em badge
+    }
+    else{
+      setPendingCount(0); // Usuários normais não têm badges
     }
   }, [isAuthenticated]);
 
