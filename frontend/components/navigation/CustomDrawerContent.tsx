@@ -9,9 +9,7 @@ import { useBadge } from '../../contexts/BadgeContext';
 const CustomDrawerContent = (props: any) => {
    const { role, userId, signOut } = useAuth();
    const theme = useTheme();
-   const { pendingCount } = useBadge(); 
-
-   console.log("ADMIN DRAWER - Pending Count:", pendingCount);
+   const { pendingCount } = useBadge();
 
    const [isGestaoExpanded, setIsGestaoExpanded] = useState(false);
    const isAdmin = role === 'admin';

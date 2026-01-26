@@ -19,11 +19,10 @@ export const BadgeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       const response = await api.get('/RegistroPonto/pendentes/contagem');
       if (response.data.success) {
-        console.log("Badge count fetched:", response.data);
         setPendingCount(response.data.data);
       }
     } catch (error) {
-      console.log('Erro ao buscar badges:', error);
+      console.error('Erro ao buscar badges:', error);
       // Não precisa alertar erro aqui para não irritar o usuário, falha silenciosa é melhor em badge
     }
   }, [isAuthenticated]);
