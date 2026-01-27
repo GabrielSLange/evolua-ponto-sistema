@@ -66,7 +66,10 @@ namespace EvoluaPonto.Api.Services
                 GeolocalizacaoIp = ipAddress,
                 Nsr = novoNsr,
                 HashSha256 = hash,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                Latitude = pontoDto.Latitude,
+                Longitude = pontoDto.Longitude,
+                PrecisaoMetros = pontoDto.PrecisaoMetros
             };
 
             byte[]? pdfBytes = _comprovanteService.GerarComprovante(novoRegistro, funcionarioBanco, empresaBanco, estabelecimentoBanco);

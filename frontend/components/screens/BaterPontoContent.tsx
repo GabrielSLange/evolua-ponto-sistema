@@ -246,7 +246,7 @@ export default function BaterPontoContent() {
             formData.append('Longitude', String(userLocation.coords.longitude));
             
             // Opcional: Enviar precisão para saber se o GPS estava bom
-            // formData.append('PrecisaoMetros', String(userLocation.coords.accuracy));
+            formData.append('PrecisaoMetros', String(userLocation.coords.accuracy));
         } else {
             // Opcional: Enviar flag avisando que foi sem GPS
             // formData.append('SemGps', 'true');

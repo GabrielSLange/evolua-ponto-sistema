@@ -77,5 +77,12 @@ namespace EvoluaPonto.Api.Models
         /// Data e hora em que a análise (aprovação/rejeição) foi feita.
         [Column("data_analise")]
         public DateTime? DataAnalise { get; set; }
+
+        public double? Latitude { get; set; }
+
+        public double? Longitude { get; set; }
+
+        // Precisão do GPS em metros (Ex: 10.5 metros)
+        public double? PrecisaoMetros { get; set; }
     }
 }
