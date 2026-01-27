@@ -125,7 +125,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, isDesktop }: CustomH
                }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                      <Appbar.Action icon={theme === 'dark' ? "weather-night" : "weather-sunny"} size={20} />
-                     <Text variant="bodyMedium">Modo Escuro</Text>
+                     <Text variant="bodyMedium">{theme === 'dark' ? 'Modo Escuro' : 'Modo Claro'}</Text>
                   </View>
                   <Switch value={theme === 'dark'} onValueChange={toggleTheme} />
                </View>
