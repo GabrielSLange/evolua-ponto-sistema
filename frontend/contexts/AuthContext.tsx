@@ -4,6 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 import { saveAuthData, loadAuthData, clearAuthData } from '../services/storage';
 import { useColorScheme } from 'react-native';
 import { eventBus } from '../services/eventBus';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // --- Nossos tipos de dados ---
 interface DecodedToken {
@@ -40,10 +41,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
    // **NOVO:** Lógica para gerenciar o tema
    const colorScheme = useColorScheme(); // Pega o tema do OS (light, dark, ou null)
-   const [theme, setTheme] = useState<'light' | 'dark'>(colorScheme || 'light');
+   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
-   const toggleTheme = () => {
-      setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+   useEffect(() => {
+      async function loadThemePreference() {
+         try {
+            const storedTheme = await AsyncStorage.getItem('@App:theme');
+            if (storedTheme) {
+                  setTheme(storedTheme as 'light' | 'dark');
+            }
+         } catch (error) {
+            console.log("Erro ao carregar tema:", error);
+         }
+      }
+      loadThemePreference();
+   }, []);
+
+   const toggleTheme = async () => {
+      const newTheme = theme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme); // Atualiza visualmente na hora
+      await AsyncStorage.setItem('@App:theme', newTheme); // Salva na memória
    };
 
    const signOut = async () => {

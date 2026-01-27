@@ -54,6 +54,10 @@ const RootLayoutNav = () => {
       return;
     }
 
+    if (currentRouteGroup === 'perfil') {
+      return; 
+    }
+
     if (inAuthGroup) {
       if (role === 'superadmin') router.replace('/(superadmin)/empresas');
       else if (role === 'admin') router.replace(`/(admin)/meu-ponto/home`);
