@@ -167,6 +167,15 @@ export default function AdminLayout() {
                title: 'Adicionar Feriado',
             }}
          />
+
+         <Drawer.Screen
+            name='historico-pontos/index'
+            options={{
+               drawerLabel: 'Histórico de Pontos',
+               title: 'Histórico de Pontos',
+               drawerItemStyle: { display: 'none' },
+            }}
+         />
       </Drawer>
    );
 }

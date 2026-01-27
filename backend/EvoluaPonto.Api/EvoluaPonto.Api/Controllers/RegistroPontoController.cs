@@ -192,5 +192,38 @@ namespace EvoluaPonto.Api.Controllers
                 });
             }
         }
+
+        [HttpGet("historico-ponto")]
+        public async Task<IActionResult> GetHistorico(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] Guid? funcionarioId = null, // Verifique se no seu banco é int ou Guid
+            [FromQuery] Guid? empresaId = null,     // <--- O NOVO PARÂMETRO AQUI
+            [FromQuery] DateTime? dataInicio = null,
+            [FromQuery] DateTime? dataFim = null)
+        {
+            try
+            {
+                // Chama o serviço passando todos os parâmetros, incluindo o novo empresaId
+                var resultado = await _registroPontoService.obterHistoricoPonto(
+                    page,
+                    pageSize,
+                    funcionarioId,
+                    empresaId, // Repassando
+                    dataInicio,
+                    dataFim
+                );
+
+                // Retorna 200 OK com o objeto PagedResult
+                return Ok(new { success = true, data = resultado.Data, totalPages = resultado.TotalPages, totalItems = resultado.TotalItems });
+
+                // OU, se seu PagedResult já tem o formato que o front espera:
+                // return Ok(resultado); 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, errorMessage = "Erro ao buscar histórico: " + ex.Message });
+            }
+        }
     }
 }

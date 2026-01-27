@@ -308,9 +308,9 @@ namespace EvoluaPonto.Api.Services
                         await _minioService.UploadFileAsync(stream, caminhoMinio, "application/pdf");
                     }
 
-                        // 5. Atualiza o objeto com o caminho do arquivo
-                        // IMPORTANTE: Agora salvamos o "Key" do MinIO, não uma URL https://...
-                        registro.ComprovanteUrl = caminhoMinio;
+                    // 5. Atualiza o objeto com o caminho do arquivo
+                    // IMPORTANTE: Agora salvamos o "Key" do MinIO, não uma URL https://...
+                    registro.ComprovanteUrl = caminhoMinio;
                 }
                 catch (Exception ex)
                 {
@@ -327,7 +327,7 @@ namespace EvoluaPonto.Api.Services
                 return new ServiceResponse<bool> { Success = false, ErrorMessage = $"Erro ao processar aprovação: {ex.Message}" };
             }
         }
-    
+
         public async Task<ServiceResponse<int>> ContarSolicitacoesPendentesAsync(Guid funcionarioIdSolicitante)
         {
             try
@@ -359,5 +359,73 @@ namespace EvoluaPonto.Api.Services
             }
         }
 
+        public async Task<PagedResult<HistoricoPontoDto>> obterHistoricoPonto(
+            int page = 1,
+            int pageSize = 10,
+            Guid? funcionarioId = null, // Notei que no front é int/number, se for Guid mude aqui
+            Guid? empresaId = null,     // <--- NOVO PARÂMETRO
+            DateTime? dataInicio = null,
+            DateTime? dataFim = null)
+        {
+            // 1. Inicia a query base
+            var query = _context.RegistrosPonto
+                .Include(r => r.Funcionario)
+                .ThenInclude(tb => tb.Estabelecimento)
+                .AsQueryable();
+
+            // 2. Aplica Filtros
+
+            // FILTRO DE EMPRESA (Essencial para listar 'Todos' corretamente)
+            if (empresaId.HasValue)
+            {
+                query = query.Where(r => r.Funcionario.Estabelecimento.EmpresaId == empresaId.Value);
+            }
+
+            if (funcionarioId.HasValue)
+            {
+                query = query.Where(r => r.FuncionarioId == funcionarioId.Value);
+            }
+
+            if (dataInicio.HasValue)
+            {
+                query = query.Where(r => r.TimestampMarcacao >= dataInicio.Value);
+            }
+
+            if (dataFim.HasValue)
+            {
+                var fimDoDia = dataFim.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(r => r.TimestampMarcacao <= fimDoDia);
+            }
+
+            // 3. Contagem total
+            var totalItems = await query.CountAsync();
+
+            // 4. Ordenação e Paginação
+            var registros = await query
+                .OrderByDescending(r => r.TimestampMarcacao)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(r => new HistoricoPontoDto
+                {
+                    Id = r.Id,
+                    Tipo = r.Tipo,
+                    TimestampMarcacao = r.TimestampMarcacao,
+                    Latitude = r.Latitude,
+                    Longitude = r.Longitude,
+                    PrecisaoMetros = r.PrecisaoMetros,
+                    // PROTEÇÃO CONTRA NULO (Isso evita a tela branca se o funcionario foi deletado)
+                    FuncionarioNome = r.Funcionario != null ? r.Funcionario.Nome : "Funcionário Excluído",
+                    FuncionarioCargo = r.Funcionario != null ? r.Funcionario.Cargo : "-"
+                })
+                .ToListAsync();
+
+            return new PagedResult<HistoricoPontoDto>
+            {
+                Data = registros,
+                TotalItems = totalItems,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
     }
 }

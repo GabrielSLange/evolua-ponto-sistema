@@ -81,6 +81,11 @@ const CustomDrawerContent = (props: any) => {
                         onPress={() => router.push('/(admin)/relatorios')}
                         style={styles.nestedItem}
                      />
+                     <Drawer.Item
+                        label="Histórico de Pontos"
+                        onPress={() => router.push('/(admin)/historico-pontos')}
+                        style={styles.nestedItem}
+                     />
                   </List.Accordion>
                </>
             )}
