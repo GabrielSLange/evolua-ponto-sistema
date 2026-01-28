@@ -27,7 +27,14 @@ namespace EvoluaPonto.Api.Services
                 {
                     // Desserializa a resposta JSON diretamente para uma lista do nosso DTO.
                     var feriados = await response.Content.ReadFromJsonAsync<List<FeriadoDto>>();
-                    return feriados;
+
+                    // Filtro de pontos facultativos
+                    var feriadosFiltrados = feriados
+                        .Where(f => !f.Nome.Contains("Carnaval", StringComparison.OrdinalIgnoreCase))
+                        .Where(f => !f.Nome.Contains("Corpus Christi", StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+
+                    return feriadosFiltrados;
                 }
 
                 return null;
