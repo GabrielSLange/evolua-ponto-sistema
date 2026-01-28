@@ -27,7 +27,26 @@ namespace EvoluaPonto.Api.Services
                 {
                     // Desserializa a resposta JSON diretamente para uma lista do nosso DTO.
                     var feriados = await response.Content.ReadFromJsonAsync<List<FeriadoDto>>();
-                    return feriados;
+
+                    // Filtro de feriados obrigatórios (Lei Federal)
+                    var termosPermitidos = new[]
+                    {
+                        "Confraternização",
+                        "Sexta",
+                        "Páscoa",
+                        "Tiradentes",
+                        "trabalho",
+                        "Independência",
+                        "Nossa Senhora",
+                        "Finados",
+                        "Proclamação",
+                        "consciência",
+                        "Natal"
+                    };
+
+                    return feriados
+                        .Where(f => termosPermitidos.Any(t => f.Nome.Contains(t, StringComparison.OrdinalIgnoreCase)))
+                        .ToList();
                 }
 
                 return null;
