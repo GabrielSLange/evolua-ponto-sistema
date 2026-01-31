@@ -15,9 +15,11 @@
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
     "@lottiefiles/dotlottie-react": "^0.6.5",
+    "@react-native-async-storage/async-storage": "2.1.2",
     "@react-native-community/datetimepicker": "8.4.1",
     "@react-navigation/drawer": "^7.5.7",
     "@react-navigation/native": "^7.1.6",
+    "@types/leaflet": "^1.9.21",
     "axios": "^1.11.0",
     "date-fns": "^4.1.0",
     "expo": "~53.0.22",
@@ -40,15 +42,14 @@
     "react-leaflet": "^5.0.0",
     "react-native": "0.79.6",
     "react-native-gesture-handler": "~2.24.0",
-    "react-native-maps": "1.20.1",
+    "react-native-maps": "^1.20.1",
     "react-native-mask-text": "^0.15.0",
     "react-native-paper": "^5.14.5",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
     "react-native-web": "~0.20.0",
-    "react-pdf": "^7.7.3",
-    "@react-native-async-storage/async-storage": "2.1.2"
+    "react-pdf": "^7.7.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
