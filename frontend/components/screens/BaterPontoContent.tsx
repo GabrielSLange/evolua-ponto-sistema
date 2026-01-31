@@ -87,7 +87,6 @@ export default function BaterPontoContent() {
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             if (isGpsLoading) {
-                console.log("GPS Timeout: Liberando botão mesmo sem precisão total.");
                 setIsGpsLoading(false);
             }
         }, 10000); // 10 Segundos de espera máxima
