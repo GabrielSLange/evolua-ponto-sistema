@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 import { ModelFuncionario } from '@/models/ModelFuncionario';
+import DetalhesPontoModal from '@/components/modals/DetalhesPontoModal';
 
 const toISODateString = (date: Date) => {
     return date.toISOString().split('T')[0];
@@ -253,14 +254,12 @@ export default function HistoricoPontosScreen() {
                     <View style={styles.modalActions}><Button onPress={clearAllFilters} textColor={theme.colors.error}>Limpar</Button><Button mode="contained" onPress={applyFilters} style={{ flex: 1, marginLeft: 10 }}>Aplicar Filtros</Button></View>
                 </Modal>
             </Portal>
-            <Portal>
-                <Modal visible={employeeModalVisible} onDismiss={() => setEmployeeModalVisible(false)} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 20, margin: 20, borderRadius: 12, alignSelf: 'center', width: '90%', maxWidth: 500, height: '80%', maxHeight: 600 }}>
-                        <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}><Text variant="titleMedium">Selecione um Funcionário</Text><IconButton icon="close" onPress={() => setEmployeeModalVisible(false)} /></View>
-                    <Searchbar placeholder="Buscar por nome ou CPF" onChangeText={onChangeSearch} value={searchQuery} style={{ marginVertical: 10, backgroundColor: theme.colors.surfaceVariant }} />
-                    {loadingFuncionarios ? (<ActivityIndicator style={{marginTop: 20}} />) : <FlatList data={filteredFuncionarios} keyExtractor={(item) => item.id.toString()} renderItem={({ item }) => (<List.Item title={item.nome} description={`${item.cargo} • CPF: ${item.cpf}`} left={props => <Avatar.Text {...props} size={40} label={item.nome.substring(0,2).toUpperCase()} />} right={props => selectedFuncionario?.id === item.id ? <List.Icon {...props} icon="check" color={theme.colors.primary} /> : null} onPress={() => { setSelectedFuncionario(item); setEmployeeModalVisible(false); }} style={{ backgroundColor: selectedFuncionario?.id === item.id ? theme.colors.secondaryContainer : 'transparent', borderRadius: 8 }} />)} ItemSeparatorComponent={() => <Divider />} />}
-                    <Button onPress={() => { setSelectedFuncionario(null); setEmployeeModalVisible(false); }} style={{ marginTop: 10 }}>Remover Seleção (Todos)</Button>
-                </Modal>
-            </Portal>
+            <DetalhesPontoModal 
+                visible={detalhesModalVisible} 
+                onDismiss={() => setDetalhesModalVisible(false)} 
+                ponto={pontoSelecionado}
+                estabelecimento={dadosFuncionario?.estabelecimento}
+            />
         </View>
     );
 }
