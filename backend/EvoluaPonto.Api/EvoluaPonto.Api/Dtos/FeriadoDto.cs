@@ -8,10 +8,13 @@ namespace EvoluaPonto.Api.Dtos
         [JsonPropertyName("date")]
         public string Data { get; set; } // Formato "YYYY-MM-DD"
 
-        [JsonPropertyName("name")]
+        [JsonPropertyName("localName")]
         public string Nome { get; set; }
 
-        [JsonPropertyName("type")]
-        public string Tipo { get; set; }
+        [JsonPropertyName("global")]
+        public bool Global { get; set; }
+
+        [JsonPropertyName("types")]
+        public List<string> Tipo { get; set; }
     }
 }

@@ -3,7 +3,6 @@ using EvoluaPonto.Api.Dtos;
 using EvoluaPonto.Api.Models.Enums;
 using EvoluaPonto.Api.Models.Shared;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using QuestPDF.Fluent;
 using System.Globalization;
 
@@ -14,14 +13,12 @@ namespace EvoluaPonto.Api.Services
         private readonly AppDbContext _context;
         private readonly FeriadoService _feriadoService;
         private readonly FeriadoPersonalizadoService _feriadoPersonalizadoService;
-        private readonly IMemoryCache _memoryCache;
 
-        public EspelhoPontoService(AppDbContext context, FeriadoService feriadoService, FeriadoPersonalizadoService feriadoPersonalizadoService, IMemoryCache memoryCache)
+        public EspelhoPontoService(AppDbContext context, FeriadoService feriadoService, FeriadoPersonalizadoService feriadoPersonalizadoService)
         {
             _context = context;
             _feriadoService = feriadoService;
             _feriadoPersonalizadoService = feriadoPersonalizadoService;
-            _memoryCache = memoryCache;
         }
 
         // MUDANÇA: O parâmetro agora é EspelhoPontoAgrupadoDto
@@ -63,15 +60,7 @@ namespace EvoluaPonto.Api.Services
                 string cacheKey = $"Feriados_nacionais_{hoje.Year}";
 
                 // Tenta pegar do cache. Se não existir, roda a função dentro do 'GetOrCreateAsync'
-                var feriadosNacionais = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
-                {
-                    // Configura para expirar em 24 horas (assim atualiza 1x por dia)
-                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24);
-
-                    // Busca na API
-                    var dadosApi = await _feriadoService.GetFeriadosNacionaisAsync(hoje.Year);
-                    return dadosApi ?? new List<FeriadoDto>(); // Retorna lista vazia se falhar
-                });
+                var feriadosNacionais = await _feriadoService.GetFeriadosNacionaisAsync(hoje.Year);
 
                 // Feriados personalizados
                 var datasFeriadosPersonalizados = new List<DateTime>();
