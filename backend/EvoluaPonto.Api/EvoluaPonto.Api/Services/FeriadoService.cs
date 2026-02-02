@@ -1,4 +1,5 @@
 ﻿using EvoluaPonto.Api.Dtos;
+using System.Text.Json;
 
 namespace EvoluaPonto.Api.Services
 {
@@ -20,42 +21,45 @@ namespace EvoluaPonto.Api.Services
         {
             try
             {
-                var url = $"https://brasilapi.com.br/api/feriados/v1/{ano}";
+                var url = $"https://date.nager.at/api/v3/PublicHolidays/{ano}/br";
                 var response = await _httpClient.GetAsync(url);
 
-                if (response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
-                    // Desserializa a resposta JSON diretamente para uma lista do nosso DTO.
-                    var feriados = await response.Content.ReadFromJsonAsync<List<FeriadoDto>>();
-
-                    // Filtro de feriados obrigatórios (Lei Federal)
-                    var termosPermitidos = new[]
-                    {
-                        "Confraternização",
-                        "Sexta",
-                        "Páscoa",
-                        "Tiradentes",
-                        "trabalho",
-                        "Independência",
-                        "Nossa Senhora",
-                        "Finados",
-                        "Proclamação",
-                        "consciência",
-                        "Natal"
-                    };
-
-                    return feriados
-                        .Where(f => termosPermitidos.Any(t => f.Nome.Contains(t, StringComparison.OrdinalIgnoreCase)))
-                        .ToList();
+                    return [];
                 }
 
-                return null;
+                var json = await response.Content.ReadAsStringAsync();
+
+                // Configura para ler camelCase
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var feriadosExternos = JsonSerializer.Deserialize<List<FeriadoDto>>(json, options);
+
+                if (feriadosExternos == null) return [];
+
+                // Filtro
+                var feriadosFiltrados = feriadosExternos
+                    .Where(f =>
+                        // 1. Filtra se é feriado público ou facultativo
+                        (f.Tipo.Contains("Public") || f.Tipo.Contains("Optional"))
+
+                        // 2. Verifica se é nacional e não somente estatual
+                        && f.Global
+                    )
+                    .Select(f => new FeriadoDto
+                    {
+                        Data = f.Data,
+                        Nome = f.Nome,
+                        Tipo = f.Tipo.Contains("Optional") ? [ "Facultativo" ] : [ "Nacional" ],
+                    })
+                    .ToList();
+
+                return feriadosFiltrados;
             }
             catch (HttpRequestException ex)
             {
                 // Aqui você pode adicionar um log do erro, se desejar.
-                // Ex: _logger.LogError(ex, "Erro ao buscar feriados na BrasilAPI.");
-                return null;
+                return [];
             }
         }
     }

@@ -41,7 +41,7 @@ export default function ListFeriados({ feriados, permissao, toggleFeriadoAtivo }
 
         if (isNacional) {
             chipIcon = "flag-variant";
-            chipLabel = "Nacional";
+            chipLabel = item.estabelecimento?.nomeFantasia || "Nacional";
             chipColor = theme.colors.tertiaryContainer;
         } else if (isGlobalPersonalizado) {
             chipIcon = "earth";

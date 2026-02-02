@@ -82,11 +82,13 @@ export const useFeriado = (userId: string | null) => {
                 // Normaliza Nacionais
                 const nacionais: FeriadoView[] = (respNacionais.data.data || []).map((f: any, index: number) => ({
                     id: `nac-${index}-${f.date}`, // ID fictício para chave do React
-                    descricao: f.name,
+                    descricao: f.localName,
                     data: new Date(f.date).toISOString(),
                     tipo: "NACIONAL",
                     ativo: true,
-                    estabelecimento: { nomeFantasia: "Nacional" }
+                    estabelecimento: { 
+                        nomeFantasia: f.types?.[0] === "Nacional" ? "Nacional" : "Nacional (Facultativo)"
+                    }
                 }));
 
                 // Unifica e ordena os feriados
