@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, Suspense, useCallback } from "react";
-import { Platform, StyleSheet, Text, View, TouchableOpacity, Modal, Alert } from "react-native";
+import { Platform, StyleSheet, Text, View, TouchableOpacity, Modal, useWindowDimensions } from "react-native";
 import * as Location from "expo-location";
 import haversine from "haversine-distance";
 import { format } from "date-fns";
@@ -9,7 +9,7 @@ import { useFocusEffect } from "expo-router";
 import CustomLoader from "@/components/CustomLoader";
 import api from "@/services/api";
 import { useNotification } from "@/contexts/NotificationContext";
-import { SegmentedButtons, useTheme, ActivityIndicator } from "react-native-paper";
+import { SegmentedButtons, useTheme, ActivityIndicator, Portal, Modal as PaperModal } from "react-native-paper";
 
 /* ---------- helper: inject leaflet CSS via CDN (web only) ---------- */
 function ensureLeafletCss() {
@@ -53,6 +53,10 @@ export default function BaterPontoContent() {
     const [allowedRadius, setAllowedRadius] = useState(1000);
     const theme = useTheme();
     const [tipoPonto, setTipoPonto] = useState('ENTRADA');
+    const [confirmModelVisible, setConfirmModelVisible] = useState(false);
+    const { width } = useWindowDimensions();
+
+    const isDesktop = Platform.OS === 'web' && width > 768;
 
     // Estado para controlar a "tentativa forçada" de pegar o GPS
     const [isGpsLoading, setIsGpsLoading] = useState(true);
@@ -378,7 +382,7 @@ export default function BaterPontoContent() {
                             opacity: isButtonDisabled ? 0.6 : 1
                         }
                     ]}
-                    onPress={handleBaterPonto}
+                    onPress={() => setConfirmModelVisible(true)}
                     disabled={isButtonDisabled || loading} // Desabilita se GPS estiver carregando ou API estiver enviando
                 >
                     {isButtonDisabled ? (
@@ -398,6 +402,60 @@ export default function BaterPontoContent() {
                     )}
                 </TouchableOpacity>
             </View>
+            
+            <Portal>
+                <PaperModal
+                    visible={confirmModelVisible}
+                    onDismiss={() => setConfirmModelVisible(false)}
+                    // O segredo está aqui: Este estilo define a caixa branca/elevada
+                    contentContainerStyle={[styles.paperModalContainer, styles.paperModalContainer, 
+                        { 
+                            backgroundColor: theme.colors.elevation.level3,
+                            // AQUI ESTÁ A CORREÇÃO:
+                            // Se for Desktop, trava em 600px ou 50% da tela.
+                            // Se for Mobile, usa 85% ou 90%.
+                            width: isDesktop ? 600 : '85%', 
+                            maxWidth: '90%', // Segurança para não estourar telas pequenas
+                        }]}
+                >
+                    <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
+                        Confirmar Registro
+                    </Text>
+
+                    <Text style={{ color: theme.colors.onSurfaceVariant, marginBottom: 10, textAlign: 'center' }}>
+                        Você está prestes a registrar um ponto de:
+                    </Text>
+
+                    <Text style={[
+                        styles.tipoDestaque,
+                        {
+                            color: tipoPonto === 'ENTRADA' ? theme.colors.primary : theme.colors.error,
+                            borderColor: tipoPonto === 'ENTRADA' ? theme.colors.primary : theme.colors.error
+                        }
+                    ]}>
+                        {tipoPonto}
+                    </Text>
+
+                    <View style={styles.modalButtons}>
+                        <TouchableOpacity
+                            style={[styles.modalBtn, { backgroundColor: theme.colors.surfaceVariant }]}
+                            onPress={() => setConfirmModelVisible(false)}
+                        >
+                            <Text style={{ color: theme.colors.onSurfaceVariant }}>Cancelar</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.modalBtn, { backgroundColor: theme.colors.primary }]}
+                            onPress={() => {
+                                setConfirmModelVisible(false);
+                                handleBaterPonto();
+                            }}
+                        >
+                            <Text style={{ color: theme.colors.onPrimary, fontWeight: 'bold' }}>Confirmar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </PaperModal>
+            </Portal>
 
             <Modal
                 transparent={true}
@@ -482,7 +540,34 @@ function NativeMap({ refMap, establishmentCoords, allowedRadius, primaryColor }:
 /* ---------- Web Leaflet map component (kept inside same file) ---------- */
 function WebLeafletMap({ initialCenter, establishmentCoords, userLocation, allowedRadius }: any) {
     const { MapContainer, TileLayer, Marker, Circle } = WebMapModule;
+    const L = require("leaflet");
 
+    const createIcon = (color: string) => {
+        return new L.Icon({
+            iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],      // Tamanho do ícone
+            iconAnchor: [12, 41],    // Ponto do ícone que corresponde à localização (a pontinha de baixo)
+            popupAnchor: [1, -34],   // Onde o popup abre em relação ao ícone
+            shadowSize: [41, 41]     // Tamanho da sombra
+        });
+    };
+
+    const usuarioSvgHtml = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 -5 35 45">
+            <path fill="#0427f0" stroke="#FFFFFF" stroke-width="-1" d="M16,0C9.373,0,4,5.373,4,12c0,8,12,20,12,20s12-12,12-20C28,5.373,22.627,0,16,0z"/>
+            <path fill="#FFFFFF" d="M16,4c-2.209,0-4,1.791-4,4s1.791,4,4,4s4-1.791,4-4S18.209,4,16,4z M16,13c-2.672,0-8,1.336-8,4v3h16v-3C24,14.336,18.672,13,16,13z"/>
+        </svg>
+    `;
+
+    const empresaIcon = createIcon('blue');  // Empresa Azul (Padrão)
+    const usuarioIcon = new L.DivIcon({
+        className: 'custom-user-icon', // Necessário para o Leaflet não aplicar estilos padrão de quadrado branco
+        html: usuarioSvgHtml,
+        iconSize: [80, 80],   // Tamanho do SVG
+        iconAnchor: [20, 40], // Ponto que toca o mapa (metade da largura, altura total)
+        popupAnchor: [0, -40] // Onde o popup abre acima dele
+    });
     // Tratamento de segurança para coordenadas
     const lat = initialCenter?.latitude ?? establishmentCoords?.latitude ?? 0;
     const lng = initialCenter?.longitude ?? establishmentCoords?.longitude ?? 0;
@@ -511,13 +596,19 @@ function WebLeafletMap({ initialCenter, establishmentCoords, userLocation, allow
                 
                 {establishmentCoords && establishmentCoords.latitude !== 0 && (
                      <>
-                        <Marker position={[establishmentCoords.latitude, establishmentCoords.longitude]} />
+                        <Marker 
+                            position={[establishmentCoords.latitude, establishmentCoords.longitude]} 
+                            icon={empresaIcon} // <--- APLICA O ÍCONE AZUL
+                        />
                         <Circle center={[establishmentCoords.latitude, establishmentCoords.longitude]} radius={allowedRadius} />
                      </>
                 )}
                
                 {userLocation && (
-                    <Marker position={[userLocation.coords.latitude, userLocation.coords.longitude]} />
+                    <Marker 
+                        position={[userLocation.coords.latitude, userLocation.coords.longitude]} 
+                        icon={usuarioIcon} // <--- APLICA O ÍCONE VERMELHO
+                    />
                 )}
             </MapContainer>
         </div>
@@ -572,4 +663,59 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fundo escuro transparente
+    },
+    modalContent: {
+        width: '85%',
+        padding: 24,
+        borderRadius: 16,
+        alignItems: 'center',
+        elevation: 5, // Sombra no Android
+        shadowColor: '#000', // Sombra no iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+    },
+    paperModalContainer: {
+        padding: 24,
+        margin: 20,
+        borderRadius: 16,
+        alignSelf: 'center', // Isso centraliza a caixa no meio da tela no Paper
+        alignItems: 'center', // Centraliza o texto e botões dentro da caixa
+    },
+    modalTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    tipoDestaque: {
+        fontSize: 32,
+        fontWeight: '900',
+        marginVertical: 20,
+        paddingHorizontal: 30,
+        paddingVertical: 10,
+        borderWidth: 3,
+        borderRadius: 12,
+        letterSpacing: 2,
+        textAlign: 'center',
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginTop: 10,
+        gap: 12,
+    },
+    modalBtn: {
+        flex: 1,
+        paddingVertical: 14,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+    }
 });
