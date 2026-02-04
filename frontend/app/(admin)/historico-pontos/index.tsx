@@ -216,7 +216,8 @@ export default function HistoricoPontosScreen() {
 
             {/* --- MODAIS --- */}
             {/* (Mantive seus modais originais aqui) */}
-            <Portal>
+            {/* Código modal duplicado */}
+            {/* <Portal>
                 <Modal visible={detalhesModalVisible} onDismiss={() => setDetalhesModalVisible(false)} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 0, margin: 20, borderRadius: 12, alignSelf: 'center', width: '90%', maxWidth: 600, overflow: 'hidden', height: '80%', maxHeight: 700 }}>
                     {pontoSelecionado && (
                         <View style={{ flex: 1 }}>
@@ -238,7 +239,7 @@ export default function HistoricoPontosScreen() {
                         </View>
                     )}
                 </Modal>
-            </Portal>
+            </Portal> */}
 
             <Portal>
                 <Modal visible={filterModalVisible} onDismiss={() => setFilterModalVisible(false)} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 20, margin: 20, borderRadius: 12, alignSelf: 'center', width: '90%', maxWidth: 500 }}>
