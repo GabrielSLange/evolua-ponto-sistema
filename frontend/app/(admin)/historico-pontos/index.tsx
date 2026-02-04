@@ -188,22 +188,13 @@ export default function HistoricoPontosScreen() {
                     data={pontos}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={renderItem}
-                    scrollEnabled={false} // OBRIGATÓRIO POIS TÁ DENTRO DE OUTRO SCROLL
+                    scrollEnabled={true} // OBRIGATÓRIO POIS TÁ DENTRO DE OUTRO SCROLL
                     ListFooterComponent={loading && !refreshing ? <ActivityIndicator style={{ margin: 20 }} /> : null}
                     ListEmptyComponent={!loading ? <Text style={{ textAlign: 'center', marginTop: 50, color: '#888' }}>Nenhum registro encontrado.</Text> : null}
                 />
-
-                {/* ESPAÇADOR:
-                   Cria um espaço vazio no final da lista para que o último item
-                   não fique escondido atrás do rodapé fixo.
-                */}
                 <View style={{ height: 100 }} /> 
             </ScreenContainer>
 
-            {/* 3. RODAPÉ FIXO (FORA DO SCREENCONTAINER)
-               Como ele está fora do ScrollView, o position: absolute funciona
-               em relação à tela do dispositivo.
-            */}
             <Surface style={[styles.paginationFooter, footerStyle, { backgroundColor: theme.colors.elevation.level2 }]} elevation={4}>
                 <View style={styles.paginationContent}>
                     <IconButton icon="chevron-left" mode="contained-tonal" disabled={page === 1 || loading} onPress={handlePrevPage} size={24} />
