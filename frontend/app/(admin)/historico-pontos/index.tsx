@@ -216,29 +216,6 @@ export default function HistoricoPontosScreen() {
 
             {/* --- MODAIS --- */}
             {/* (Mantive seus modais originais aqui) */}
-            <Portal>
-                <Modal visible={detalhesModalVisible} onDismiss={() => setDetalhesModalVisible(false)} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 0, margin: 20, borderRadius: 12, alignSelf: 'center', width: '90%', maxWidth: 600, overflow: 'hidden', height: '80%', maxHeight: 700 }}>
-                    {pontoSelecionado && (
-                        <View style={{ flex: 1 }}>
-                            <View style={{ padding: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderColor: theme.colors.outlineVariant }}>
-                                <View><Text variant="titleLarge" style={{ color: theme.colors.primary, fontWeight: 'bold' }}>Detalhes do Ponto</Text><Text variant="bodySmall" style={{ color: theme.colors.outline }}>{format(new Date(pontoSelecionado.timestampMarcacao), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</Text></View>
-                                <IconButton icon="close" onPress={() => setDetalhesModalVisible(false)} />
-                            </View>
-                            <ScrollView style={{ flex: 1 }}>
-                                <View style={{ padding: 20 }}>
-                                    <View style={styles.detailRow}><View style={{ flex: 1 }}><Text variant="labelMedium" style={{ color: theme.colors.outline }}>Funcionário</Text><Text variant="bodyLarge">{pontoSelecionado.funcionarioNome}</Text></View><View style={{ flex: 1 }}><Text variant="labelMedium" style={{ color: theme.colors.outline }}>Cargo</Text><Text variant="bodyLarge">{pontoSelecionado.funcionarioCargo}</Text></View></View>
-                                    <View style={[styles.detailRow, { marginTop: 15 }]}><View style={{ flex: 1 }}><Text variant="labelMedium" style={{ color: theme.colors.outline }}>Horário</Text><Text variant="headlineMedium" style={{ fontWeight: 'bold' }}>{format(new Date(pontoSelecionado.timestampMarcacao), "HH:mm:ss")}</Text></View><View style={{ flex: 1 }}><Text variant="labelMedium" style={{ color: theme.colors.outline }}>Tipo</Text><Chip icon={pontoSelecionado.tipo === 'ENTRADA' ? "login" : "logout"} style={{ backgroundColor: pontoSelecionado.tipo === 'ENTRADA' ? theme.colors.primaryContainer : theme.colors.errorContainer, alignSelf: 'flex-start', marginTop: 5 }}>{pontoSelecionado.tipo}</Chip></View></View>
-                                    <Divider style={{ marginVertical: 20 }} />
-                                    <Text variant="titleMedium" style={{ marginBottom: 10 }}>Localização</Text>
-                                    <View style={styles.mapContainer}>
-                                        {pontoSelecionado.latitude && pontoSelecionado.longitude ? <View style={{flex:1, alignItems:'center', justifyContent:'center'}}><Text>Mapa disponível na versão completa</Text></View> : <View style={styles.noLocationContainer}><Avatar.Icon size={64} icon="map-marker-off" style={{ backgroundColor: theme.colors.surfaceVariant }} /><Text style={{ marginTop: 10, color: theme.colors.outline }}>Localização não registrada.</Text></View>}
-                                    </View>
-                                </View>
-                            </ScrollView>
-                        </View>
-                    )}
-                </Modal>
-            </Portal>
 
             <Portal>
                 <Modal visible={filterModalVisible} onDismiss={() => setFilterModalVisible(false)} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 20, margin: 20, borderRadius: 12, alignSelf: 'center', width: '90%', maxWidth: 500 }}>

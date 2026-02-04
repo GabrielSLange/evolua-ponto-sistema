@@ -51,7 +51,7 @@ export default function DetalhesPontoModal({ visible, onDismiss, ponto, estabele
             <Modal
                 visible={visible}
                 onDismiss={onDismiss}
-                contentContainerStyle={styles.modalContent}
+                contentContainerStyle={[styles.modalContent, { backgroundColor: theme.colors.surface }]}
             >
                 <View style={{ flex: 1 }}>
                     {/* Cabeçalho */}
@@ -199,7 +199,6 @@ function WebMapComponent({ ponto, estabelecimento }: any) {
 
 const styles = StyleSheet.create({
     modalContent: { 
-        backgroundColor: 'white', 
         padding: 0, 
         margin: 20, 
         borderRadius: 12, 
