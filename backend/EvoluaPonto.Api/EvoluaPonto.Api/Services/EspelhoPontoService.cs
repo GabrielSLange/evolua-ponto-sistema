@@ -37,7 +37,8 @@ namespace EvoluaPonto.Api.Services
             try
             {
                 // Definir o período (Mês Atual)
-                var hoje = DateTime.Now.Date;
+                var dataHoraBrasilia = DateTime.UtcNow.AddHours(-3); // Ajuste simples para fuso horário de Brasília
+                var hoje = dataHoraBrasilia.Date;
                 var primeiroDiaMes = new DateTime(hoje.Year, hoje.Month, 1);
                 var ultimoDiaMes = primeiroDiaMes.AddMonths(1).AddDays(-1);
 
