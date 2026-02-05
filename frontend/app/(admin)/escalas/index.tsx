@@ -14,7 +14,7 @@ export default function EscalasIndex() {
     const router = useRouter();
     const theme = useTheme();
     const { escalas, loading } = useEscala(userId || null);
-
+    console.log('escalas', escalas);
     return (
         <View style={{ flex: 1 }}>
             <ScreenContainer>
