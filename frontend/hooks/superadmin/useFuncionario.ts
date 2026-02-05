@@ -16,7 +16,7 @@ export const useFuncionarios = (estabelecimentoId: string | undefined) => {
         if (!estabelecimentoId) return;
 
         setLoading(true);
-        api.get(`/Funcionarios?estabelecimentoId=${estabelecimentoId}`)
+        api.get(`/Funcionarios/estabelecimento/${estabelecimentoId}`)
             .then(response => {
                 if (response.data && response.data) {
                     setFuncionarios(response.data);
