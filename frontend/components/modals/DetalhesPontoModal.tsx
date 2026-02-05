@@ -222,8 +222,6 @@ function WebMapComponent({ ponto, estabelecimento }: any) {
 
     const centerCoords: [number, number] = [ponto.latitude, ponto.longitude];
 
-    console.log("Renderizando mapa web com ponto em:", centerCoords);
-
     return (
         <MapContainer 
             center={centerCoords} 
