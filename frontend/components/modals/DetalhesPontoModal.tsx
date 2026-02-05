@@ -208,7 +208,7 @@ function WebMapComponent({ ponto, estabelecimento }: any) {
     // Ícone Vermelho com Silhueta (Usuário/Ponto)
     const usuarioSvgHtml = `
         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 -5 35 45">
-            <path fill="#2d3edb" stroke="#FFFFFF" stroke-width="1" d="M16,0C9.373,0,4,5.373,4,12c0,8,12,20,12,20s12-12,12-20C28,5.373,22.627,0,16,0z"/>
+            <path fill="#db2d2d" stroke="#FFFFFF" stroke-width="1" d="M16,0C9.373,0,4,5.373,4,12c0,8,12,20,12,20s12-12,12-20C28,5.373,22.627,0,16,0z"/>
             <path fill="#FFFFFF" d="M16,4c-2.209,0-4,1.791-4,4s1.791,4,4,4s4-1.791,4-4S18.209,4,16,4z M16,13c-2.672,0-8,1.336-8,4v3h16v-3C24,14.336,18.672,13,16,13z"/>
         </svg>
     `;
