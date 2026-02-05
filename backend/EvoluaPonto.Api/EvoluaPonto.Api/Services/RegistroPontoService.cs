@@ -415,7 +415,8 @@ namespace EvoluaPonto.Api.Services
                     PrecisaoMetros = r.PrecisaoMetros,
                     // PROTEÇÃO CONTRA NULO (Isso evita a tela branca se o funcionario foi deletado)
                     FuncionarioNome = r.Funcionario != null ? r.Funcionario.Nome : "Funcionário Excluído",
-                    FuncionarioCargo = r.Funcionario != null ? r.Funcionario.Cargo : "-"
+                    FuncionarioCargo = r.Funcionario != null ? r.Funcionario.Cargo : "-",
+                    funcionarioId = r.FuncionarioId
                 })
                 .ToListAsync();
 

@@ -10,5 +10,7 @@
         public double? PrecisaoMetros { get; set; }
         public string FuncionarioNome { get; set; }
         public string FuncionarioCargo { get; set; }
+
+        public Guid funcionarioId { get; set; }
     }
 }

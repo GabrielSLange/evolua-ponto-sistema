@@ -4,7 +4,7 @@ import { Text, Card, Avatar, ActivityIndicator, useTheme, Button, IconButton, Ch
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import api from '@/services/api';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 import { ModelFuncionario } from '@/models/ModelFuncionario';
@@ -51,6 +51,7 @@ export default function HistoricoPontosScreen() {
     const [dataFim, setDataFim] = useState<Date | undefined>(hoje);
     const [showPickerInicio, setShowPickerInicio] = useState(false);
     const [showPickerFim, setShowPickerFim] = useState(false);
+    const [funcionarioDetalhes, setFuncionarioDetalhes] = useState<ModelFuncionario | null>(null);
 
     // Carregamento
     const carregarDados = async (idDoUsuario: string | null) => {
@@ -125,11 +126,28 @@ export default function HistoricoPontosScreen() {
         if (selectedDate) setDataFim(new Date(Date.UTC(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate())));
     };
 
+    const buscarDetalhesPonto = async (funcionarioId: string) => {
+        setLoading(true);
+        try {
+            const response = await api.get(`/Funcionarios/id?funcionarioId=${funcionarioId}`);
+            setFuncionarioDetalhes(response.data);
+        } catch (error) {
+            console.error("Erro ao buscar detalhes do ponto:", error);
+            return null;
+        }
+        finally { setLoading(false); }
+    };
+
+
     // Modal Handlers
     const [detalhesModalVisible, setDetalhesModalVisible] = useState(false);
     const [pontoSelecionado, setPontoSelecionado] = useState<any>(null);
     const handleOpenDetalhes = (item: any) => {
         setPontoSelecionado(item);
+        const pontoAtual = pontos.find(p => p.id === item.id);
+        if (pontoAtual) {
+            buscarDetalhesPonto(pontoAtual.funcionarioId);
+        }
         setDetalhesModalVisible(true);
     };
 
@@ -293,7 +311,7 @@ export default function HistoricoPontosScreen() {
                 visible={detalhesModalVisible} 
                 onDismiss={() => setDetalhesModalVisible(false)} 
                 ponto={pontoSelecionado}
-                estabelecimento={dadosFuncionario?.estabelecimento}
+                estabelecimento={funcionarioDetalhes?.estabelecimento}
             />
         </View>
     );

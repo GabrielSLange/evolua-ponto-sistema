@@ -166,33 +166,89 @@ function NativeMapComponent({ ponto, estabelecimento }: any) {
 }
 
 // "Vigilante" para Web: Garante que o mapa renderize após o modal abrir
-function MapUpdater() {
+// --- SUB-COMPONENTES DE MAPA WEB ---
+
+// 1. Atualizamos o MapUpdater para receber as coordenadas e Mover a câmera
+function MapUpdater({ center }: { center: [number, number] }) {
     if (!WebMapModule) return null;
     const { useMap } = WebMapModule;
     const map = useMap();
+
     useEffect(() => {
-        const timer = setTimeout(() => {
-            map.invalidateSize(); 
-        }, 250); // Delay para esperar a animação do Modal
-        return () => clearTimeout(timer);
-    }, [map]);
+        if (map) {
+            // Passo 1: Garante que o tamanho da div está correto (corrige tela cinza)
+            map.invalidateSize();
+            
+            // Passo 2: Força o mapa a voar para a nova coordenada (corrige o bug de local fixo)
+            // O animate: true deixa o movimento suave
+            map.setView(center, 15, { animate: true });
+        }
+    }, [map, center]); // Executa sempre que o "center" mudar
+
     return null;
 }
 
 function WebMapComponent({ ponto, estabelecimento }: any) {
     if (!WebMapModule) return <ActivityIndicator />;
     const { MapContainer, TileLayer, Marker, Popup } = WebMapModule;
+    const L = require("leaflet");
+
+    // --- ÍCONES PERSONALIZADOS (Para você ver a diferença) ---
+    
+    // Ícone Azul (Empresa)
+    const empresaIcon = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+    // Ícone Vermelho com Silhueta (Usuário/Ponto)
+    const usuarioSvgHtml = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 -5 35 45">
+            <path fill="#2d3edb" stroke="#FFFFFF" stroke-width="1" d="M16,0C9.373,0,4,5.373,4,12c0,8,12,20,12,20s12-12,12-20C28,5.373,22.627,0,16,0z"/>
+            <path fill="#FFFFFF" d="M16,4c-2.209,0-4,1.791-4,4s1.791,4,4,4s4-1.791,4-4S18.209,4,16,4z M16,13c-2.672,0-8,1.336-8,4v3h16v-3C24,14.336,18.672,13,16,13z"/>
+        </svg>
+    `;
+    const usuarioIcon = new L.DivIcon({
+        className: 'custom-user-icon',
+        html: usuarioSvgHtml,
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -40]
+    });
+
+    const centerCoords: [number, number] = [ponto.latitude, ponto.longitude];
+
+    console.log("Renderizando mapa web com ponto em:", centerCoords);
 
     return (
         <MapContainer 
-            center={[ponto.latitude, ponto.longitude]} 
+            center={centerCoords} 
             zoom={15} 
             style={{ height: '300px', width: '100%', borderRadius: '12px' }} 
         >
-            <MapUpdater />
+            {/* Passamos as coordenadas para o Updater forçar a movimentação */}
+            <MapUpdater center={centerCoords} />
+            
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap' />
-            <Marker position={[ponto.latitude, ponto.longitude]}><Popup><b>Ponto Batido</b><br/>{format(new Date(ponto.timestampMarcacao), "HH:mm")}</Popup></Marker>
-            {estabelecimento?.latitude && <Marker position={[estabelecimento.latitude, estabelecimento.longitude]}><Popup><b>Empresa</b><br/>Sede</Popup></Marker>}
+            
+            {/* Marcador do PONTO (Vermelho) */}
+            <Marker position={[ponto.latitude, ponto.longitude]} icon={usuarioIcon}>
+                <Popup>
+                    <b>Ponto Batido</b><br/>
+                    {format(new Date(ponto.timestampMarcacao), "HH:mm")}
+                </Popup>
+            </Marker>
+
+            {/* Marcador da EMPRESA (Azul) - Só renderiza se tiver latitude */}
+            {estabelecimento?.latitude && (
+                <Marker position={[estabelecimento.latitude, estabelecimento.longitude]} icon={empresaIcon}>
+                    <Popup><b>Empresa</b><br/>Sede</Popup>
+                </Marker>
+            )}
         </MapContainer>
     );
 }
