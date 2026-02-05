@@ -4,7 +4,7 @@ import { Text, Card, Avatar, ActivityIndicator, useTheme, Button, IconButton, Ch
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import api from '@/services/api';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 import { ModelFuncionario } from '@/models/ModelFuncionario';
@@ -51,6 +51,7 @@ export default function HistoricoPontosScreen() {
     const [dataFim, setDataFim] = useState<Date | undefined>(hoje);
     const [showPickerInicio, setShowPickerInicio] = useState(false);
     const [showPickerFim, setShowPickerFim] = useState(false);
+    const [funcionarioDetalhes, setFuncionarioDetalhes] = useState<ModelFuncionario | null>(null);
 
     // Carregamento
     const carregarDados = async (idDoUsuario: string | null) => {
@@ -125,11 +126,28 @@ export default function HistoricoPontosScreen() {
         if (selectedDate) setDataFim(new Date(Date.UTC(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate())));
     };
 
+    const buscarDetalhesPonto = async (funcionarioId: string) => {
+        setLoading(true);
+        try {
+            const response = await api.get(`/Funcionarios/id?funcionarioId=${funcionarioId}`);
+            setFuncionarioDetalhes(response.data);
+        } catch (error) {
+            console.error("Erro ao buscar detalhes do ponto:", error);
+            return null;
+        }
+        finally { setLoading(false); }
+    };
+
+
     // Modal Handlers
     const [detalhesModalVisible, setDetalhesModalVisible] = useState(false);
     const [pontoSelecionado, setPontoSelecionado] = useState<any>(null);
     const handleOpenDetalhes = (item: any) => {
         setPontoSelecionado(item);
+        const pontoAtual = pontos.find(p => p.id === item.id);
+        if (pontoAtual) {
+            buscarDetalhesPonto(pontoAtual.funcionarioId);
+        }
         setDetalhesModalVisible(true);
     };
 
@@ -165,13 +183,14 @@ export default function HistoricoPontosScreen() {
         // 1. View Principal que segura a tela inteira (sem scroll)
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             
+            <View style={styles.header}>
+                <Text variant="headlineSmall" style={{ fontWeight: 'bold', color: theme.colors.primary }}>Histórico de Pontos</Text>
+                <IconButton icon="filter-variant" mode="contained" onPress={() => setFilterModalVisible(true)} />
+            </View>
             {/* 2. ScreenContainer lida com o Scroll (Conteúdo) */}
             <ScreenContainer>
                 {/* Cabeçalho */}
-                <View style={styles.header}>
-                    <Text variant="headlineSmall" style={{ fontWeight: 'bold', color: theme.colors.primary }}>Histórico de Pontos</Text>
-                    <IconButton icon="filter-variant" mode="contained" onPress={() => setFilterModalVisible(true)} />
-                </View>
+                
                 
                 <View style={styles.activeFilters}>
                     {selectedFuncionario && <Chip icon="account" onClose={() => { setSelectedFuncionario(null); handleRefresh(); }}>{selectedFuncionario.nome.split(' ')[0]}</Chip>}
@@ -209,7 +228,15 @@ export default function HistoricoPontosScreen() {
             {/* (Mantive seus modais originais aqui) */}
 
             <Portal>
-                <Modal visible={filterModalVisible} onDismiss={() => setFilterModalVisible(false)} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 20, margin: 20, borderRadius: 12, alignSelf: 'center', width: '90%', maxWidth: 500 }}>
+                <Modal visible={filterModalVisible} onDismiss={() => setFilterModalVisible(false)} contentContainerStyle={{ 
+                    backgroundColor: theme.colors.background, 
+                    padding: 20, 
+                    margin: 20, 
+                    borderRadius: 12, 
+                    alignSelf: 'center', 
+                    width: '90%', 
+                    maxWidth: 500 
+                }}>
                     <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom: 10}}><Text variant="titleLarge">Filtrar Histórico</Text><IconButton icon="close" onPress={() => setFilterModalVisible(false)} /></View>
                     <Text variant="labelLarge" style={styles.label}>Funcionário:</Text>
                     <Button mode="outlined" onPress={() => { setEmployeeModalVisible(true); setSearchQuery(''); setFilteredFuncionarios(funcionarios); }} style={{ marginBottom: 16, borderColor: theme.colors.outline }} contentStyle={{ justifyContent: 'flex-start' }} textColor={selectedFuncionario ? theme.colors.primary : theme.colors.onSurfaceVariant} icon="account-search">{selectedFuncionario ? selectedFuncionario.nome : "Selecionar Funcionário (Todos)"}</Button>
@@ -222,11 +249,69 @@ export default function HistoricoPontosScreen() {
                     <View style={styles.modalActions}><Button onPress={clearAllFilters} textColor={theme.colors.error}>Limpar</Button><Button mode="contained" onPress={applyFilters} style={{ flex: 1, marginLeft: 10 }}>Aplicar Filtros</Button></View>
                 </Modal>
             </Portal>
+
+            {/* --- MODAL SECUNDÁRIO: SELEÇÃO DE FUNCIONÁRIO --- */}
+            <Portal>
+                <Modal 
+                    visible={employeeModalVisible} 
+                    onDismiss={() => setEmployeeModalVisible(false)}
+                    contentContainerStyle={{
+                        backgroundColor: theme.colors.background,
+                        padding: 20,
+                        margin: 20,
+                        borderRadius: 12,
+                        alignSelf: 'center',
+                        width: '90%',
+                        maxWidth: 500,
+                        height: '80%', 
+                        maxHeight: 600
+                    }}
+                >
+                        <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
+                            <Text variant="titleMedium">Selecione um Funcionário</Text>
+                            <IconButton icon="close" onPress={() => setEmployeeModalVisible(false)} />
+                    </View>
+
+                    <Searchbar
+                        placeholder="Buscar por nome ou CPF"
+                        onChangeText={onChangeSearch}
+                        value={searchQuery}
+                        style={{ marginVertical: 10, backgroundColor: theme.colors.surfaceVariant }}
+                    />
+
+                    {loadingFuncionarios ? (
+                        <ActivityIndicator style={{marginTop: 20}} />
+                    ) : (
+                        <FlatList
+                            data={filteredFuncionarios}
+                            keyExtractor={(item) => item.id.toString()}
+                            renderItem={({ item }) => (
+                                <List.Item
+                                    title={item.nome}
+                                    description={`${item.cargo} • CPF: ${item.cpf}`}
+                                    left={props => <Avatar.Text {...props} size={40} label={item.nome.substring(0,2).toUpperCase()} />}
+                                    right={props => selectedFuncionario?.id === item.id ? <List.Icon {...props} icon="check" color={theme.colors.primary} /> : null}
+                                    onPress={() => {
+                                        setSelectedFuncionario(item);
+                                        setEmployeeModalVisible(false);
+                                    }}
+                                    style={{ backgroundColor: selectedFuncionario?.id === item.id ? theme.colors.secondaryContainer : 'transparent', borderRadius: 8 }}
+                                />
+                            )}
+                            ItemSeparatorComponent={() => <Divider />}
+                        />
+                    )}
+                        <Button onPress={() => { setSelectedFuncionario(null); setEmployeeModalVisible(false); }} style={{ marginTop: 10 }}>
+                        Remover Seleção (Todos)
+                    </Button>
+                </Modal>
+            </Portal>
+
             <DetalhesPontoModal 
                 visible={detalhesModalVisible} 
                 onDismiss={() => setDetalhesModalVisible(false)} 
                 ponto={pontoSelecionado}
-                estabelecimento={dadosFuncionario?.estabelecimento}
+                estabelecimento={funcionarioDetalhes?.estabelecimento}
             />
         </View>
     );
