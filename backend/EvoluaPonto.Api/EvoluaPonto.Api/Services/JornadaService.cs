@@ -1,6 +1,7 @@
 ﻿using EvoluaPonto.Api.Data;
 using EvoluaPonto.Api.Dtos;
 using EvoluaPonto.Api.Models;
+using EvoluaPonto.Api.Models.Enums;
 using EvoluaPonto.Api.Models.Shared;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -43,7 +44,10 @@ namespace EvoluaPonto.Api.Services
             var feriadosDoAno = await ObterFeriadosUnificados(ano, funcionario, dataInicioTotal, dataFimTotal);
 
             var todosRegistros = await _context.RegistrosPonto
-                .Where(r => r.FuncionarioId == funcionarioId && r.TimestampMarcacao >= dataInicioTotal.ToUniversalTime() && r.TimestampMarcacao <= dataFimTotal.ToUniversalTime().AddDays(1))
+                .Where(r => r.FuncionarioId == funcionarioId 
+                    && r.TimestampMarcacao >= dataInicioTotal.ToUniversalTime() 
+                    && r.TimestampMarcacao <= dataFimTotal.ToUniversalTime().AddDays(1)
+                    && (r.Status == StatusSolicitacao.Aprovado || r.Status == null))
                 .OrderBy(r => r.TimestampMarcacao)
                 .ToListAsync();
 
