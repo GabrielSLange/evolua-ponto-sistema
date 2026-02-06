@@ -128,10 +128,15 @@ namespace EvoluaPonto.Api.Services
                 var marcacoes = jornada.Marcacoes;
 
                 // Exibe batidas (Apenas visualização)
-                if (marcacoes.Count > 0) ws.Cell(linha, 3).Value = TimeZoneInfo.ConvertTimeFromUtc(marcacoes[0].TimestampMarcacao, fusoBr).ToString("HH:mm");
-                if (marcacoes.Count > 1) ws.Cell(linha, 4).Value = TimeZoneInfo.ConvertTimeFromUtc(marcacoes[1].TimestampMarcacao, fusoBr).ToString("HH:mm");
-                if (marcacoes.Count > 2) ws.Cell(linha, 5).Value = TimeZoneInfo.ConvertTimeFromUtc(marcacoes[2].TimestampMarcacao, fusoBr).ToString("HH:mm");
-                if (marcacoes.Count > 3) ws.Cell(linha, 6).Value = TimeZoneInfo.ConvertTimeFromUtc(marcacoes[3].TimestampMarcacao, fusoBr).ToString("HH:mm");
+                // if (marcacoes.Count > 0) ws.Cell(linha, 3).Value = TimeZoneInfo.ConvertTimeFromUtc(marcacoes[0].TimestampMarcacao, fusoBr).ToString("HH:mm");
+                // if (marcacoes.Count > 1) ws.Cell(linha, 4).Value = TimeZoneInfo.ConvertTimeFromUtc(marcacoes[1].TimestampMarcacao, fusoBr).ToString("HH:mm");
+                // if (marcacoes.Count > 2) ws.Cell(linha, 5).Value = TimeZoneInfo.ConvertTimeFromUtc(marcacoes[2].TimestampMarcacao, fusoBr).ToString("HH:mm");
+                // if (marcacoes.Count > 3) ws.Cell(linha, 6).Value = TimeZoneInfo.ConvertTimeFromUtc(marcacoes[3].TimestampMarcacao, fusoBr).ToString("HH:mm");
+
+                if (marcacoes.Count > 0) ws.Cell(linha, 3).Value = marcacoes[0].TimestampMarcacao.ToString("HH:mm");
+                if (marcacoes.Count > 1) ws.Cell(linha, 4).Value = marcacoes[1].TimestampMarcacao.ToString("HH:mm");
+                if (marcacoes.Count > 2) ws.Cell(linha, 5).Value = marcacoes[2].TimestampMarcacao.ToString("HH:mm");
+                if (marcacoes.Count > 3) ws.Cell(linha, 6).Value = marcacoes[3].TimestampMarcacao.ToString("HH:mm");
 
                 // --- AQUI ESTAVA O PROBLEMA POTENCIAL EM DIAS > 24h (Raro, mas seguro corrigir) ---
                 ws.Cell(linha, 7).Value = FormatarHoraTotal(jornada.TotalTrabalhado);
