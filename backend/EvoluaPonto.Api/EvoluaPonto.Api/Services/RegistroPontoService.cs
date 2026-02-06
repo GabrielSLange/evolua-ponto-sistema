@@ -369,6 +369,7 @@ namespace EvoluaPonto.Api.Services
         {
             // 1. Inicia a query base
             var query = _context.RegistrosPonto
+                .Where(r => r.Status == StatusSolicitacao.Aprovado || r.Status == null) // Só pontos oficiais
                 .Include(r => r.Funcionario)
                 .ThenInclude(tb => tb.Estabelecimento)
                 .AsQueryable();
