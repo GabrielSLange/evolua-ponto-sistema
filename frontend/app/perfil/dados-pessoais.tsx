@@ -15,9 +15,6 @@ export default function DadosPessoaisScreen() {
     const { userId, role } = useAuth(); // Assumindo que 'user' tem dados básicos
     const [permissao, setPermissao] = useState('');
 
-    if (role === 'admin') setPermissao('admin');
-    else setPermissao('employee');
-
     const { showNotification } = useNotification();
 
     const [loading, setLoading] = useState(false);
@@ -31,6 +28,7 @@ export default function DadosPessoaisScreen() {
     // Busca os dados do perfil
     const fetchPerfil = async () => {
         setLoading(true);
+
         try {
             // Ajuste a rota para buscar os dados completos do funcionário logado
             const response = await api.get(`/Funcionarios/id?funcionarioId=${userId}`);
@@ -41,6 +39,9 @@ export default function DadosPessoaisScreen() {
                 setCargo(dados.cargo || '');
                 setEmail(dados.email || ''); // E-mail geralmente vem do login ou funcionário
             }
+
+            if (role === 'admin') setPermissao('admin');
+            else setPermissao('employee');
         } catch (error) {
             console.error(error);
             showNotification('Erro ao carregar dados do perfil.', 'error');
