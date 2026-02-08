@@ -168,5 +168,56 @@ namespace EvoluaPonto.Api.Services
 
             return response;
         }
+
+        public async Task<ServiceResponse<bool>> TrocarSenhaAsync(ChangePasswordDto dto)
+        {
+            var response = new ServiceResponse<bool>();
+
+            try
+            {
+                // 1. Busca o usuário
+                var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.FuncionarioId == dto.UserId);
+
+                if (usuario == null)
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Usuário não encontrado.";
+                    return response;
+                }
+
+                // 2. Valida a senha ATUAL
+                if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, usuario.SenhaHash))
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Senha atual incorreta.";
+                    return response;
+                }
+
+                // 3. Verifica se a nova senha é igual à antiga (Opcional, mas boa prática)
+                if (BCrypt.Net.BCrypt.Verify(dto.NewPassword, usuario.SenhaHash))
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "A nova senha não pode ser igual à atual.";
+                    return response;
+                }
+
+                // 4. Gera o hash da NOVA senha e salva
+                string novoHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+                usuario.SenhaHash = novoHash;
+
+                await _context.SaveChangesAsync();
+
+                response.Data = true;
+                response.Success = true;
+                response.ErrorMessage = "Senha alterada com sucesso.";
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = "Erro ao trocar senha: " + ex.Message;
+            }
+
+            return response;
+        }
     }
 }
