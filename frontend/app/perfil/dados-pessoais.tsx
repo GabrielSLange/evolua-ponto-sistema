@@ -98,7 +98,7 @@ export default function DadosPessoaisScreen() {
                     />
 
                     <Button 
-                        mode="contained" 
+                        mode="outlined" 
                         onPress={() => router.push({
                            pathname: `/(${permissao})/meu-ponto/home`,
                         })} 
