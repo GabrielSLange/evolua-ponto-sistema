@@ -28,4 +28,17 @@ namespace EvoluaPonto.Api.Dtos
         public string Perfil { get; set; }
         public Guid UsuarioId { get; set; }
     }
+
+    public class ChangeEmailDto
+    {
+        [Required]
+        public Guid UserId { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string NewEmail { get; set; }
+
+        [Required]
+        public string Password { get; set; }
+    }
 }
