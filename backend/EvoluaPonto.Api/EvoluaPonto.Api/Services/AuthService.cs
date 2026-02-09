@@ -112,5 +112,112 @@ namespace EvoluaPonto.Api.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+
+        public async Task<ServiceResponse<bool>> TrocarEmailAsync(ChangeEmailDto dto)
+        {
+            var response = new ServiceResponse<bool>();
+
+            try
+            {
+                // 1. Busca o usuário (incluindo dados do funcionário para manter consistência)
+                var usuario = await _context.Usuarios
+                    .Include(u => u.Funcionario)
+                    .FirstOrDefaultAsync(u => u.FuncionarioId == dto.UserId);
+
+                if (usuario == null)
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Usuário não encontrado.";
+                    return response;
+                }
+
+                // 2. VERIFICA A SENHA ATUAL (Passo de Segurança Crítico)
+                // O usuário só pode trocar o e-mail se confirmar quem ele é
+                if (!BCrypt.Net.BCrypt.Verify(dto.Password, usuario.SenhaHash))
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Senha incorreta. Não foi possível alterar o e-mail.";
+                    return response;
+                }
+
+                // 3. Verifica se o novo e-mail já está em uso por OUTRO usuário
+                var emailEmUso = await _context.Usuarios
+                    .AnyAsync(u => u.Login == dto.NewEmail && u.Id != dto.UserId);
+
+                if (emailEmUso)
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Este e-mail já está em uso por outro usuário.";
+                    return response;
+                }
+
+                // 4. Realiza a troca
+                usuario.Login = dto.NewEmail;
+
+                await _context.SaveChangesAsync();
+
+                response.Data = true;
+                response.Success = true;
+                response.ErrorMessage = "E-mail alterado com sucesso.";
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = "Erro ao trocar e-mail: " + ex.Message;
+            }
+
+            return response;
+        }
+
+        public async Task<ServiceResponse<bool>> TrocarSenhaAsync(ChangePasswordDto dto)
+        {
+            var response = new ServiceResponse<bool>();
+
+            try
+            {
+                // 1. Busca o usuário
+                var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.FuncionarioId == dto.UserId);
+
+                if (usuario == null)
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Usuário não encontrado.";
+                    return response;
+                }
+
+                // 2. Valida a senha ATUAL
+                if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, usuario.SenhaHash))
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Senha atual incorreta.";
+                    return response;
+                }
+
+                // 3. Verifica se a nova senha é igual à antiga (Opcional, mas boa prática)
+                if (BCrypt.Net.BCrypt.Verify(dto.NewPassword, usuario.SenhaHash))
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "A nova senha não pode ser igual à atual.";
+                    return response;
+                }
+
+                // 4. Gera o hash da NOVA senha e salva
+                string novoHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+                usuario.SenhaHash = novoHash;
+
+                await _context.SaveChangesAsync();
+
+                response.Data = true;
+                response.Success = true;
+                response.ErrorMessage = "Senha alterada com sucesso.";
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = "Erro ao trocar senha: " + ex.Message;
+            }
+
+            return response;
+        }
     }
 }

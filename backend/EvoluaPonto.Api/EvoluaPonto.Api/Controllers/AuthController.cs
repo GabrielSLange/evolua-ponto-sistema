@@ -1,5 +1,6 @@
 ﻿using EvoluaPonto.Api.Dtos;
 using EvoluaPonto.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EvoluaPonto.Api.Controllers
@@ -30,6 +31,44 @@ namespace EvoluaPonto.Api.Controllers
             var response = await _authService.Registrar(request);
             if (!response.Success) return BadRequest(response.ErrorMessage);
             return Ok(response.Data);
+        }
+
+        [Authorize]
+        [HttpPost("change-email")]
+        public async Task<IActionResult> ChangeEmail([FromBody] ChangeEmailDto request)
+        {
+            // Validação básica do ModelState (caso o e-mail venha vazio ou inválido pelo DTO)
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var response = await _authService.TrocarEmailAsync(request);
+
+            if (!response.Success)
+            {
+                // Retorna BadRequest (400) com a mensagem de erro (senha errada, email duplicado, etc)
+                return BadRequest(response.ErrorMessage);
+            }
+
+            return Ok(response);
+        }
+
+        [Authorize]
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request)
+        {
+            // Valida se o DTO cumpre as regras (ex: MinLength 6)
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var response = await _authService.TrocarSenhaAsync(request);
+
+            if (!response.Success)
+            {
+                // Retorna BadRequest (400) com a mensagem de erro (senha atual errada, etc)
+                return BadRequest(new { message = response.ErrorMessage });
+            }
+
+            return Ok(response);
         }
     }
 }

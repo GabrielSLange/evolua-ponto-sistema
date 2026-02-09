@@ -1,31 +1,34 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Button, useTheme, Avatar, Text } from 'react-native-paper';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import api from '@/services/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotification } from '@/contexts/NotificationContext';
 import CustomLoader from '@/components/CustomLoader';
+import { set } from 'date-fns';
 
 export default function DadosPessoaisScreen() {
     const theme = useTheme();
-    const { userId } = useAuth(); // Assumindo que 'user' tem dados básicos
+    const router = useRouter();
+    const { userId, role } = useAuth(); // Assumindo que 'user' tem dados básicos
+    const [permissao, setPermissao] = useState('');
+
     const { showNotification } = useNotification();
 
     const [loading, setLoading] = useState(false);
-    const [saving, setSaving] = useState(false);
 
     // Estados do formulário
     const [nome, setNome] = useState('');
     const [cpf, setCpf] = useState('');
     const [cargo, setCargo] = useState('');
     const [email, setEmail] = useState('');
-    const [telefone, setTelefone] = useState('');
 
     // Busca os dados do perfil
     const fetchPerfil = async () => {
         setLoading(true);
+
         try {
             // Ajuste a rota para buscar os dados completos do funcionário logado
             const response = await api.get(`/Funcionarios/id?funcionarioId=${userId}`);
@@ -35,8 +38,10 @@ export default function DadosPessoaisScreen() {
                 setCpf(dados.cpf || '');
                 setCargo(dados.cargo || '');
                 setEmail(dados.email || ''); // E-mail geralmente vem do login ou funcionário
-                setTelefone(dados.telefone || ''); // Supondo que exista esse campo
             }
+
+            if (role === 'admin') setPermissao('admin');
+            else setPermissao('employee');
         } catch (error) {
             console.error(error);
             showNotification('Erro ao carregar dados do perfil.', 'error');
@@ -50,22 +55,6 @@ export default function DadosPessoaisScreen() {
             if (userId) fetchPerfil();
         }, [userId])
     );
-
-    const handleSalvar = async () => {
-        setSaving(true);
-        try {
-            // Rota hipotética para atualizar dados básicos
-            await api.put(`/Funcionarios/${userId}`, {
-                telefone: telefone,
-                // Envie apenas o que for editável
-            });
-            showNotification('Dados atualizados com sucesso!', 'success');
-        } catch (error) {
-            showNotification('Não foi possível atualizar os dados.', 'error');
-        } finally {
-            setSaving(false);
-        }
-    };
 
     if (loading) return <CustomLoader />;
 
@@ -101,33 +90,21 @@ export default function DadosPessoaisScreen() {
                     />
 
                     <TextInput
-                        label="E-mail Atual"
+                        label="E-mail"
                         value={email}
                         mode="outlined"
-                        disabled
-                        right={<TextInput.Icon icon="lock" />}
-                        style={styles.input}
-                    />
-
-                    <TextInput
-                        label="Telefone / Celular"
-                        value={telefone}
-                        onChangeText={setTelefone}
-                        mode="outlined"
-                        placeholder="(00) 00000-0000"
-                        keyboardType="phone-pad"
                         disabled
                         style={styles.input}
                     />
 
                     <Button 
-                        mode="contained" 
-                        onPress={handleSalvar} 
-                        loading={saving}
-                        disabled={saving}
+                        mode="outlined" 
+                        onPress={() => router.push({
+                           pathname: `/(${permissao})/meu-ponto/home`,
+                        })} 
                         style={styles.button}
                     >
-                        Salvar Alterações
+                        Voltar para o início
                     </Button>
                 </View>
             </ScrollView>

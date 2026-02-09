@@ -36,9 +36,20 @@ namespace EvoluaPonto.Api.Services
 
             try
             {
+                TimeZoneInfo fusoBrasilia;
+                try
+                {
+                    fusoBrasilia = TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo");
+                }
+                catch
+                {
+                    fusoBrasilia = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
+                }
+
                 // Definir o período (Mês Atual)
-                var dataHoraBrasilia = DateTime.UtcNow.AddHours(-3); // Ajuste simples para fuso horário de Brasília
+                var dataHoraBrasilia = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, fusoBrasilia);
                 var hoje = dataHoraBrasilia.Date;
+
                 var primeiroDiaMes = new DateTime(hoje.Year, hoje.Month, 1);
                 var ultimoDiaMes = primeiroDiaMes.AddMonths(1).AddDays(-1);
 
@@ -56,11 +67,7 @@ namespace EvoluaPonto.Api.Services
                     return response;
                 }
 
-                // Busca Feriados (com cache)
-                // Define uma cheve única para o cache (ex: "Feriados_2025")
-                string cacheKey = $"Feriados_nacionais_{hoje.Year}";
-
-                // Tenta pegar do cache. Se não existir, roda a função dentro do 'GetOrCreateAsync'
+                // Busca Feriados
                 var feriadosNacionais = await _feriadoService.GetFeriadosNacionaisAsync(hoje.Year);
 
                 // Feriados personalizados
@@ -102,7 +109,7 @@ namespace EvoluaPonto.Api.Services
                 {
                     // Filtra registros deste dia específico (convertendo UTC para Local)
                     var registrosDoDia = registros
-                        .Where(r => r.TimestampMarcacao.ToLocalTime().Date == dia)
+                        .Where(r => TimeZoneInfo.ConvertTimeFromUtc(r.TimestampMarcacao, fusoBrasilia).Date == dia)
                         .OrderBy(r => r.TimestampMarcacao)
                         .ToList();
 
@@ -138,16 +145,6 @@ namespace EvoluaPonto.Api.Services
                             else
                                 isFolga = false;
                         }
-                    }
-
-                    TimeZoneInfo fusoBrasilia;
-                    try
-                    {
-                        fusoBrasilia = TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo");
-                    }
-                    catch
-                    {
-                        fusoBrasilia = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
                     }
 
                     var diaDto = new DiaEspelhoHomeDto
