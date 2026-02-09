@@ -178,7 +178,7 @@ namespace EvoluaPonto.Api.Services
                 // Configuração de Solicitação Manual
                 RegistroManual = true,
                 Status = StatusSolicitacao.Pendente,
-                JustificativaFuncionario = solicitacaoDto.Justificativa,
+                JustificativaFuncionarioSolicitacao = solicitacaoDto.Justificativa,
 
                 // Campos de Controle
                 FotoUrl = null,
@@ -264,7 +264,7 @@ namespace EvoluaPonto.Api.Services
             if (!avaliacaoDto.Aprovado)
             {
                 registro.Status = StatusSolicitacao.Rejeitado;
-                registro.JustificativaAdmin = avaliacaoDto.JustificativaAdmin;
+                registro.JustificativaAdminSolicitacao = avaliacaoDto.JustificativaAdmin;
 
                 await _context.SaveChangesAsync();
                 return new ServiceResponse<bool> { Success = true, Data = true, ErrorMessage = "Solicitação rejeitada com sucesso." };
@@ -274,7 +274,7 @@ namespace EvoluaPonto.Api.Services
             try
             {
                 registro.Status = StatusSolicitacao.Aprovado;
-                registro.JustificativaAdmin = avaliacaoDto.JustificativaAdmin;
+                registro.JustificativaAdminSolicitacao = avaliacaoDto.JustificativaAdmin;
 
                 // --- Geração de Dados Fiscais (Cópia da lógica de RegistrarPontoAsync) ---
 
