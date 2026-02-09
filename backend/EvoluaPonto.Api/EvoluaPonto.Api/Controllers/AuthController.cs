@@ -46,7 +46,7 @@ namespace EvoluaPonto.Api.Controllers
             if (!response.Success)
             {
                 // Retorna BadRequest (400) com a mensagem de erro (senha errada, email duplicado, etc)
-                return BadRequest(response.ErrorMessage);
+                return BadRequest(new { message = response.ErrorMessage });
             }
 
             return Ok(response);
