@@ -8,5 +8,7 @@ namespace EvoluaPonto.Api.Dtos
         public bool Aprovado { get; set; } // true para aprovado, false para rejeitado
 
         public string? JustificativaAdmin { get; set; } // Justificativa opcional caso aprovado, obrigatória se rejeitado
+
+        public Guid AdminId { get; set; }
     }
 }

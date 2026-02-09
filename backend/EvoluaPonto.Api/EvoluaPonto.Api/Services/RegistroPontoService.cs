@@ -260,6 +260,19 @@ namespace EvoluaPonto.Api.Services
             if (registro.Status != StatusSolicitacao.Pendente)
                 return new ServiceResponse<bool> { Success = false, ErrorMessage = "Esta solicitação já foi avaliada." };
 
+            TimeZoneInfo fusoBrasilia;
+            try
+            {
+                fusoBrasilia = TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo");
+            }
+            catch
+            {
+                fusoBrasilia = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
+            }
+            
+
+            registro.AdminIdAnalise = avaliacaoDto.AdminId;
+            registro.DataAnalise = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, fusoBrasilia);
             // 2. Caminho da Rejeição
             if (!avaliacaoDto.Aprovado)
             {
@@ -275,7 +288,6 @@ namespace EvoluaPonto.Api.Services
             {
                 registro.Status = StatusSolicitacao.Aprovado;
                 registro.JustificativaAdminSolicitacao = avaliacaoDto.JustificativaAdmin;
-
                 // --- Geração de Dados Fiscais (Cópia da lógica de RegistrarPontoAsync) ---
 
                 // A. Gerar NSR (Número Sequencial de Registro)
