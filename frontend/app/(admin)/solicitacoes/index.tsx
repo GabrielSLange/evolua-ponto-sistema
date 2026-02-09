@@ -62,7 +62,8 @@ export default function SolicitacoesScreen() {
         try {
             const response = await api.put(`/RegistroPonto/avaliar/${id}`, {
                 aprovado: true,
-                justificativaAdmin: "Aprovado pelo gestor"
+                justificativaAdmin: "Aprovado pelo gestor",
+                adminId: userId
             });
 
             if (response.data.success) {
@@ -99,7 +100,8 @@ export default function SolicitacoesScreen() {
         try {
             const response = await api.put(`/RegistroPonto/avaliar/${selectedId}`, {
                 aprovado: false,
-                justificativaAdmin: motivoRejeicao
+                justificativaAdmin: motivoRejeicao,
+                adminId: userId
             });
 
             if (response.data.success) {

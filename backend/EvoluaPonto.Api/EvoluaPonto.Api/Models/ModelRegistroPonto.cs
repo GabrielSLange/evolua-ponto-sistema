@@ -52,29 +52,29 @@ namespace EvoluaPonto.Api.Models
 
         // Relação com Solicitação de Registro de Ponto
 
-        /// Identifica se é uma batida original (false) ou uma solicitação manual (true).
+        // Identifica se é uma batida original (false) ou uma solicitação manual (true).
         [Required]
         [Column("registro_manual")]
         public bool RegistroManual { get; set; } = false; // Valor padrão é 'false'
 
-        /// Status da solicitação (Pendente, Aprovado, Rejeitado).
-        /// Será nulo se 'RegistroManual' for 'false'.
+        // Status da solicitação (Pendente, Aprovado, Rejeitado).
+        // Será nulo se 'RegistroManual' for 'false'.
         [Column("status_solicitacao")]
         public StatusSolicitacao? Status { get; set; }
 
-        /// Justificativa escrita pelo funcionário ao solicitar o ajuste.
-        [Column("justificativa_funcionario")]
-        public string? JustificativaFuncionario { get; set; }
+        // Justificativa escrita pelo funcionário ao solicitar o ajuste.
+        [Column("justificativa_funcionario_solicitacao")]
+        public string? JustificativaFuncionarioSolicitacao { get; set; }
 
-        /// Justificativa do admin (obrigatória em caso de rejeição).
-        [Column("justificativa_admin")]
-        public string? JustificativaAdmin { get; set; }
+        // Justificativa do admin (obrigatória em caso de rejeição).
+        [Column("justificativa_admin_solicitacao")]
+        public string? JustificativaAdminSolicitacao { get; set; }
 
-        /// ID do usuário (admin/gestor) que analisou a solicitação.
+        // ID do usuário (admin/gestor) que analisou a solicitação.
         [Column("admin_id_analise")]
         public Guid? AdminIdAnalise { get; set; } // Assumindo que o ID do admin é um Guid, como o do funcionário
 
-        /// Data e hora em que a análise (aprovação/rejeição) foi feita.
+        // Data e hora em que a análise (aprovação/rejeição) foi feita.
         [Column("data_analise")]
         public DateTime? DataAnalise { get; set; }
 

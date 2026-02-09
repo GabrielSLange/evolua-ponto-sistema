@@ -178,7 +178,7 @@ namespace EvoluaPonto.Api.Services
                 // Configuração de Solicitação Manual
                 RegistroManual = true,
                 Status = StatusSolicitacao.Pendente,
-                JustificativaFuncionario = solicitacaoDto.Justificativa,
+                JustificativaFuncionarioSolicitacao = solicitacaoDto.Justificativa,
 
                 // Campos de Controle
                 FotoUrl = null,
@@ -260,11 +260,24 @@ namespace EvoluaPonto.Api.Services
             if (registro.Status != StatusSolicitacao.Pendente)
                 return new ServiceResponse<bool> { Success = false, ErrorMessage = "Esta solicitação já foi avaliada." };
 
+            TimeZoneInfo fusoBrasilia;
+            try
+            {
+                fusoBrasilia = TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo");
+            }
+            catch
+            {
+                fusoBrasilia = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
+            }
+            
+
+            registro.AdminIdAnalise = avaliacaoDto.AdminId;
+            registro.DataAnalise = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, fusoBrasilia);
             // 2. Caminho da Rejeição
             if (!avaliacaoDto.Aprovado)
             {
                 registro.Status = StatusSolicitacao.Rejeitado;
-                registro.JustificativaAdmin = avaliacaoDto.JustificativaAdmin;
+                registro.JustificativaAdminSolicitacao = avaliacaoDto.JustificativaAdmin;
 
                 await _context.SaveChangesAsync();
                 return new ServiceResponse<bool> { Success = true, Data = true, ErrorMessage = "Solicitação rejeitada com sucesso." };
@@ -274,8 +287,7 @@ namespace EvoluaPonto.Api.Services
             try
             {
                 registro.Status = StatusSolicitacao.Aprovado;
-                registro.JustificativaAdmin = avaliacaoDto.JustificativaAdmin;
-
+                registro.JustificativaAdminSolicitacao = avaliacaoDto.JustificativaAdmin;
                 // --- Geração de Dados Fiscais (Cópia da lógica de RegistrarPontoAsync) ---
 
                 // A. Gerar NSR (Número Sequencial de Registro)
