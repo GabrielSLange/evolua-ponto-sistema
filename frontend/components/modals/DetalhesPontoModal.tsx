@@ -193,8 +193,6 @@ function WebMapComponent({ ponto, estabelecimento }: any) {
     if (!WebMapModule) return <ActivityIndicator />;
     const { MapContainer, TileLayer, Marker, Popup, Circle } = WebMapModule;
     const L = require("leaflet");
-    
-    console.log("Renderizando WebMapComponent com ponto:", ponto);
     // --- ÍCONES PERSONALIZADOS (Para você ver a diferença) ---
     
     // Ícone Azul (Empresa)

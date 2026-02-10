@@ -78,10 +78,10 @@ namespace EvoluaPonto.Api.Models
         [Column("data_analise")]
         public DateTime? DataAnalise { get; set; }
 
-        [Column("longitude")]
+        [Column("latitude")]
         public decimal? Latitude { get; set; }
 
-        [Column("latitude")]
+        [Column("longitude")]
         public decimal? Longitude { get; set; }
 
         [Column("precisao_metros")]
