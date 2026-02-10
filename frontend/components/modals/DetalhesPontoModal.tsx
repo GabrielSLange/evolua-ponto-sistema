@@ -248,7 +248,7 @@ function WebMapComponent({ ponto, estabelecimento }: any) {
                     <Marker position={[estabelecimento.latitude, estabelecimento.longitude]} icon={empresaIcon}>
                         <Popup><b>Empresa</b><br/>Sede</Popup>
                     </Marker>
-                    <Circle center={[estabelecimento.latitude, estabelecimento.longitude]} radius={estabelecimento.raioKm} />
+                    <Circle center={[estabelecimento.latitude, estabelecimento.longitude]} radius={estabelecimento.raioKm * 1000} />
                 </>
             )}
         </MapContainer>
