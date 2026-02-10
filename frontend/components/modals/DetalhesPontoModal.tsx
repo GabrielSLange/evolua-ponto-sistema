@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, Platform } from 'react-native';
 import { Text, Modal, Portal, IconButton, Chip, Divider, ActivityIndicator, Avatar, useTheme } from 'react-native-paper';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Circle } from 'leaflet';
 
 // --- LÓGICA DE MAPAS (WEB & MOBILE) ---
 let WebMapModule: any = null;
@@ -190,7 +191,7 @@ function MapUpdater({ center }: { center: [number, number] }) {
 
 function WebMapComponent({ ponto, estabelecimento }: any) {
     if (!WebMapModule) return <ActivityIndicator />;
-    const { MapContainer, TileLayer, Marker, Popup } = WebMapModule;
+    const { MapContainer, TileLayer, Marker, Popup, Circle } = WebMapModule;
     const L = require("leaflet");
 
     // --- ÍCONES PERSONALIZADOS (Para você ver a diferença) ---
@@ -243,9 +244,12 @@ function WebMapComponent({ ponto, estabelecimento }: any) {
 
             {/* Marcador da EMPRESA (Azul) - Só renderiza se tiver latitude */}
             {estabelecimento?.latitude && (
-                <Marker position={[estabelecimento.latitude, estabelecimento.longitude]} icon={empresaIcon}>
-                    <Popup><b>Empresa</b><br/>Sede</Popup>
-                </Marker>
+                <>
+                    <Marker position={[estabelecimento.latitude, estabelecimento.longitude]} icon={empresaIcon}>
+                        <Popup><b>Empresa</b><br/>Sede</Popup>
+                    </Marker>
+                    <Circle center={[estabelecimento.latitude, estabelecimento.longitude]} radius={estabelecimento.raioKm} />
+                </>
             )}
         </MapContainer>
     );

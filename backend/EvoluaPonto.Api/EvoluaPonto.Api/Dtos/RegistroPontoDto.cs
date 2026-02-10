@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EvoluaPonto.Api.Dtos
 {
@@ -10,12 +11,18 @@ namespace EvoluaPonto.Api.Dtos
         [Required(ErrorMessage = "O ID do funcionário é obrigatório para bater o ponto")]
         public Guid FuncionarioId { get; set; }
 
-        public double? Latitude { get; set; }
+        public decimal? Latitude { get; set; }
 
-        public double? Longitude { get; set; }
+        public decimal? Longitude { get; set; }
 
         // Precisão do GPS em metros (Ex: 10.5 metros)
-        public double? PrecisaoMetros { get; set; }
+        public decimal? PrecisaoMetros { get; set; }
+
+        public decimal? LatitudeEstabelecimento { get; set; }
+
+        public decimal? LongitudeEstabelecimento { get; set; }
+
+        public decimal? RaioEstabelecimento { get; set; }
 
         public IFormFile? Foto { get; set; }
     }

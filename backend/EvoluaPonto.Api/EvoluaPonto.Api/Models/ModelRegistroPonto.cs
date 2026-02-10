@@ -78,11 +78,23 @@ namespace EvoluaPonto.Api.Models
         [Column("data_analise")]
         public DateTime? DataAnalise { get; set; }
 
-        public double? Latitude { get; set; }
+        [Column("longitude")]
+        public decimal? Latitude { get; set; }
 
-        public double? Longitude { get; set; }
+        [Column("latitude")]
+        public decimal? Longitude { get; set; }
 
+        [Column("precisao_metros")]
         // Precisão do GPS em metros (Ex: 10.5 metros)
-        public double? PrecisaoMetros { get; set; }
+        public decimal? PrecisaoMetros { get; set; }
+
+        [Column("latitude_estabelecimento")]
+        public decimal? LatitudeEstabelecimento { get; set; }
+
+        [Column("longitude_estabelecimento")]
+        public decimal? LongitudeEstabelecimento { get; set; }
+
+        [Column("raio_estabelecimento")]
+        public decimal? RaioEstabelecimento { get; set; }
     }
 }

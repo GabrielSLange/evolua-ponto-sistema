@@ -9,6 +9,7 @@ import { ptBR } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 import { ModelFuncionario } from '@/models/ModelFuncionario';
 import DetalhesPontoModal from '@/components/modals/DetalhesPontoModal';
+import { ModelEstabelecimento } from '@/models/ModelEstabelecimento';
 
 const toISODateString = (date: Date) => {
     return date.toISOString().split('T')[0];
@@ -25,7 +26,6 @@ export default function HistoricoPontosScreen() {
     const theme = useTheme();
     const paperTheme = useTheme();
     const { userId } = useAuth();
-    const { width } = useWindowDimensions(); 
 
     // --- ESTADOS ---
     const [pontos, setPontos] = useState<any[]>([]);
@@ -145,8 +145,16 @@ export default function HistoricoPontosScreen() {
     const handleOpenDetalhes = (item: any) => {
         setPontoSelecionado(item);
         const pontoAtual = pontos.find(p => p.id === item.id);
-        if (pontoAtual) {
+        if (pontoAtual && item.latitudeEstabelecimento === null && item.longitudeEstabelecimento === null && item.raioEstabelecimento === null) {
             buscarDetalhesPonto(pontoAtual.funcionarioId);
+        }
+        else{
+            const estabelecimento: any = {
+                latitude: item.latitudeEstabelecimento,
+                longitude: item.longitudeEstabelecimento,
+                raioKm: item.raioEstabelecimento
+            }
+            setFuncionarioDetalhes({ estabelecimento } as any);
         }
         setDetalhesModalVisible(true);
     };
@@ -174,22 +182,16 @@ export default function HistoricoPontosScreen() {
         );
     };
 
-    // --- CORREÇÃO DO ERRO ---
-    // Adicionei "as const" no alignSelf: 'center' para o TypeScript entender que é um valor fixo de estilo
-    const isDesktop = Platform.OS === 'web' && width > 768;
     const footerStyle: any = { width: '100%', alignSelf: 'center' as const }
 
     return (
-        // 1. View Principal que segura a tela inteira (sem scroll)
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             
             <View style={styles.header}>
                 <Text variant="headlineSmall" style={{ fontWeight: 'bold', color: theme.colors.primary }}>Histórico de Pontos</Text>
                 <IconButton icon="filter-variant" mode="contained" onPress={() => setFilterModalVisible(true)} />
             </View>
-            {/* 2. ScreenContainer lida com o Scroll (Conteúdo) */}
             <ScreenContainer>
-                {/* Cabeçalho */}
                 
                 
                 <View style={styles.activeFilters}>
@@ -197,12 +199,6 @@ export default function HistoricoPontosScreen() {
                     {dataInicio && <Chip icon="calendar-start" onClose={() => { setDataInicio(undefined); handleRefresh(); }}>Início: {dataInicio.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</Chip>}
                     {dataFim && <Chip icon="calendar-end" onClose={() => { setDataFim(undefined); handleRefresh(); }}>Fim: {dataFim.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</Chip>}
                 </View>
-
-                {/* ATENÇÃO: Como o ScreenContainer JÁ É um ScrollView,
-                   a FlatList aqui dentro NÃO PODE scrollar sozinha.
-                   Usamos scrollEnabled={false} para ela se comportar como uma View normal
-                   e deixar o ScreenContainer fazer o trabalho.
-                */}
                 <FlatList
                     data={pontos}
                     keyExtractor={(item) => item.id.toString()}

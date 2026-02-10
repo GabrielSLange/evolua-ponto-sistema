@@ -3,6 +3,7 @@ using System;
 using EvoluaPonto.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EvoluaPonto.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260210001958_addLocalizacaoEstabelecimento")]
+    partial class addLocalizacaoEstabelecimento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -340,32 +343,32 @@ namespace EvoluaPonto.Api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("justificativa_funcionario_solicitacao");
 
-                    b.Property<decimal?>("Latitude")
-                        .HasColumnType("numeric")
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision")
                         .HasColumnName("longitude");
 
-                    b.Property<decimal?>("LatitudeEstabelecimento")
-                        .HasColumnType("numeric")
+                    b.Property<double?>("LatitudeEstabelecimento")
+                        .HasColumnType("double precision")
                         .HasColumnName("latitude_estabelecimento");
 
-                    b.Property<decimal?>("Longitude")
-                        .HasColumnType("numeric")
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision")
                         .HasColumnName("latitude");
 
-                    b.Property<decimal?>("LongitudeEstabelecimento")
-                        .HasColumnType("numeric")
+                    b.Property<double?>("LongitudeEstabelecimento")
+                        .HasColumnType("double precision")
                         .HasColumnName("longitude_estabelecimento");
 
                     b.Property<long?>("Nsr")
                         .HasColumnType("bigint")
                         .HasColumnName("nsr");
 
-                    b.Property<decimal?>("PrecisaoMetros")
-                        .HasColumnType("numeric")
+                    b.Property<double?>("PrecisaoMetros")
+                        .HasColumnType("double precision")
                         .HasColumnName("precisao_metros");
 
-                    b.Property<decimal?>("RaioEstabelecimento")
-                        .HasColumnType("numeric")
+                    b.Property<double?>("RaioEstabelecimento")
+                        .HasColumnType("double precision")
                         .HasColumnName("raio_estabelecimento");
 
                     b.Property<bool>("RegistroManual")

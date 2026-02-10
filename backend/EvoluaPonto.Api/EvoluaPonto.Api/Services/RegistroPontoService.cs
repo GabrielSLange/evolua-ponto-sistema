@@ -69,7 +69,10 @@ namespace EvoluaPonto.Api.Services
                 CreatedAt = DateTime.UtcNow,
                 Latitude = pontoDto.Latitude,
                 Longitude = pontoDto.Longitude,
-                PrecisaoMetros = pontoDto.PrecisaoMetros
+                PrecisaoMetros = pontoDto.PrecisaoMetros,
+                LatitudeEstabelecimento = pontoDto.LatitudeEstabelecimento,
+                LongitudeEstabelecimento = pontoDto.LongitudeEstabelecimento,
+                RaioEstabelecimento = pontoDto.RaioEstabelecimento
             };
 
             byte[]? pdfBytes = _comprovanteService.GerarComprovante(novoRegistro, funcionarioBanco, empresaBanco, estabelecimentoBanco);
@@ -381,7 +384,7 @@ namespace EvoluaPonto.Api.Services
         {
             // 1. Inicia a query base
             var query = _context.RegistrosPonto
-                .Where(r => r.Status == StatusSolicitacao.Aprovado || r.Status == null) // Só pontos oficiais
+                .Where(registroPonto => registroPonto.Status == StatusSolicitacao.Aprovado || registroPonto.Status == null) // Só pontos oficiais
                 .Include(r => r.Funcionario)
                 .ThenInclude(tb => tb.Estabelecimento)
                 .AsQueryable();
@@ -429,7 +432,11 @@ namespace EvoluaPonto.Api.Services
                     // PROTEÇÃO CONTRA NULO (Isso evita a tela branca se o funcionario foi deletado)
                     FuncionarioNome = r.Funcionario != null ? r.Funcionario.Nome : "Funcionário Excluído",
                     FuncionarioCargo = r.Funcionario != null ? r.Funcionario.Cargo : "-",
-                    funcionarioId = r.FuncionarioId
+                    funcionarioId = r.FuncionarioId,
+                    LatitudeEstabelecimento = r.LatitudeEstabelecimento,
+                    LongitudeEstabelecimento = r.LongitudeEstabelecimento,
+                    RaioEstabelecimento = r.RaioEstabelecimento
+
                 })
                 .ToListAsync();
 

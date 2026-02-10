@@ -62,7 +62,7 @@ export default function BaterPontoContent() {
     const [isGpsLoading, setIsGpsLoading] = useState(true);
 
     const { loading, funcionario, tipoBatida, SetLoading } = baterPonto();
-    const [locationPermissionGranted, setLocationPermissionGranted] = useState(false);
+    const [, setLocationPermissionGranted] = useState(false);
     const [initialCenterCoords, setInitialCenterCoords] = useState<{ latitude: number; longitude: number } | null>(null);
 
     const fetchCarregarLocalizaçãoEstabelecimento = useCallback(() => {
@@ -241,6 +241,10 @@ export default function BaterPontoContent() {
         const formData = new FormData();
         formData.append('Tipo', tipoPonto);
         formData.append('FuncionarioId', `${funcionario?.id}`);
+        formData.append('LatitudeEstabelecimento', `${establishmentCoords?.latitude}`);
+        formData.append('LongitudeEstabelecimento', `${establishmentCoords?.longitude}`);
+        formData.append('RaioEstabelecimento', `${allowedRadius}`);
+
 
         // MELHORIA: Enviando as coordenadas para o Backend
         if (userLocation && userLocation.coords) {
