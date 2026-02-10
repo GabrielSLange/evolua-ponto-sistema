@@ -96,7 +96,6 @@ export default function HistoricoPontosScreen() {
             if (dtFim) params.dataFim = toISODateString(dtFim);
 
             const response = await api.get('/RegistroPonto/historico-ponto', { params });
-            console.log("Resposta da API de pontos:", response.data);
             setPontos(response.data.data);
             setTotalPages(response.data.totalPages);
             setPage(pageNumber); 
