@@ -54,23 +54,26 @@ namespace EvoluaPonto.Api.Services
         {
             var usuario = await _context.Usuarios
                 .Include(tb => tb.Funcionario) // Traz dados do RH
+                    .ThenInclude(f => f.Estabelecimento)
+                        .ThenInclude(e => e.Empresa)
                 .FirstOrDefaultAsync(tb => tb.Login == login);
 
-            if (usuario == null)
+            if (usuario == null || !BCrypt.Net.BCrypt.Verify(senha, usuario.SenhaHash))
                 return new ServiceResponse<AuthResponseDto> { Success = false, ErrorMessage = "Usuário ou senha inválidos." };
 
-            // 1. Valida Senha
-            if (!BCrypt.Net.BCrypt.Verify(senha, usuario.SenhaHash))
-                return new ServiceResponse<AuthResponseDto> { Success = false, ErrorMessage = "Usuário ou senha inválidos." };
-
-            // 2. Valida Bloqueio de Segurança (Tabela Usuario)
+            // Valida Bloqueio de Segurança (Tabela Usuario)
             if (!usuario.AcessoPermitido)
                 return new ServiceResponse<AuthResponseDto> { Success = false, ErrorMessage = "Acesso bloqueado pelo administrador." };
 
-            // 3. Valida Vínculo Empregatício (Tabela Funcionario)
-            // Se o Funcionario for null ou Ativo == false
-            if (usuario.Funcionario == null || !usuario.Funcionario.Ativo)
+            // Valida Vínculo Empregatício (Tabela Funcionario)
+            if (!usuario.Funcionario.Ativo)
                 return new ServiceResponse<AuthResponseDto> { Success = false, ErrorMessage = "Colaborador inativo no quadro de funcionários." };
+                
+            if (!usuario.Funcionario.Estabelecimento.Ativo)
+                return new ServiceResponse<AuthResponseDto> { Success = false, ErrorMessage = "O estabelecimento ao qual você pertence está inativo." };
+
+            if (!usuario.Funcionario.Estabelecimento.Empresa.Ativo)
+                return new ServiceResponse<AuthResponseDto> { Success = false, ErrorMessage = "O acesso da sua empresa ao sistema está suspenso/inativo." };
 
             // Gera Token
             var token = GerarTokenJwt(usuario);

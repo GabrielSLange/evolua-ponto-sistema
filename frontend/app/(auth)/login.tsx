@@ -25,8 +25,9 @@ const LoginScreen = () => {
          await signIn(email, password);
          showNotification('Login realizado com sucesso!', 'success');
       } catch (err: any) {
-         showNotification('Erro ao fazer login. Verifique suas credenciais.', 'error');
-         setError(err.message || 'Erro ao tentar fazer login.');
+         const msg = err.message || 'Erro ao tentar fazer login.';
+         showNotification(msg, 'error');
+         setError(msg);
       } finally {
          setLoading(false);
       }

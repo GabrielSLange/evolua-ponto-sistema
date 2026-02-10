@@ -122,9 +122,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             id: decoded.FuncionarioId
          });
 
-      } catch (error) {
+      } catch (error: any) {
+         const msg = error.response?.data?.message || 'Erro ao fazer login. Verifique suas credenciais.';
          console.error("Falha no login:", error);
-         throw new Error("Email ou senha inválidos.");
+         throw new Error(msg);
       }
       finally {
          setIsLoading(false);

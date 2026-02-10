@@ -20,7 +20,7 @@ namespace EvoluaPonto.Api.Controllers
         public async Task<IActionResult> Login([FromBody] LoginDto request)
         {
             var response = await _authService.Login(request.Login, request.Senha);
-            if (!response.Success) return BadRequest(response.ErrorMessage);
+            if (!response.Success) return BadRequest(new { message = response.ErrorMessage });
             return Ok(response.Data);
         }
 
