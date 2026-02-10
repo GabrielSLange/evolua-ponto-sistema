@@ -6,6 +6,7 @@ import { ScrollView, StyleSheet, View, TouchableOpacity, Text } from "react-nati
 import { MaskedTextInput } from "react-native-mask-text";
 import { TextInput, Button, Menu, HelperText, useTheme } from "react-native-paper";
 import { DropdownItem } from "@/hooks/admin/useFuncionario";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Props que o formulário recebe
 interface FuncionarioFormProps {
@@ -28,6 +29,8 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     escalas = [],
     isReadOnly = false,
 }) => {
+    const { role } = useAuth(); // Pega a role do usuário logado
+
     // Opções para o dropdown de permissões
     const roleOptions = [
         { label: 'Administrador', value: 'admin' },
@@ -114,7 +117,10 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         if (!formData.email) newErrors.email = "O e-mail é obrigatório.";
         if (!formData.cargo) newErrors.cargo = "O cargo é obrigatório.";
         if (!formData.role) newErrors.role = "A permissão é obrigatória.";
-        if (!formData.escalaId) newErrors.escalaId = "A escala é obrigatória.";
+        if (role !== 'superadmin')
+        {
+            if (!formData.escalaId) newErrors.escalaId = "A escala é obrigatória.";
+        }
 
         // Validação condicional da senha
         if (!formData.id && !formData.password) {

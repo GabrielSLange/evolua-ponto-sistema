@@ -20,7 +20,7 @@ namespace EvoluaPonto.Api.Controllers
         public async Task<IActionResult> Login([FromBody] LoginDto request)
         {
             var response = await _authService.Login(request.Login, request.Senha);
-            if (!response.Success) return BadRequest(response.ErrorMessage);
+            if (!response.Success) return BadRequest(new { message = response.ErrorMessage });
             return Ok(response.Data);
         }
 
@@ -46,7 +46,7 @@ namespace EvoluaPonto.Api.Controllers
             if (!response.Success)
             {
                 // Retorna BadRequest (400) com a mensagem de erro (senha errada, email duplicado, etc)
-                return BadRequest(response.ErrorMessage);
+                return BadRequest(new { message = response.ErrorMessage });
             }
 
             return Ok(response);
