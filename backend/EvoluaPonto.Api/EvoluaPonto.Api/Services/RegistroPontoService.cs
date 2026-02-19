@@ -274,8 +274,8 @@ namespace EvoluaPonto.Api.Services
             }
             
 
-            registro.AdminIdAnalise = avaliacaoDto.AdminId;
-            registro.DataAnalise = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, fusoBrasilia);
+            registro.AdminIdAnaliseSolicitacao = avaliacaoDto.AdminId;
+            registro.DataAnaliseSolicitacao = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, fusoBrasilia);
             // 2. Caminho da Rejeição
             if (!avaliacaoDto.Aprovado)
             {

@@ -6,7 +6,7 @@ export interface SolicitacaoPontoDto {
     timestampMarcacao: string; // Data/Hora sugerida
     tipo: string; // ENTRADA, SAIDA, etc
     status: number;
-    justificativaFuncionario?: string;
-    justificativaAdmin?: string;
+    justificativaFuncionarioSolicitacao?: string;
+    justificativaAdminSolicitacao?: string;
     registroManual: boolean;
 }
