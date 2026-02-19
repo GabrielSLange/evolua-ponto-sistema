@@ -71,12 +71,28 @@ namespace EvoluaPonto.Api.Models
         public string? JustificativaAdminSolicitacao { get; set; }
 
         // ID do usuário (admin/gestor) que analisou a solicitação.
-        [Column("admin_id_analise")]
-        public Guid? AdminIdAnalise { get; set; } // Assumindo que o ID do admin é um Guid, como o do funcionário
+        [Column("admin_id_analise_solicitacao")]
+        public Guid? AdminIdAnaliseSolicitacao { get; set; } // Assumindo que o ID do admin é um Guid, como o do funcionário
 
         // Data e hora em que a análise (aprovação/rejeição) foi feita.
-        [Column("data_analise")]
-        public DateTime? DataAnalise { get; set; }
+        [Column("data_analise_solicitacao")]
+        public DateTime? DataAnaliseSolicitacao { get; set; }
+
+        // -------- Troca de tipo de ponto --------
+        [Column("tipo_ponto_original")]
+        public string? TipoPontoOriginal { get; set; }
+
+        [Column("justificativa_funcionario_troca_tipo")]
+        public string? JustificativaFuncionarioTrocaTipo { get; set; }
+
+        [Column("justificativa_admin_troca_tipo")]
+        public string? JustificativaAdminTrocaTipo { get; set; }
+
+        [Column("admin_id_troca_tipo")]
+        public Guid? AdminIdTrocaTipo { get; set; }
+
+        [Column("data_analise_troca_tipo")]
+        public DateTime? DataAnaliseTrocaTipo { get; set; }
 
         [Column("latitude")]
         public decimal? Latitude { get; set; }
