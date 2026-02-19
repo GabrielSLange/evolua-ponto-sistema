@@ -155,6 +155,7 @@ const handleSubmit = async () => {
   const renderHistoricoItem = (item: SolicitacaoPontoDto) => {
     const dataItem = new Date(item.timestampMarcacao);
     const isRejeitado = item.status === 2;
+    console.log('Renderizando item do histórico:', item.justificativaAdminSolicitacao);
 
     return (
       <Card key={item.id} style={[styles.card, { borderColor: isRejeitado ? theme.colors.error : theme.colors.outline }]}>
@@ -176,13 +177,13 @@ const handleSubmit = async () => {
             <Text style={{fontWeight: 'bold'}}>Tipo: </Text> {item.tipo}
           </Text>
           <Text style={{marginBottom: 8}}>
-            <Text style={{fontWeight: 'bold'}}>Sua Justificativa: </Text> {item.justificativaFuncionario}
+            <Text style={{fontWeight: 'bold'}}>Sua Justificativa: </Text> {item.justificativaFuncionarioSolicitacao}
           </Text>
 
-          {isRejeitado && item.justificativaAdmin && (
+          {isRejeitado && item.justificativaAdminSolicitacao && (
             <View style={[styles.rejectionBox, { backgroundColor: theme.colors.errorContainer }]}>
               <Text style={{color: theme.colors.onErrorContainer, fontWeight: 'bold'}}>Motivo da Rejeição:</Text>
-              <Text style={{color: theme.colors.onErrorContainer}}>{item.justificativaAdmin}</Text>
+              <Text style={{color: theme.colors.onErrorContainer}}>{item.justificativaAdminSolicitacao}</Text>
             </View>
           )}
         </Card.Content>
