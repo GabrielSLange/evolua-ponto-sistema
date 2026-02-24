@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
-import { Button, Divider, Drawer, List, useTheme, Badge, Text, Icon } from 'react-native-paper';
+import { Button, Divider, List, useTheme, Badge, Text } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import { router } from 'expo-router';
 import { useBadge } from '../../contexts/BadgeContext';
@@ -16,102 +16,94 @@ const CustomDrawerContent = (props: any) => {
 
    const currentRouteName = props.state?.routes[props.state.index]?.name;
 
+   const isEstabelecimentos = currentRouteName === 'estabelecimentos/index';
+   const isEscalas = currentRouteName === 'escalas/index';
+   const isSolicitacoes = currentRouteName === 'solicitacoes/index';
+   const isFeriados = currentRouteName === 'feriados/index';
+   const isRelatorios = currentRouteName === 'relatorios/index';
+   const isHistorico = currentRouteName === 'historico-pontos/index';
+
+   // 🔥 A MÁGICA ESTÁ AQUI: Essa função cria os itens garantindo que a cor não falhe!
+   const renderNestedItem = (title: string, route: string, isActive: boolean, iconName: string, extraRight?: () => React.ReactNode) => {
+      return (
+         <List.Item
+            title={title}
+            onPress={() => router.push(route)}
+            style={[
+               styles.nestedItem,
+               { backgroundColor: isActive ? theme.colors.primaryContainer : 'transparent', paddingLeft: 32 }
+            ]}
+            // Aqui o texto obedece cegamente: Ativo = Azul Escuro | Inativo = Branco
+            titleStyle={{
+               color: isActive ? theme.colors.onPrimaryContainer : '#FFFFFF',
+               fontWeight: isActive ? 'bold' : 'normal',
+               fontSize: 14,
+            }}
+            // O ícone obedece cegamente: Ativo = Azul Escuro | Inativo = Branco
+            left={props => (
+               <List.Icon 
+                  {...props} 
+                  icon={iconName} 
+                  color={isActive ? theme.colors.onPrimaryContainer : '#FFFFFF'} 
+                  style={{ marginLeft: 8 }} 
+               />
+            )}
+            right={extraRight}
+         />
+      );
+   };
+
    return (
-      <View style={{ flex: 1, backgroundColor: theme.colors.surface }}>
+      <View style={{ flex: 1, backgroundColor: theme.colors.primary }}>
          <DrawerContentScrollView {...props} >
             <DrawerItemList {...props} />
 
             {isAdmin && (
-               <>
-                  <List.Accordion
-                     title="Gestão"
-                     expanded={isGestaoExpanded}
-                     onPress={() => setIsGestaoExpanded(!isGestaoExpanded)}
-                     style={{ borderRadius: 56, paddingVertical: 3 }}
-                     titleStyle={{ color: theme.colors.onSurface }}
-                     left={props => (
-                        <View style={{ paddingLeft: 17 }}>
-                           <Icon source="cog" color={props.color} size={24} />
+               <List.Accordion
+                  title="Gestão"
+                  expanded={isGestaoExpanded}
+                  onPress={() => setIsGestaoExpanded(!isGestaoExpanded)}
+                  style={{ backgroundColor: theme.colors.primary, paddingVertical: 3 }}
+                  
+                  // 1. Forçamos a cor do texto do Accordion ignorando o tema
+                  titleStyle={{ color: '#FFFFFF', fontWeight: 'bold' }}
+                  
+                  // 2. Forçamos a cor do ícone da engrenagem para #FFFFFF
+                  left={props => <List.Icon {...props} icon="cog" color="#FFFFFF" style={{ marginLeft: 17 }} />}
+                  
+                  // 3. Forçamos a cor da setinha para #FFFFFF
+                  right={props => 
+                     (!isGestaoExpanded && pendingCount > 0)
+                     ? <Badge size={8} style={{ alignSelf: 'center', marginRight: 16, backgroundColor: theme.colors.error }} />
+                     : <List.Icon {...props} icon={isGestaoExpanded ? "chevron-up" : "chevron-down"} color="#FFFFFF" />
+                  }
+               >
+                  {/* Olha como o código ficou muito mais limpo chamando a nossa função: */}
+                  {renderNestedItem('Estabelecimentos', `/(admin)/estabelecimentos?userId=${userId}`, isEstabelecimentos, 'store')}
+                  
+                  {renderNestedItem('Escalas', '/(admin)/escalas', isEscalas, 'calendar-range')}
+                  
+                  {renderNestedItem('Solicitações', '/(admin)/solicitacoes', isSolicitacoes, 'check-circle-outline', 
+                     () => pendingCount > 0 ? (
+                        <View style={{ justifyContent: 'center', paddingRight: 16 }}>
+                           <Badge size={20} style={{ backgroundColor: '#8f0404', color: '#FFFFFF', fontWeight: 'bold' }}>
+                              {pendingCount > 99 ? '99+' : pendingCount}
+                           </Badge>
                         </View>
-                     )}
-                     right={props => 
-                        (!isGestaoExpanded && pendingCount > 0)
-                        ? <Badge size={8} style={{ alignSelf: 'center', marginRight: 16, backgroundColor: theme.colors.error, color: theme.colors.surface }} />
-                        : <List.Icon {...props} icon={isGestaoExpanded ? "chevron-up" : "chevron-down"} />
-                     }
-                  >
-                     <Drawer.Item
-                        label='Estabelecimentos'
-                        onPress={() => router.push(`/(admin)/estabelecimentos?userId=${userId}`)}
-                        style={styles.nestedItem}
-                        icon={({ color, size }) => <Icon source="store" color={color} size={size} />}
-                        active={currentRouteName === 'estabelecimentos/index'}
-                     />
-
-                     <Drawer.Item
-                        label="Escalas"
-                        onPress={() => router.push('/(admin)/escalas')}
-                        style={styles.nestedItem}
-                        icon={({ color, size }) => <Icon source="calendar-range" color={color} size={size} />}
-                        active={currentRouteName === 'escalas/index'}
-                     />
-
-                     {/* --- CORREÇÃO AQUI --- */}
-                     {/* O label volta a ser texto puro (String) para parar o erro */}
-                     {/* Usamos a prop 'right' para renderizar o Badge na direita */}
-                     <Drawer.Item
-                        label="Solicitações"
-                        right={() => (
-                           pendingCount > 0 ? (
-                              <View style={{ justifyContent: 'center', paddingRight: 8 }}>
-                                 <Badge 
-                                    size={20} 
-                                    style={{ 
-                                       backgroundColor: theme.colors.error, 
-                                       color: theme.colors.surface, 
-                                       fontWeight: 'bold' 
-                                    }}
-                                 >
-                                    {pendingCount > 99 ? '99+' : pendingCount}
-                                 </Badge>
-                              </View>
-                           ) : null
-                        )}
-                        onPress={() => router.push('/(admin)/solicitacoes')}
-                        style={[styles.nestedItem, {paddingLeft: 40}]}
-                        icon={({ color, size }) => <Icon source="check-circle-outline" color={color} size={size} />}
-                        active={currentRouteName === 'solicitacoes/index'}
-                     />
-
-                     <Drawer.Item
-                        label="Feriados"
-                        onPress={() => router.push('/(admin)/feriados')}
-                        style={styles.nestedItem}
-                        icon={({ color, size }) => <Icon source="calendar-star" color={color} size={size} />}
-                        active={currentRouteName === 'feriados/index'}
-                     />
-
-                     <Drawer.Item
-                        label="Relatórios"
-                        onPress={() => router.push('/(admin)/relatorios')}
-                        style={styles.nestedItem}
-                        icon={({ color, size }) => <Icon source="file-document-outline" color={color} size={size} />}
-                        active={currentRouteName === 'relatorios/index'}
-                     />
-                     <Drawer.Item
-                        label="Histórico de Pontos"
-                        onPress={() => router.push('/(admin)/historico-pontos')}
-                        style={styles.nestedItem}
-                        icon={({ color, size }) => <Icon source="history" color={color} size={size} />}
-                        active={currentRouteName === 'historico-pontos/index'}
-                     />
-                  </List.Accordion>
-               </>
+                     ) : null
+                  )}
+                  
+                  {renderNestedItem('Feriados', '/(admin)/feriados', isFeriados, 'calendar-star')}
+                  
+                  {renderNestedItem('Relatórios', '/(admin)/relatorios', isRelatorios, 'file-document-outline')}
+                  
+                  {renderNestedItem('Histórico de Pontos', '/(admin)/historico-pontos', isHistorico, 'history')}
+               </List.Accordion>
             )}
          </DrawerContentScrollView>
 
-         <View style={[styles.bottomSection, { borderTopColor: theme.colors.outlineVariant }]}>
-            <Divider />
+         <View style={styles.bottomSection}>
+            <Divider style={{ backgroundColor: 'transparent' }} />
             <Button
                icon="logout"
                onPress={() => signOut()}
@@ -132,13 +124,14 @@ const styles = StyleSheet.create({
    },
    logoutButton: {
       marginTop: 10,
-      backgroundColor: '#E57373',
    },
    nestedItem: {
       marginLeft: 10, 
+      marginRight: 10,
       paddingVertical: 0,
       borderLeftWidth: 2,
       borderLeftColor: 'transparent',
+      borderRadius: 50, 
    },
 });
 

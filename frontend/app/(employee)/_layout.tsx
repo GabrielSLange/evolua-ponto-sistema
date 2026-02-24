@@ -4,7 +4,7 @@ import { Drawer } from 'expo-router/drawer';
 import CustomDrawerContent from '../../components/navigation/CustomDrawerContent';
 import CustomHeader from '../../components/navigation/CustomHeader';
 import { useWindowDimensions } from 'react-native';
-import { useTheme } from 'react-native-paper';
+import { Icon, useTheme } from 'react-native-paper';
 
 const breakpoint = 768;
 
@@ -40,7 +40,8 @@ export default function EmployeeLayout() {
             name="meu-ponto/home" 
             options={{ 
                drawerLabel: 'Início', 
-               title: 'Início' 
+               title: 'Início',
+               drawerIcon: ({ color, size }) => <Icon source="home" color={color} size={size} /> 
             }} 
          />
 
@@ -48,7 +49,8 @@ export default function EmployeeLayout() {
             name="meu-ponto/bater-ponto"
             options={{
                drawerLabel: 'Bater ponto',
-               title: 'Bater ponto'
+               title: 'Bater ponto',
+               drawerIcon: ({ color, size }) => <Icon source="clock-outline" color={color} size={size} />
             }}
          />
 
@@ -57,6 +59,7 @@ export default function EmployeeLayout() {
             options={{
                drawerLabel: 'Inserir batida',
                title: 'Solicitar ponto',
+               drawerIcon: ({ color, size }) => <Icon source="pencil-outline" color={color} size={size} />
             }}
          />
 
@@ -65,6 +68,7 @@ export default function EmployeeLayout() {
             options={{
                drawerLabel: 'Comprovantes',
                title: 'Comprovantes',
+               drawerIcon: ({ color, size }) => <Icon source="file-document-outline" color={color} size={size} />
             }}
          />
 

@@ -124,11 +124,22 @@ const ThemedApp = () => {
   // 2. Geramos as fontes do Material Design usando a nossa Nunito
   const customFonts = configureFonts({ config: fontConfig });
 
+  const myCustomColors = {
+    primary: '#0055FF',           // <- ESSA É A NOVA COR PRINCIPAL (Substitui o Roxo)
+    onPrimary: '#FFFFFF',         // <- Cor do texto/ícone que fica EM CIMA do primary (Geralmente branco)
+    primaryContainer: '#D6E4FF',  // <- Uma versão bem clarinha do primary (usado no fundo de alguns botões/ícones)
+    onPrimaryContainer: '#001955',// <- Cor do texto que fica EM CIMA do container clarinho
+  };
+
   // 3. Injetamos as fontes geradas no tema atual (Claro ou Escuro)
-  const currentTheme = theme === 'dark' ? MD3DarkTheme : MD3LightTheme;
+  const baseTheme = theme === 'dark' ? MD3DarkTheme : MD3LightTheme;
   const paperTheme = {
-    ...currentTheme,
+    ...baseTheme,
     fonts: customFonts,
+    colors: {
+      ...baseTheme.colors,
+      ...myCustomColors, // Injeta as nossas cores por cima do padrão
+    },
   };
 
   return (
