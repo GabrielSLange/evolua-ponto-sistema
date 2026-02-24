@@ -14,6 +14,8 @@ const CustomDrawerContent = (props: any) => {
    const [isGestaoExpanded, setIsGestaoExpanded] = useState(false);
    const isAdmin = role === 'admin';
 
+   const currentRouteName = props.state?.routes[props.state.index]?.name;
+
    return (
       <View style={{ flex: 1, backgroundColor: theme.colors.surface }}>
          <DrawerContentScrollView {...props} >
@@ -43,6 +45,7 @@ const CustomDrawerContent = (props: any) => {
                         onPress={() => router.push(`/(admin)/estabelecimentos?userId=${userId}`)}
                         style={styles.nestedItem}
                         icon={({ color, size }) => <Icon source="store" color={color} size={size} />}
+                        active={currentRouteName === 'estabelecimentos/index'}
                      />
 
                      <Drawer.Item
@@ -50,7 +53,7 @@ const CustomDrawerContent = (props: any) => {
                         onPress={() => router.push('/(admin)/escalas')}
                         style={styles.nestedItem}
                         icon={({ color, size }) => <Icon source="calendar-range" color={color} size={size} />}
-
+                        active={currentRouteName === 'escalas/index'}
                      />
 
                      {/* --- CORREÇÃO AQUI --- */}
@@ -77,6 +80,7 @@ const CustomDrawerContent = (props: any) => {
                         onPress={() => router.push('/(admin)/solicitacoes')}
                         style={[styles.nestedItem, {paddingLeft: 40}]}
                         icon={({ color, size }) => <Icon source="check-circle-outline" color={color} size={size} />}
+                        active={currentRouteName === 'solicitacoes/index'}
                      />
 
                      <Drawer.Item
@@ -84,6 +88,7 @@ const CustomDrawerContent = (props: any) => {
                         onPress={() => router.push('/(admin)/feriados')}
                         style={styles.nestedItem}
                         icon={({ color, size }) => <Icon source="calendar-star" color={color} size={size} />}
+                        active={currentRouteName === 'feriados/index'}
                      />
 
                      <Drawer.Item
@@ -91,12 +96,14 @@ const CustomDrawerContent = (props: any) => {
                         onPress={() => router.push('/(admin)/relatorios')}
                         style={styles.nestedItem}
                         icon={({ color, size }) => <Icon source="file-document-outline" color={color} size={size} />}
+                        active={currentRouteName === 'relatorios/index'}
                      />
                      <Drawer.Item
                         label="Histórico de Pontos"
                         onPress={() => router.push('/(admin)/historico-pontos')}
                         style={styles.nestedItem}
                         icon={({ color, size }) => <Icon source="history" color={color} size={size} />}
+                        active={currentRouteName === 'historico-pontos/index'}
                      />
                   </List.Accordion>
                </>
