@@ -390,7 +390,7 @@ const EstabelecimentoForm: React.FC<EstabelecimentoFormProps> = ({
                      : null
                }
             />
-            <Text style={{ color: theme.colors.onSurface }}>Latitude: {formData.latitude} Longitude: {formData.longitude}</Text>
+            <Text style={{ color: theme.colors.onSurface, fontFamily: 'Nunito_700Bold' }}>Latitude: {formData.latitude} Longitude: {formData.longitude}</Text>
             <HelperText type="error" visible={!!errors.latitude || !!errors.longitude}>
                {errors.latitude}
             </HelperText>

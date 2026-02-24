@@ -260,7 +260,7 @@ const handleSubmit = async () => {
                   icon="calendar"
                   style={{ flex: 1, marginRight: 8 }}
                 >
-                  {dataSelecionada.toLocaleDateString('pt-BR')}
+                  <Text style={{ fontFamily: 'Nunito_400Regular' }}>{dataSelecionada.toLocaleDateString('pt-BR')}</Text>
                 </Button>
                 
                 <Button 

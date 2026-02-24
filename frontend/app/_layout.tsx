@@ -1,15 +1,43 @@
 import '../constants/ignoreWarnings';
 import { Slot, useRouter, useSegments } from 'expo-router';
-import { PaperProvider, MD3LightTheme, MD3DarkTheme, Snackbar } from 'react-native-paper';
+import { PaperProvider, MD3LightTheme, MD3DarkTheme, Snackbar, configureFonts } from 'react-native-paper';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { useEffect, useContext } from 'react';
 import CustomLoader from '../components/CustomLoader';
 import { NotificationProvider, NotificationStateContext } from '../contexts/NotificationContext';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet, TextInput } from 'react-native';
 import { BadgeProvider } from '@/contexts/BadgeContext';
 
+// 1. Importações das Fontes e do Splash Screen
+import * as SplashScreen from 'expo-splash-screen';
+import { default as any } from '../constants/Colors';
+import { 
+  useFonts, 
+  Nunito_400Regular, 
+  Nunito_600SemiBold, 
+  Nunito_700Bold 
+} from '@expo-google-fonts/nunito';
 
-// SEM useFonts, SEM require. Vida que segue.
+// 2. Segura a tela de splash nativa para a fonte não "piscar"
+SplashScreen.preventAutoHideAsync();
+
+// --- 3. INÍCIO DO TRUQUE DA FONTE GLOBAL ---
+// Injeta a família da fonte nativamente em todos os textos
+const AnyText = Text as any;
+AnyText.defaultProps = AnyText.defaultProps || {};
+AnyText.defaultProps.style = { 
+  ...(AnyText.defaultProps.style || {}), 
+  fontFamily: 'Nunito_400Regular' 
+};
+
+const AnyTextInput = TextInput as any;
+AnyTextInput.defaultProps = AnyTextInput.defaultProps || {};
+AnyTextInput.defaultProps.style = { 
+  ...(AnyTextInput.defaultProps.style || {}), 
+  fontFamily: 'Nunito_400Regular' 
+};
+// --- FIM DO TRUQUE ---
+
 
 const GlobalSnackbar = () => {
   const notificationState = useContext(NotificationStateContext);
@@ -74,8 +102,6 @@ const RootLayoutNav = () => {
     }
   }, [isAuthenticated, isLoading, role, segments, userId]);
 
-  // Se tiver carregando o AUTH, mostra loader.
-  // Se for fonte, problema da fonte. O app abre.
   if (isLoading) {
     return (
       <View style={styles.loaderOverlay}>
@@ -89,10 +115,24 @@ const RootLayoutNav = () => {
 
 const ThemedApp = () => {
   const { theme } = useAuth();
+  
+  // 1. Criamos a configuração básica da fonte
+  const fontConfig = {
+    fontFamily: 'Nunito_400Regular',
+  };
+
+  // 2. Geramos as fontes do Material Design usando a nossa Nunito
+  const customFonts = configureFonts({ config: fontConfig });
+
+  // 3. Injetamos as fontes geradas no tema atual (Claro ou Escuro)
   const currentTheme = theme === 'dark' ? MD3DarkTheme : MD3LightTheme;
+  const paperTheme = {
+    ...currentTheme,
+    fonts: customFonts,
+  };
 
   return (
-    <PaperProvider theme={currentTheme}>
+    <PaperProvider theme={paperTheme}>
       <RootLayoutNav />
       <GlobalSnackbar />
     </PaperProvider>
@@ -100,6 +140,25 @@ const ThemedApp = () => {
 }
 
 export default function RootLayout() {
+  // 4. Carregamento das fontes
+  const [fontsLoaded, fontError] = useFonts({
+    Nunito_400Regular,
+    Nunito_600SemiBold,
+    Nunito_700Bold,
+  });
+
+  // 5. Oculta o Splash Screen quando carregar (ou se der erro de rede)
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  // Enquanto a fonte não carrega, a tela fica travada no Splash nativo
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
   return (
     <AuthProvider>
       <NotificationProvider>
@@ -122,7 +181,8 @@ const styles = StyleSheet.create({
   snackbarText: {
     textAlign: 'center',
     color: '#FFFFFF',
-    fontWeight: 'bold',
+    // Agora que a fonte global existe, você pode forçar o peso chamando a fonte Bold:
+    fontFamily: 'Nunito_700Bold', 
   },
   loaderOverlay: {
     flex: 1,

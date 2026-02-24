@@ -54,7 +54,7 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                            params: { estabelecimentoId: item.id }
                         })}
                      >
-                        <Title>{item.nomeFantasia}</Title>
+                        <Title style={{ fontFamily: 'Nunito_700Bold' }}>{item.nomeFantasia}</Title>
                      </Pressable>
 
                      <View style={styles.switchContainer}>
@@ -75,11 +75,11 @@ const ListEstabelcimentos: React.FC<ListEstabelcimentosProps> = ({
                   >
 
                      <Card.Content>
-                        <Paragraph>
-                           <Icon source="map-marker" size={18} color=""></Icon> {`${item.logradouro}, ${item.numero} - ${item.bairro}`}
+                        <Paragraph style={{ fontFamily: 'Nunito_400Regular' }}>
+                           <Icon source="map-marker" size={18} color={theme.colors.onSurfaceVariant}></Icon> {`${item.logradouro}, ${item.numero} - ${item.bairro}`}
                         </Paragraph>
-                        <Paragraph>
-                           <Icon source="city" size={18} color=""></Icon>{`${item.cidade} / ${item.estado}`}
+                        <Paragraph style={{ fontFamily: 'Nunito_400Regular' }}>
+                           <Icon source="city" size={18} color={theme.colors.onSurfaceVariant}></Icon>{`${item.cidade} / ${item.estado}`}
                         </Paragraph>
                      </Card.Content>
                   </Pressable>

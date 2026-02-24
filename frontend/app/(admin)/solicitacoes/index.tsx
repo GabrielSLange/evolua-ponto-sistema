@@ -181,8 +181,8 @@ export default function SolicitacoesScreen() {
     return (
         <ScreenContainer>
             <View style={styles.header}>
-                <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>Solicitações Pendentes</Text>
-                <Text variant="bodyMedium" style={{ color: '#666' }}>
+                <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary, fontFamily: 'Nunito_700Bold'}}>Solicitações Pendentes</Text>
+                <Text variant="bodyMedium" style={{ color: '#666', fontFamily: 'Nunito_700Bold' }}>
                     {solicitacoes.length} solicitações aguardando análise
                 </Text>
             </View>
@@ -207,7 +207,7 @@ export default function SolicitacoesScreen() {
                     ListEmptyComponent={
                         <View style={styles.emptyState}>
                             <Avatar.Icon icon="check-all" size={60} style={{ backgroundColor: '#e0e0e0' }} />
-                            <Text style={{ marginTop: 10, color: '#888' }}>Nenhuma solicitação pendente.</Text>
+                            <Text style={{ marginTop: 10, color: '#888', fontFamily: "Nunito_700Bold", }}>Nenhuma solicitação pendente.</Text>
                         </View>
                     }
                 />

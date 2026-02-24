@@ -13,6 +13,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@expo-google-fonts/nunito": "^0.4.2",
     "@expo/vector-icons": "^14.1.0",
     "@lottiefiles/dotlottie-react": "^0.6.5",
     "@react-native-async-storage/async-storage": "2.1.2",

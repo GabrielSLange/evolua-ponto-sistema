@@ -336,7 +336,11 @@ export default function BaterPontoContent() {
             <View style={styles.bottomContainer}>
                 <Text style={[
                     styles.statusText,
-                    { color: errorMsg ? theme.colors.error : theme.colors.onSurface }
+                    { 
+                        color: errorMsg ? theme.colors.error : theme.colors.onSurface,
+                        fontFamily: 'Nunito_400Regular'
+                    }
+                    
                 ]}>
                     {statusText}
                 </Text>
@@ -345,7 +349,7 @@ export default function BaterPontoContent() {
                     {format(currentTime, "HH:mm:ss", { locale: ptBR })}
                 </Text>
 
-                <Text style={[styles.dateText, { color: theme.colors.onSurfaceVariant }]}>
+                <Text style={[styles.dateText, { color: theme.colors.onSurfaceVariant, fontFamily: 'Nunito_400Regular' }]}>
                     {format(currentTime, "eeee, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
                 </Text>
 
@@ -455,7 +459,7 @@ export default function BaterPontoContent() {
                                 handleBaterPonto();
                             }}
                         >
-                            <Text style={{ color: theme.colors.onPrimary, fontWeight: 'bold' }}>Confirmar</Text>
+                            <Text style={{ color: theme.colors.onPrimary, fontFamily: 'Nunito_700Bold' }}>Confirmar</Text>
                         </TouchableOpacity>
                     </View>
                 </PaperModal>
@@ -640,7 +644,7 @@ const styles = StyleSheet.create({
     },
     clockText: {
         fontSize: 48,
-        fontWeight: "bold"
+        fontFamily: 'Nunito_700Bold'
     },
     dateText: {
         fontSize: 18,
@@ -654,7 +658,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         fontSize: 18,
-        fontWeight: "bold"
+        fontFamily: 'Nunito_700Bold'
     },
     center: {
         flex: 1,
@@ -693,13 +697,13 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: 22,
-        fontWeight: 'bold',
+        fontFamily: 'Nunito_700Bold',
         marginBottom: 8,
         textAlign: 'center',
     },
     tipoDestaque: {
         fontSize: 32,
-        fontWeight: '900',
+        fontFamily: "Nunito_700Bold",
         marginVertical: 20,
         paddingHorizontal: 30,
         paddingVertical: 10,
