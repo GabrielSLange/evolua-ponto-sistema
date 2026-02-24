@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
-import { Button, Divider, Drawer, List, useTheme, Badge, Text } from 'react-native-paper';
+import { Button, Divider, Drawer, List, useTheme, Badge, Text, Icon } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import { router } from 'expo-router';
 import { useBadge } from '../../contexts/BadgeContext';
@@ -27,6 +27,11 @@ const CustomDrawerContent = (props: any) => {
                      onPress={() => setIsGestaoExpanded(!isGestaoExpanded)}
                      style={{ borderRadius: 56, paddingVertical: 3 }}
                      titleStyle={{ color: theme.colors.onSurface }}
+                     left={props => (
+                        <View style={{ paddingLeft: 17 }}>
+                           <Icon source="cog" color={props.color} size={24} />
+                        </View>
+                     )}
                      right={props => 
                         (!isGestaoExpanded && pendingCount > 0)
                         ? <Badge size={8} style={{ alignSelf: 'center', marginRight: 16, backgroundColor: theme.colors.error, color: theme.colors.surface }} />
@@ -37,12 +42,15 @@ const CustomDrawerContent = (props: any) => {
                         label='Estabelecimentos'
                         onPress={() => router.push(`/(admin)/estabelecimentos?userId=${userId}`)}
                         style={styles.nestedItem}
+                        icon={({ color, size }) => <Icon source="store" color={color} size={size} />}
                      />
 
                      <Drawer.Item
                         label="Escalas"
                         onPress={() => router.push('/(admin)/escalas')}
                         style={styles.nestedItem}
+                        icon={({ color, size }) => <Icon source="calendar-range" color={color} size={size} />}
+
                      />
 
                      {/* --- CORREÇÃO AQUI --- */}
@@ -67,24 +75,28 @@ const CustomDrawerContent = (props: any) => {
                            ) : null
                         )}
                         onPress={() => router.push('/(admin)/solicitacoes')}
-                        style={styles.nestedItem}
+                        style={[styles.nestedItem, {paddingLeft: 40}]}
+                        icon={({ color, size }) => <Icon source="check-circle-outline" color={color} size={size} />}
                      />
 
                      <Drawer.Item
                         label="Feriados"
                         onPress={() => router.push('/(admin)/feriados')}
                         style={styles.nestedItem}
+                        icon={({ color, size }) => <Icon source="calendar-star" color={color} size={size} />}
                      />
 
                      <Drawer.Item
                         label="Relatórios"
                         onPress={() => router.push('/(admin)/relatorios')}
                         style={styles.nestedItem}
+                        icon={({ color, size }) => <Icon source="file-document-outline" color={color} size={size} />}
                      />
                      <Drawer.Item
                         label="Histórico de Pontos"
                         onPress={() => router.push('/(admin)/historico-pontos')}
                         style={styles.nestedItem}
+                        icon={({ color, size }) => <Icon source="history" color={color} size={size} />}
                      />
                   </List.Accordion>
                </>

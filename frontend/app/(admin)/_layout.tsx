@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 import CustomDrawerContent from '../../components/navigation/CustomDrawerContent';
 import CustomHeader from '../../components/navigation/CustomHeader';
 import { useWindowDimensions } from 'react-native';
-import { useTheme } from 'react-native-paper';
+import { useTheme, Icon } from 'react-native-paper';
 
 const breakpoint = 768;
 
@@ -23,7 +23,7 @@ export default function AdminLayout() {
 
             // 4. Ajuste de estilo e comportamento para desktop vs. mobile
             drawerStyle: {
-               width: isDesktop ? '18%' : '80%',
+               width: isDesktop ? '25%' : '80%',
                borderRightColor: theme.colors.outlineVariant,
                borderRightWidth: StyleSheet.hairlineWidth,
             },
@@ -42,6 +42,7 @@ export default function AdminLayout() {
             options={{
                drawerLabel: 'Início',
                title: 'Início',
+               drawerIcon: ({ color, size }) => <Icon source="home" color={color} size={size} />
             }}
          />
 
@@ -50,6 +51,7 @@ export default function AdminLayout() {
             options={{
                drawerLabel: 'Bater ponto',
                title: 'Bater ponto',
+               drawerIcon: ({ color, size }) => <Icon source="clock-outline" color={color} size={size} />
             }}
          />
 
@@ -58,6 +60,7 @@ export default function AdminLayout() {
             options={{
                drawerLabel: 'Inserir batida',
                title: 'Solicitar ponto',
+               drawerIcon: ({ color, size }) => <Icon source="pencil-outline" color={color} size={size} />
             }}
          />
 
@@ -66,6 +69,7 @@ export default function AdminLayout() {
             options={{
                drawerLabel: 'Comprovantes',
                title: 'Comprovantes',
+               drawerIcon: ({ color, size }) => <Icon source="file-document-outline" color={color} size={size} />
             }}
          />
 
@@ -75,6 +79,7 @@ export default function AdminLayout() {
                drawerLabel: 'Estabelecimentos',
                title: 'Estabelecimentos',
                drawerItemStyle: { display: 'none' },
+               drawerIcon: ({ color, size }) => <Icon source="store" color={color} size={size} />
             }}
          />
 
