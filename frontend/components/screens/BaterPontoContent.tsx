@@ -364,7 +364,7 @@ export default function BaterPontoContent() {
                                 icon: 'login',
                                 style: {
                                     backgroundColor: tipoPonto === 'ENTRADA'
-                                        ? theme.colors.primaryContainer
+                                        ? theme.colors.primary
                                         : undefined
                                 }
                             },
