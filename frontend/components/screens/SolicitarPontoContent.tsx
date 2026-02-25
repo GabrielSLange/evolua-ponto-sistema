@@ -218,7 +218,7 @@ const handleSubmit = async () => {
                   label: 'Entrada',
                   icon: 'login',
                   style: { backgroundColor: tipo === 'ENTRADA' 
-                    ? theme.colors.primaryContainer 
+                    ? theme.colors.primary 
                     : undefined }
                 },
                 {
