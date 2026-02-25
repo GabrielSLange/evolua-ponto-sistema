@@ -28,10 +28,10 @@ export default function EmployeeLayout() {
             },
             swipeEnabled: !isDesktop, // Desabilita o gesto de arrastar no desktop
 
-            drawerActiveTintColor: theme.colors.primary,
-            drawerInactiveTintColor: theme.colors.onSurface,
-            drawerLabelStyle: { fontSize: 15 },
-            drawerContentStyle: { backgroundColor: theme.colors.surface },
+            drawerActiveTintColor: theme.colors.onPrimaryContainer, // Letra e Ícone ATIVO (Azul escuro)
+            drawerInactiveTintColor: '#FFFFFF',                     // Letra e Ícone INATIVO (Branco)
+            drawerActiveBackgroundColor: theme.colors.primaryContainer, // Fundo ATIVO (Azul clarinho)
+            drawerInactiveBackgroundColor: 'transparent',
             // 2. Use o novo CustomHeader, passando a informação se é desktop
             header: ({ options }) => <CustomHeader title={options.title || 'Área do Funcionário'} isDesktop={isDesktop} />,
          }}
