@@ -6,6 +6,18 @@ import LottieView from 'lottie-react-native';
 import CustomLoader from '@/components/CustomLoader';
 import { useNotification } from '@/contexts/NotificationContext';
 
+const OptimizedLottie = React.memo(({ imageStyle }: { imageStyle: any }) => {
+   return (
+      <LottieView
+         source={require('../../assets/images/LoginAnimation.json')}
+         autoPlay
+         loop
+         style={imageStyle}
+         renderMode="HARDWARE" // Força o uso da placa de vídeo no celular
+      />
+   );
+});
+
 const LoginScreen = () => {
    const [email, setEmail] = useState('');
    const [password, setPassword] = useState('');
@@ -77,18 +89,7 @@ const LoginScreen = () => {
                   {/* A imagem continua aparecendo apenas no Desktop para não espremer o teclado no celular */}
                   {isDesktop && (
                      <View style={styles.imageWrapper}>
-                        {/* <Image 
-                           source={require('../../assets/images/loginIcon.png')}
-                           style={styles.illustrationImage}
-                           resizeMode="cover"
-                        /> */}
-                        <LottieView
-                           source={require('../../assets/images/LoginAnimation1.json')}
-                           autoPlay
-                           loop
-                           style={styles.illustrationImage}
-                           // resizeMode="cover" funciona perfeitamente aqui também
-                        />
+                        <OptimizedLottie imageStyle={styles.illustrationImage} />
                      </View>
                   )}
                </View>
