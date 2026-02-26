@@ -32,12 +32,15 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, isDesktop }: CustomH
 
    return (
       <View>
-      <Appbar.Header >
+      <Appbar.Header 
+         style={{ backgroundColor: themes.colors.primary}}
+          >
          {/* Ícone de Menu Lateral (Sanduíche) à Esquerda */}
          {!isDesktop && (
             <View style={{ marginRight: 10 }}>
             <Appbar.Action
                icon="menu"
+               iconColor="#FFFFFF"
                onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
             />
             {/* 3. O Badge Flutuante */}
@@ -60,7 +63,12 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, isDesktop }: CustomH
             </View>
          )}
          {/* Título no Meio */}
-         <Appbar.Content title={title} />
+         <Appbar.Content 
+            title={title} 
+            titleStyle={{ 
+               color: themes.colors.onPrimary
+            }}
+         />
 
          {/* Ícone de Usuário com Menu Suspenso à Direita */}
          <Menu
@@ -69,7 +77,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, isDesktop }: CustomH
                anchor={
                   <Appbar.Action 
                      icon="account-circle-outline" // Ícone mais moderno
-                     color={themes.colors.primary} 
+                     color={themes.colors.onPrimary} 
                      onPress={openMenu} 
                   />
                }

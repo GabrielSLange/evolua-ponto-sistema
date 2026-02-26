@@ -218,8 +218,8 @@ const handleSubmit = async () => {
                   label: 'Entrada',
                   icon: 'login',
                   style: { backgroundColor: tipo === 'ENTRADA' 
-                    ? theme.colors.primary 
-                    : undefined }
+                    ? theme.colors.secondaryContainer 
+                    : undefined },
                 },
                 {
                   value: 'SAIDA',

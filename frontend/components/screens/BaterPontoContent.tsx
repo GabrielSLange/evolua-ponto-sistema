@@ -364,9 +364,10 @@ export default function BaterPontoContent() {
                                 icon: 'login',
                                 style: {
                                     backgroundColor: tipoPonto === 'ENTRADA'
-                                        ? theme.colors.primary
+                                        ? theme.colors.secondaryContainer
                                         : undefined
-                                }
+                                    
+                                },
                             },
                             {
                                 value: 'SAIDA',
