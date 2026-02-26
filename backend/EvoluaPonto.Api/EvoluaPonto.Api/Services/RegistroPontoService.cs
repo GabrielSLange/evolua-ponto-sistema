@@ -318,7 +318,7 @@ namespace EvoluaPonto.Api.Services
 
                 try
                 {
-                    using (var stream = new MemoryStream(pdfBytes))
+                    using (var stream = new MemoryStream(pdfAssinadoBytes))
                     {
                         await _minioService.UploadFileAsync(stream, caminhoMinio, "application/pdf");
                     }
