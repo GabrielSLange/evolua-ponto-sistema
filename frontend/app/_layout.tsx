@@ -125,7 +125,7 @@ const ThemedApp = () => {
   const customFonts = configureFonts({ config: fontConfig });
 
   const myCustomColors = {
-    primary: '#0055FF',           // <- ESSA É A NOVA COR PRINCIPAL (Substitui o Roxo)
+    primary: '#0088CE',           // <- ESSA É A NOVA COR PRINCIPAL (Substitui o Roxo)
     onPrimary: '#FFFFFF',         // <- Cor do texto/ícone que fica EM CIMA do primary (Geralmente branco)
     primaryContainer: '#D6E4FF',  // <- Uma versão bem clarinha do primary (usado no fundo de alguns botões/ícones)
     onPrimaryContainer: '#001955',// <- Cor do texto que fica EM CIMA do container clarinho
