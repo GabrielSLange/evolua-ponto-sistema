@@ -133,6 +133,27 @@ export default function SuperAdminLayout() {
                title: 'Editar Escala',
             }}
          />
+         <Drawer.Screen
+            name='eventos/index'
+            options={{
+               drawerItemStyle: { display: 'none' },
+               title: 'Gestão de Eventos'
+            }}
+         />
+         <Drawer.Screen
+            name="eventos/importar"
+            options={{
+               drawerItemStyle: { display: 'none' },
+                  title: 'Importar Planilha',
+            }}
+         />
+         <Drawer.Screen
+            name="eventos/evento/[id]"
+            options={{
+               drawerItemStyle: { display: 'none' },
+               title: 'Editar Evento',
+            }}
+         />
       </Drawer>
    );
 }

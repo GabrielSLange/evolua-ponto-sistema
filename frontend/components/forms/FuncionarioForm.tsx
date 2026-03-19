@@ -166,10 +166,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
             return;
         }
     };
-    console.log("--- DIAGNÓSTICO DE ESCALA ---");
-    console.log("ID no formData:", formData.escalaId);
-    console.log("Lista de Escalas (IDs):", escalas.map(e => e.value));
-    console.log("Achou no Find?:", escalas.find(e => String(e.value).toLowerCase() === String(formData.escalaId).toLowerCase())?.label);
+   
     return (
         <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
             <HelperText type="error" visible={!!errors.nome}>

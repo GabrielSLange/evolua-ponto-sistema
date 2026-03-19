@@ -60,6 +60,18 @@ const SuperAdminScreen = () => {
                      {/* As ações ficam separadas no final */}
                      <Card.Actions style={styles.cardActions}>
                         <View style={{ flexDirection: 'row' }}>
+                           <Tooltip title="Gerenciar Eventos" enterTouchDelay={0} leaveTouchDelay={0}>
+                              <IconButton
+                                 icon="clipboard-list-outline"
+                                 iconColor={iconColor}
+                                 containerColor="transparent"
+                                 onPress={() => router.push({
+                                    pathname: '/(superadmin)/eventos',
+                                    params: { empresaId: item.id }
+                                 })}
+                              />
+                           </Tooltip>
+
                            <Tooltip title="Gerenciar Escalas" enterTouchDelay={0} leaveTouchDelay={0}>
                               <IconButton
                                  icon="calendar-clock"
