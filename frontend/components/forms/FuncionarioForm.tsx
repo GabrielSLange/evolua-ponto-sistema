@@ -35,6 +35,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     const roleOptions = [
         { label: 'Administrador', value: 'admin' },
         { label: 'Funcionário', value: 'normal' },
+        { label: 'Fiscal', value: 'fiscal' },
     ];
 
     // Estado para co dropdown de permissões
