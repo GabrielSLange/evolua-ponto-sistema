@@ -15,7 +15,7 @@ const EditFuncionarioScreen = () => {
     const { showNotification } = useNotification();
     const isReadOnly = isReadOnlyParam === 'true';
 
-    const { loading, funcionario, estabelecimentos, updateFuncionario } = useEditFuncionario(funcionarioId as string, estabelecimentoId as string);
+    const { loading, funcionario, estabelecimentos, escalas, updateFuncionario } = useEditFuncionario(funcionarioId as string, estabelecimentoId as string);
     
     const handleUpdate = async (funcionario: ModelFuncionario) => {
         try {
@@ -42,6 +42,7 @@ const EditFuncionarioScreen = () => {
                         onSubmit={isReadOnly ? () => { } : handleUpdate}
                         funcionario={funcionario}
                         estabelecimentos={funcionario ? estabelecimentos : []}
+                        escalas={escalas}
                         submitButtonLabel={isReadOnly ? "" : "Salvar Alterações"}
                         isReadOnly={isReadOnly}
                     />

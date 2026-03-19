@@ -74,32 +74,43 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     const [errors, setErrors] = useState<FormErrors>({});
 
     const verificarDadosFormulario = useCallback(() => {
+        if (funcionario && funcionario.id) {
+            // Buscamos os valores garantindo que sejam strings minúsculas para comparação
+            const escalaIdValue = funcionario.escalaId || (funcionario as any).EscalaId || '';
+            const roleValue = funcionario.role || (funcionario as any).Role || '';
 
-        if (funcionario?.id !== null && funcionario?.id !== undefined) {
             setFormData({
                 ...funcionario,
-                escalaId: funcionario.escalaId || '',
+                // Forçamos o ID e a Role para o estado
+                escalaId: String(escalaIdValue).toLowerCase(),
+                role: String(roleValue).toLowerCase(),
             });
         } else {
-            // Limpa o formulário no modo de criação
+            // Reset para criação
             setFormData({
-                id: null,
-                estabelecimentoId: '',
-                nome: '',
-                cpf: '',
-                email: '',
-                password: '',
-                cargo: '',
-                role: '',
-                ativo: true,
-                escalaId: '',
+                id: null, estabelecimentoId: '', nome: '', cpf: '',
+                email: '', password: '', cargo: '', role: '',
+                ativo: true, escalaId: '',
             });
         }
-        // Limpa os erros ao carregar o formulário
         setErrors({});
-    }, [funcionario]);
+        // 2. ADICIONE 'escalas' nas dependências para re-sincronizar quando a lista chegar da API
+    }, [funcionario, escalas]);
 
     useFocusEffect(verificarDadosFormulario);
+
+    useEffect(() => {
+        if (funcionario && (funcionario.escalaId || (funcionario as any).EscalaId)) {
+            const idEscala = funcionario.escalaId || (funcionario as any).EscalaId;
+            const roleEscala = funcionario.role || (funcionario as any).Role || (funcionario as any).perfil;
+            
+            setFormData(prev => ({
+                ...prev,
+                escalaId: String(idEscala).toLowerCase(),
+                role: String(roleEscala).toLowerCase(),
+            }));
+        }
+    }, [funcionario, escalas]);
 
     const handleChange = (name: keyof ModelFuncionario, value: string) => {
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -155,7 +166,10 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
             return;
         }
     };
-
+    console.log("--- DIAGNÓSTICO DE ESCALA ---");
+    console.log("ID no formData:", formData.escalaId);
+    console.log("Lista de Escalas (IDs):", escalas.map(e => e.value));
+    console.log("Achou no Find?:", escalas.find(e => String(e.value).toLowerCase() === String(formData.escalaId).toLowerCase())?.label);
     return (
         <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
             <HelperText type="error" visible={!!errors.nome}>
@@ -242,7 +256,12 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                     <TouchableOpacity onPress={openMenu} disabled={isReadOnly}>
                         <TextInput
                             label="Permissão"
-                            value={roleOptions.find(opt => opt.value === formData.role)?.label || ''}
+                            // Busca o label comparando tudo em minúsculo
+                            value={
+                                roleOptions.find(opt => 
+                                    String(opt.value).toLowerCase() === String(formData.role).toLowerCase()
+                                )?.label || ''
+                            }
                             style={styles.input}
                             editable={false}
                             right={<TextInput.Icon icon="menu-down" />}
@@ -272,7 +291,12 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                     <TouchableOpacity onPress={openEscalaMenu} disabled={isReadOnly}>
                         <TextInput
                             label="Escala de Trabalho"
-                            value={escalas.find(e => e.value === formData.escalaId)?.label || ''}
+                            // Busca o label comparando tudo em minúsculo
+                            value={
+                                escalas.find(opt => 
+                                    String(opt.value).toLowerCase() === String(formData.escalaId).toLowerCase()
+                                )?.label || ''
+                            }
                             style={styles.input}
                             editable={false}
                             right={<TextInput.Icon icon="menu-down" />}

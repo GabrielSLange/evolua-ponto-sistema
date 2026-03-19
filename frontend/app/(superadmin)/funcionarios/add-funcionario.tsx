@@ -11,7 +11,7 @@ const AddFuncionarioScreen = () => {
     const router = useRouter();
     const { estabelecimentoId } = useLocalSearchParams<{ estabelecimentoId: string }>(); // Pega o ID do estabelecimento-mãe
 
-    const { loading, addFuncionario } = useAddFuncionario(estabelecimentoId as string);
+    const { loading, addFuncionario, escalas } = useAddFuncionario(estabelecimentoId as string);
 
 
     return (
@@ -27,6 +27,7 @@ const AddFuncionarioScreen = () => {
                     <FuncionarioForm
                         onSubmit={addFuncionario}
                         submitButtonLabel="Cadastrar"
+                        escalas={escalas}
                     />
                     <Modal
                         transparent={true}
