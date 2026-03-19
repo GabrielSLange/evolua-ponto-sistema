@@ -20,6 +20,11 @@ namespace EvoluaPonto.Api.Data
         public DbSet<ModelEscala> Escalas { get; set; }
         public DbSet<ModelEscalaDia> EscalaDias { get; set; }
 
+        public DbSet<ModelLocalProva> LocaisProva { get; set; }
+        public DbSet<ModelSalaProva> SalasProva { get; set; }
+        public DbSet<ModelEventoProva> EventosProva { get; set; }
+        public DbSet<ModelInscricaoAluno> InscricoesAlunos { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

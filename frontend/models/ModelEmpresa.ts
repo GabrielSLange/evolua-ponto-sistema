@@ -3,4 +3,5 @@ export interface ModelEmpresa {
    razaoSocial: string;
    cnpj: string;
    ativo: boolean;
+   UsaModuloEventos: boolean;
 }

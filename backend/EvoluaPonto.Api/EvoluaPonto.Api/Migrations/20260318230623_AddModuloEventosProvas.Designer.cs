@@ -3,6 +3,7 @@ using System;
 using EvoluaPonto.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EvoluaPonto.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260318230623_AddModuloEventosProvas")]
+    partial class AddModuloEventosProvas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,9 +49,6 @@ namespace EvoluaPonto.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("razao_social");
-
-                    b.Property<bool>("UsaModuloEventos")
-                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -213,9 +213,6 @@ namespace EvoluaPonto.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("EmpresaId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("NomeAplicacao")
                         .IsRequired()
                         .HasColumnType("text");
@@ -225,8 +222,6 @@ namespace EvoluaPonto.Api.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EmpresaId");
 
                     b.ToTable("EventosProva");
                 });
@@ -595,17 +590,6 @@ namespace EvoluaPonto.Api.Migrations
                     b.Navigation("Empresa");
                 });
 
-            modelBuilder.Entity("EvoluaPonto.Api.Models.ModelEventoProva", b =>
-                {
-                    b.HasOne("EvoluaPonto.Api.Models.ModelEmpresa", "Empresa")
-                        .WithMany("Eventos")
-                        .HasForeignKey("EmpresaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Empresa");
-                });
-
             modelBuilder.Entity("EvoluaPonto.Api.Models.ModelFeriadoPersonalizado", b =>
                 {
                     b.HasOne("EvoluaPonto.Api.Models.ModelEmpresa", "Empresa")
@@ -688,11 +672,6 @@ namespace EvoluaPonto.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Funcionario");
-                });
-
-            modelBuilder.Entity("EvoluaPonto.Api.Models.ModelEmpresa", b =>
-                {
-                    b.Navigation("Eventos");
                 });
 
             modelBuilder.Entity("EvoluaPonto.Api.Models.ModelEscala", b =>

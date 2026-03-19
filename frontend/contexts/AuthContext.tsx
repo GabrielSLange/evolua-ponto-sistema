@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // --- Nossos tipos de dados ---
 interface DecodedToken {
    FuncionarioId: string;
-   role: 'superadmin' | 'admin' | 'normal';
+   role: 'superadmin' | 'admin' | 'normal' | 'fiscal';
 }
 // **CORREÇÃO:** Alinha os nomes das propriedades com o JSON retornado pela API
 interface TokenResponse {
@@ -22,7 +22,7 @@ interface AuthContextData {
    token: string | null;
    isAuthenticated: boolean;
    userId: string | null;
-   role: 'superadmin' | 'admin' | 'normal' | null;
+   role: 'superadmin' | 'admin' | 'normal' | 'fiscal' | null;
    isLoading: boolean;
    theme: 'light' | 'dark'; // Propriedade para o tema atual
    toggleTheme: () => void; // Função para alternar o tema
@@ -35,7 +35,7 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
    const [token, setToken] = useState<string | null>(null);
-   const [role, setRole] = useState<'superadmin' | 'admin' | 'normal' | null>(null);
+   const [role, setRole] = useState<'superadmin' | 'admin' | 'normal' | 'fiscal' | null>(null);
    const [isLoading, setIsLoading] = useState(true);
    const [userId, setUserId] = useState<string | null>(null);
 
@@ -112,13 +112,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
          setUserId(decoded.FuncionarioId);
 
          setToken(token);
-         setRole(perfil as 'superadmin' | 'admin' | 'normal');
+         setRole(perfil as 'superadmin' | 'admin' | 'normal' | 'fiscal');
          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
          await saveAuthData({
             token: token,
             refreshToken: refresh_token,
-            role: perfil as 'superadmin' | 'admin' | 'normal',
+            role: perfil as 'superadmin' | 'admin' | 'normal' | 'fiscal',
             id: decoded.FuncionarioId
          });
 

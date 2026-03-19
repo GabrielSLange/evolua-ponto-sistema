@@ -13,6 +13,8 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<ImportacaoService>();
+builder.Services.AddScoped<EventosService>();
 builder.Services.AddSingleton<MinioService>();
 
 var key = Encoding.ASCII.GetBytes(builder.Configuration["JwtSettings:SecretKey"]);

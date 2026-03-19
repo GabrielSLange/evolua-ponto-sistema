@@ -23,5 +23,10 @@ namespace EvoluaPonto.Api.Models
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
+
+        public bool UsaModuloEventos { get; set; } = false; // Por padrão, as empresas não usam
+
+        // Relação 1 para N (Uma empresa pode ter várias provas)
+        public List<ModelEventoProva> Eventos { get; set; } = new List<ModelEventoProva>();
     }
 }

@@ -90,6 +90,7 @@ const RootLayoutNav = () => {
       if (role === 'superadmin') router.replace('/(superadmin)/empresas');
       else if (role === 'admin') router.replace(`/(admin)/meu-ponto/home`);
       else if (role === 'normal') router.replace('/(employee)/meu-ponto/home');
+      else if (role === 'fiscal') router.replace('/(fiscal)');
       return;
     }
 
@@ -99,6 +100,8 @@ const RootLayoutNav = () => {
       router.replace(`/(admin)/meu-ponto/home`);
     } else if (role === 'superadmin' && currentRouteGroup !== '(superadmin)') {
       router.replace('/(superadmin)/empresas');
+    }else if (role === 'fiscal' && currentRouteGroup !== '(fiscal)') {
+      router.replace('/(fiscal)');
     }
   }, [isAuthenticated, isLoading, role, segments, userId]);
 

@@ -1,16 +1,14 @@
 import { ModelEmpresa } from '@/models/ModelEmpresa';
-import { useFocusEffect } from 'expo-router';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
+import { TextInput, Button, Switch, Text } from 'react-native-paper';
 import { MaskedTextInput } from "react-native-mask-text";
 
-// Interface para as propriedades que o nosso formulário receberá
 interface EmpresaFormProps {
-   empresa?: ModelEmpresa; // Dados iniciais para o modo de edição
-   onSubmit: (empresa: ModelEmpresa) => void; // Para controlar o estado de carregamento do botão
-   submitButtonLabel?: string; // Texto customizado para o botão (ex: "Salvar", "Atualizar")
-   isLoading?: boolean; // Para controlar o estado de carregamento do botão
+   empresa?: ModelEmpresa;
+   onSubmit: (empresa: ModelEmpresa) => void;
+   submitButtonLabel?: string;
+   isLoading?: boolean;
 }
 
 const EmpresaForm: React.FC<EmpresaFormProps> = ({
@@ -24,33 +22,36 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({
       razaoSocial: '',
       cnpj: '',
       id: '',
-      ativo: true
+      ativo: true,
+      UsaModuloEventos: false
    });
 
-   const definirDadosIniciais = useCallback(() => {
+   useEffect(() => {
       setLoading(true);
       if (empresa !== undefined) {
+         
+         const valorToggle = empresa.UsaModuloEventos ?? (empresa as any).usaModuloEventos ?? false;
+
          setEmpresaForm({
             razaoSocial: empresa.razaoSocial || '',
             cnpj: empresa.cnpj || '',
             id: empresa.id || '',
-            ativo: empresa.ativo || true
+            ativo: empresa.ativo !== undefined ? empresa.ativo : true,
+            UsaModuloEventos: valorToggle
          });
       } else {
          setEmpresaForm({
             razaoSocial: '',
             cnpj: '',
             id: '',
-            ativo: true
+            ativo: true,
+            UsaModuloEventos: false
          });
       }
       setLoading(false);
    }, [empresa]);
 
-   useFocusEffect(definirDadosIniciais);
-
    const handleSubmit = () => {
-      // Chama a função passada por props com os dados atuais do formulário
       onSubmit(empresaForm);
    };
 
@@ -69,9 +70,8 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({
                value={empresaForm.cnpj}
                style={styles.input}
                onChangeText={(text) => {
-                  // Remove tudo que não for número
                   const rawText = text.replace(/\D/g, '');
-                  empresaForm.cnpj = rawText;
+                  setEmpresaForm(prev => ({ ...prev, cnpj: rawText }));
                }}
                keyboardType="number-pad"
                render={props => (
@@ -79,12 +79,21 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({
                      {...props}
                      mask="99.999.999/9999-99"
                      value={empresaForm.cnpj}
-                     onChangeText={text => empresaForm.cnpj = text}
+                     onChangeText={text => setEmpresaForm(prev => ({ ...prev, cnpj: text }))}
                      keyboardType="number-pad"
                   />
                )}
             />
          </View>
+
+         <View style={styles.switchContainer}>
+            <Text variant="bodyLarge">Utiliza Módulo de Eventos?</Text>
+            <Switch
+               value={empresaForm.UsaModuloEventos}
+               onValueChange={(valor) => setEmpresaForm(prev => ({ ...prev, UsaModuloEventos: valor }))}
+            />
+         </View>
+
          <Button
             mode="contained"
             onPress={handleSubmit}
@@ -103,6 +112,14 @@ const styles = StyleSheet.create({
    },
    input: {
       marginBottom: 16,
+   },
+   switchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 24,
+      marginTop: 8,
+      paddingHorizontal: 4,
    },
    button: {
       marginTop: 8,
