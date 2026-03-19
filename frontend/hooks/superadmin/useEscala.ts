@@ -129,9 +129,7 @@ export const useEditEscala = (userId: string | null, escalaId: string) => {
 
             await api.put(`/Escalas/${id}`, payload);
             showNotification('Escala atualizada!', 'success');
-            router.push({
-                pathname: '/(admin)/escalas',
-            });
+            router.back()
         } catch (error) {
             console.error(error);
             showNotification('Erro ao atualizar escala.', 'error');
