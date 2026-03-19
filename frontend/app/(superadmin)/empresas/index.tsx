@@ -60,6 +60,19 @@ const SuperAdminScreen = () => {
                      {/* As ações ficam separadas no final */}
                      <Card.Actions style={styles.cardActions}>
                         <View style={{ flexDirection: 'row' }}>
+                           <Tooltip title="Gerenciar Escalas" enterTouchDelay={0} leaveTouchDelay={0}>
+                              <IconButton
+                                 icon="calendar-clock"
+                                 iconColor={iconColor}
+                                 containerColor="transparent"
+                                 onPress={() => router.push({
+                                    pathname: '/(superadmin)/escalas',
+                                    params: { empresaId: item.id }
+                                 })}
+                              />
+                           </Tooltip>
+
+
                            <Tooltip title="Acessar Estabelecimentos" enterTouchDelay={0} leaveTouchDelay={0}>
                               <IconButton
                                  icon="office-building-marker"

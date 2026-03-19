@@ -5,13 +5,14 @@ import { useTheme, Text, Divider } from 'react-native-paper';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import CustomLoader from '@/components/CustomLoader';
 import ListEscalas from '@/components/lists/listEscalas';
-import { useEscala } from '@/hooks/admin/useEscala';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEscala } from '@/hooks/superadmin/useEscala';
+import { useLocalSearchParams } from 'expo-router';
 
 export default function EscalasIndex() {
-    const { userId } = useAuth();
     const theme = useTheme();
-    const { escalas, loading } = useEscala(userId || null);
+
+    const { empresaId } = useLocalSearchParams();
+    const { escalas, loading } = useEscala(empresaId as string || null);
     return (
         <View style={{ flex: 1 }}>
             <ScreenContainer>
@@ -27,7 +28,8 @@ export default function EscalasIndex() {
                 </View>
                 <ListEscalas
                     escalas={escalas}
-                    permissao="admin"
+                    permissao="superadmin"
+                    empresaId={empresaId as string || undefined}
                 />
                 <Modal
                     transparent={true}

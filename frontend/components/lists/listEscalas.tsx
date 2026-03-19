@@ -8,9 +8,10 @@ import { set } from 'date-fns';
 interface Props {
     escalas: Escala[];
     permissao: string;
+    empresaId?: string;
 }
 
-export default function ListEscalas({ escalas, permissao }: Props) {
+export default function ListEscalas({ escalas, permissao, empresaId }: Props) {
     const router = useRouter();
     const theme = useTheme();
 
@@ -82,6 +83,7 @@ export default function ListEscalas({ escalas, permissao }: Props) {
                         onPress={() => {
                             router.push({
                                 pathname: `/(${permissao})/escalas/add-escala`,
+                                params: { empresaId: empresaId } 
                             });
                         }}
                     />

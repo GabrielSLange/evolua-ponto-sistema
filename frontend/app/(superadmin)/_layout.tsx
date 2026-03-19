@@ -108,6 +108,28 @@ export default function SuperAdminLayout() {
                title: 'Funcionários',
             }}
          />
+
+         <Drawer.Screen
+            name='escalas/index'
+            options={{
+               drawerItemStyle: { display: 'none' },
+               title: 'Gestão de Escalas'
+            }}
+         />
+         <Drawer.Screen
+            name="escalas/add-escala"
+            options={{
+               drawerItemStyle: { display: 'none' },
+               title: 'Nova Escala',
+            }}
+         />
+         <Drawer.Screen
+            name="escalas/edit-escala"
+            options={{
+               drawerItemStyle: { display: 'none' },
+               title: 'Editar Escala',
+            }}
+         />
       </Drawer>
    );
 }
