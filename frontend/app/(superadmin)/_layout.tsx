@@ -1,9 +1,9 @@
 import 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
+import { StyleSheet, useWindowDimensions } from 'react-native';
 import CustomDrawerContent from '../../components/navigation/CustomDrawerContent';
 import CustomHeader from '../../components/navigation/CustomHeader';
-import { useWindowDimensions } from 'react-native';
-import { useTheme } from 'react-native-paper';
+import { useTheme, Icon } from 'react-native-paper';
 
 const breakpoint = 768;
 
@@ -17,98 +17,101 @@ export default function SuperAdminLayout() {
       <Drawer
          drawerContent={(props) => <CustomDrawerContent {...props} />}
          screenOptions={{
-            // 4. A MÁGICA ACONTECE AQUI:
+            // 1. Configuração de Responsividade
             drawerType: isDesktop ? 'permanent' : 'front',
 
-            // 5. Ajuste de estilo e comportamento para desktop vs. mobile
+            // 2. Estilo do Drawer (25% no desktop para seguir o Admin)
             drawerStyle: {
-               // Define uma largura fixa no desktop e percentual no mobile
-               width: isDesktop ? '18%' : '80%',
+               width: isDesktop ? '25%' : '80%',
+               borderRightColor: theme.colors.outlineVariant,
+               borderRightWidth: StyleSheet.hairlineWidth,
             },
-            swipeEnabled: !isDesktop, // Desabilita o gesto de arrastar no desktop
+            swipeEnabled: !isDesktop,
 
-            drawerActiveTintColor: theme.colors.primary,
-            drawerInactiveTintColor: theme.colors.onSurface,
-            drawerLabelStyle: { fontSize: 15 },
-            drawerContentStyle: { backgroundColor: theme.colors.surface },
+            // 3. Cores e Tipografia (Padrão Azul/Branco do Admin)
+            drawerActiveTintColor: theme.colors.onPrimaryContainer,
+            drawerInactiveTintColor: '#FFFFFF',
+            drawerActiveBackgroundColor: theme.colors.primaryContainer,
+            drawerInactiveBackgroundColor: 'transparent',
 
-            // 6. Use o novo CustomHeader
-            // Como você já tem um header customizado, a lógica de esconder o botão "sanduíche"
-            // provavelmente precisará ser feita dentro do seu componente CustomHeader,
-            // passando 'isDesktop' como uma propriedade (prop) para ele.
-            header: ({ options }) => <CustomHeader title={options.title || 'Painel Super Admin'} isDesktop={isDesktop} />,
+            // 4. Header Customizado
+            header: ({ options }) => (
+               <CustomHeader 
+                  title={options.title || 'Painel Super Admin'} 
+                  isDesktop={isDesktop} 
+               />
+            ),
          }}
       >
+         {/* ITEM VISÍVEL NO MENU */}
          <Drawer.Screen
             name="empresas/index"
             options={{
                drawerLabel: 'Gerenciar Empresas',
                title: 'Gerenciar Empresas',
+               drawerIcon: ({ color, size }) => (
+                  <Icon source="domain" color={color} size={size} />
+               )
             }}
          />
+
+         {/* TELAS OCULTAS (Configuradas com display: 'none') */}
          <Drawer.Screen
             name="empresas/add-empresa"
             options={{
-               // **CORREÇÃO APLICADA AQUI**
-               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
+               drawerItemStyle: { display: 'none' },
                title: 'Adicionar Empresa',
             }}
          />
          <Drawer.Screen
             name="empresas/edit-empresa"
             options={{
-               // **CORREÇÃO APLICADA AQUI**
-               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
+               drawerItemStyle: { display: 'none' },
                title: 'Editar Empresa',
             }}
          />
          <Drawer.Screen
             name="estabelecimentos/index"
             options={{
-               // **CORREÇÃO APLICADA AQUI**
-               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
+               drawerItemStyle: { display: 'none' },
                title: 'Estabelecimentos',
             }}
          />
          <Drawer.Screen
             name="estabelecimentos/edit-estabelecimento"
             options={{
-               // **CORREÇÃO APLICADA AQUI**
-               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
+               drawerItemStyle: { display: 'none' },
                title: 'Editar Estabelecimento',
             }}
          />
          <Drawer.Screen
             name="estabelecimentos/add-estabelecimento"
             options={{
-               // **CORREÇÃO APLICADA AQUI**
-               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
+               drawerItemStyle: { display: 'none' },
                title: 'Adicionar Estabelecimento',
             }}
          />
          <Drawer.Screen
             name='funcionarios/index'
             options={{
-               // **CORREÇÃO APLICADA AQUI**
-               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
+               drawerItemStyle: { display: 'none' },
                title: 'Funcionários',
             }}
          />
          <Drawer.Screen
             name='funcionarios/add-funcionario'
             options={{
-               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
+               drawerItemStyle: { display: 'none' },
                title: 'Adicionar Funcionário',
             }}
          />
          <Drawer.Screen
             name='funcionarios/edit-funcionario'
             options={{
-               drawerItemStyle: { display: 'none' }, // Remove completamente o item do menu
-               title: 'Funcionários',
+               drawerItemStyle: { display: 'none' },
+               title: 'Editar Funcionário',
             }}
          />
-
          <Drawer.Screen
             name='escalas/index'
             options={{
