@@ -7,5 +7,7 @@
         public string Sala { get; set; }
         public string Bloco { get; set; }
         public DateTime? HorarioCheckin { get; set; }
+
+        public string CheckinFormatado { get; set; }
     }
 }

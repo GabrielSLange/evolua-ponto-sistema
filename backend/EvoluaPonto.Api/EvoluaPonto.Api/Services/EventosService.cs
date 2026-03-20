@@ -192,26 +192,45 @@ namespace EvoluaPonto.Api.Services
 
         public async Task<List<RelatorioPresencaDto>> GerarRelatorioPresencaAsync(Guid eventoId)
         {
-            // O pulo do gato: Filtramos direto no Where para o banco já trazer mastigado
             var relatorio = await _context.InscricoesAlunos
-                .Include(i => i.NomeAluno)
-                .Include(i => i.Sala)
-                    .ThenInclude(s => s.Local)
-                .Where(i => i.EventoProvaId == eventoId && i.Presente == true) // <-- O FILTRO SALVADOR AQUI
-                .OrderBy(i => i.Sala.NomeSala) // Ordena por sala para ficar organizado
-                .ThenBy(i => i.NomeAluno)      // E depois por ordem alfabética do aluno
+                .Where(i => i.EventoProvaId == eventoId && i.Presente == true)
                 .Select(i => new RelatorioPresencaDto
                 {
                     NomeAluno = i.NomeAluno,
                     Sala = i.Sala.NomeSala,
-                    Bloco = i.Sala.Local.Bloco, // Pega o nome do local/prédio
+                    Bloco = i.Sala.Local.Bloco,
                     HorarioCheckin = i.DataHoraCheckin
                 })
+                .OrderBy(dto => dto.Sala)
+                .ThenBy(dto => dto.NomeAluno)
                 .ToListAsync();
+
+            // A MÁGICA INFALÍVEL AQUI:
+            foreach (var item in relatorio)
+            {
+                if (item.HorarioCheckin.HasValue)
+                {
+                    // 1. Pega a data pura do banco (19:31)
+                    var dataDoBanco = item.HorarioCheckin.Value;
+                    Console.WriteLine($"🔍 DADO ORIGINAL DO BANCO (UTC): {dataDoBanco:dd/MM/yyyy HH:mm} (Kind: {dataDoBanco.Kind})");
+
+                    // 2. Força o C# a entender que isso é UTC (Londres), parando qualquer conversão automática
+                    var dataUtc = DateTime.SpecifyKind(dataDoBanco, DateTimeKind.Utc);
+
+                    // 3. Faz a matemática simples (-3 horas)
+                    var dataBrasilia = dataUtc.AddHours(-3);
+
+                    // 4. Salva como texto blindado
+                    item.CheckinFormatado = dataBrasilia.ToString("dd/MM/yyyy HH:mm:ss");
+                }
+                else
+                {
+                    item.CheckinFormatado = "Sem Registro";
+                }
+            }
 
             return relatorio;
         }
-    
 
         public async Task<byte[]> GerarExcelPresencaAsync(Guid eventoId)
         {
@@ -237,15 +256,7 @@ namespace EvoluaPonto.Api.Services
                 worksheet.Cell(row, 2).Value = item.Documento;
                 worksheet.Cell(row, 3).Value = item.Sala;
                 worksheet.Cell(row, 4).Value = item.Bloco;
-
-                if (item.HorarioCheckin.HasValue)
-                {
-                    worksheet.Cell(row, 5).Value = item.HorarioCheckin.Value.ToString("dd/MM/yyyy HH:mm:ss");
-                }
-                else
-                {
-                    worksheet.Cell(row, 5).Value = "Sem Registro";
-                }
+                worksheet.Cell(row, 5).Value = item.CheckinFormatado;
 
                 row++;
             }
@@ -308,12 +319,7 @@ namespace EvoluaPonto.Api.Services
                             table.Cell().PaddingVertical(3).BorderBottom(1).BorderColor(Colors.Grey.Lighten4).Text(item.Documento);
                             table.Cell().PaddingVertical(3).BorderBottom(1).BorderColor(Colors.Grey.Lighten4).Text(item.Sala);
                             table.Cell().PaddingVertical(3).BorderBottom(1).BorderColor(Colors.Grey.Lighten4).Text(item.Bloco);
-
-                            var checkin = item.HorarioCheckin.HasValue
-                                ? item.HorarioCheckin.Value.ToString("dd/MM/yyyy HH:mm")
-                                : "Sem Registro";
-
-                            table.Cell().PaddingVertical(3).BorderBottom(1).BorderColor(Colors.Grey.Lighten4).Text(checkin);
+                            table.Cell().PaddingVertical(3).BorderBottom(1).BorderColor(Colors.Grey.Lighten4).Text(item.CheckinFormatado);
                         }
                     });
 

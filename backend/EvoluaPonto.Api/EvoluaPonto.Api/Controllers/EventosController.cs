@@ -89,76 +89,58 @@ namespace EvoluaPonto.Api.Controllers
     [Authorize(Roles = "superadmin")]
     public async Task<IActionResult> ExcluirEvento(Guid id)
     {
-        try
-        {
-            var sucesso = await _eventosService.ExcluirEventoCompletoAsync(id);
+      try
+      {
+        var sucesso = await _eventosService.ExcluirEventoCompletoAsync(id);
 
-            if (!sucesso)
-                return NotFound(new { mensagem = "Evento não encontrado." });
+        if (!sucesso)
+          return NotFound(new { mensagem = "Evento não encontrado." });
 
-            return Ok(new { mensagem = "Evento e todos os dados vinculados foram excluídos permanentemente." });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { erro = ex.Message });
-        }
-    }
-
-    [HttpGet("{eventoId}/relatorio-presenca")]
-    [Authorize] // Fiscais e admins podem ver
-    public async Task<IActionResult> ObterRelatorioPresenca(Guid eventoId)
-    {
-        try
-        {
-            var relatorio = await _eventosService.GerarRelatorioPresencaAsync(eventoId);
-
-            if (!relatorio.Any())
-                return Ok(new { mensagem = "Nenhum aluno registrou presença neste evento ainda.", dados = relatorio });
-
-            return Ok(relatorio);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { erro = "Erro ao gerar relatório: " + ex.Message });
-        }
+        return Ok(new { mensagem = "Evento e todos os dados vinculados foram excluídos permanentemente." });
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(new { erro = ex.Message });
+      }
     }
 
     [HttpGet("{eventoId}/exportar-excel")]
-    [Authorize(Roles = "admin,superadmin")]
+    [Authorize]
     public async Task<IActionResult> ExportarExcel(Guid eventoId)
     {
-        try
-        {
-            var arquivoBytes = await _eventosService.GerarExcelPresencaAsync(eventoId);
+      try
+      {
+        var arquivoBytes = await _eventosService.GerarExcelPresencaAsync(eventoId);
 
-            var mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            var nomeArquivo = $"Presenca_Evento_{eventoId.ToString()[..8]}.xlsx";
+        var mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        var nomeArquivo = $"Presenca_Evento_{eventoId.ToString()[..8]}.xlsx";
 
-            return File(arquivoBytes, mimeType, nomeArquivo);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { erro = "Erro ao gerar arquivo Excel: " + ex.Message });
-        }
+        return File(arquivoBytes, mimeType, nomeArquivo);
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(new { erro = "Erro ao gerar arquivo Excel: " + ex.Message });
+      }
     }
 
     [HttpGet("{eventoId}/exportar-pdf")]
-    [Authorize(Roles = "admin,superadmin")]
+    [Authorize]
     public async Task<IActionResult> ExportarPdf(Guid eventoId)
     {
-        try
-        {
-            var arquivoBytes = await _eventosService.GerarPdfPresencaAsync(eventoId);
+      try
+      {
+        var arquivoBytes = await _eventosService.GerarPdfPresencaAsync(eventoId);
 
-            var mimeType = "application/pdf";
-            var nomeArquivo = $"Presenca_Evento_{eventoId.ToString()[..8]}.pdf";
+        var mimeType = "application/pdf";
+        var nomeArquivo = $"Presenca_Evento_{eventoId.ToString()[..8]}.pdf";
 
-            return File(arquivoBytes, mimeType, nomeArquivo);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { erro = "Erro ao gerar arquivo PDF: " + ex.Message });
-        }
+        return File(arquivoBytes, mimeType, nomeArquivo);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"\n ❌ ERRO FATAL AO GERAR PDF: {ex.Message}\n{ex.StackTrace}\n");
+        return BadRequest(new { erro = "Erro ao gerar arquivo PDF: " + ex.Message });
+      }
     }
   }
 }
