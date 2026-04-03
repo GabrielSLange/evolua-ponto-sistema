@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, Platform } from 'react-native';
-import { Text, Card, Avatar, useTheme, IconButton, Surface, Chip, Searchbar, Portal, Dialog, Button } from 'react-native-paper';
+import { View, StyleSheet, FlatList, ActivityIndicator, Platform, useWindowDimensions } from 'react-native';
+import { Text, Card, Avatar, useTheme, IconButton, Surface, Chip, Searchbar, Portal, Dialog, Button, FAB, TextInput } from 'react-native-paper';
 import { useRouter, useFocusEffect } from 'expo-router';
 import api from '@/services/api';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
@@ -12,25 +12,31 @@ export default function FiscalIndexScreen() {
     const router = useRouter();
     const { userId } = useAuth(); 
     const { showNotification } = useNotification();
+    const { width } = useWindowDimensions();
 
-    // --- ESTADOS ---
+    const isDesktop = Platform.OS === 'web' && width > 768;
+
     const [eventos, setEventos] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [empresaId, setEmpresaId] = useState<string | null>(null);
 
-    // Paginação e Filtros
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeSearch, setActiveSearch] = useState('');
 
-    // --- ESTADOS DE EXPORTAÇÃO ---
     const [exportDialogVisible, setExportDialogVisible] = useState(false);
     const [eventoParaExportar, setEventoParaExportar] = useState<any | null>(null);
     const [exporting, setExporting] = useState<'pdf' | 'excel' | null>(null);
 
-    // 1. Descobrir a qual empresa esse fiscal pertence
+    const [createDialogVisible, setCreateDialogVisible] = useState(false);
+    const [nomeNovoEvento, setNomeNovoEvento] = useState('');
+    const [periodoNovoEvento, setPeriodoNovoEvento] = useState('');
+    const [creatingEvento, setCreatingEvento] = useState(false);
+
+    const [isFocused, setIsFocused] = useState(false);
+
     const carregarEmpresaDoFiscal = async () => {
         try {
             const response = await api.get(`/funcionarios/id?funcionarioId=${userId}`);
@@ -38,7 +44,7 @@ export default function FiscalIndexScreen() {
                 setEmpresaId(response.data.estabelecimento.empresaId);
             }
         } catch (error) {
-            console.error("Erro ao carregar dados do fiscal:", error);
+            console.error(error);
         }
     };
 
@@ -46,7 +52,6 @@ export default function FiscalIndexScreen() {
         carregarEmpresaDoFiscal();
     }, [userId]);
 
-    // 2. Buscar Eventos com paginação e filtro
     const fetchEventos = useCallback(async (pageNumber: number, isRefresh = false, searchParam = activeSearch) => {
         if (!empresaId) return;
         
@@ -66,23 +71,25 @@ export default function FiscalIndexScreen() {
             setTotalPages(response.data.totalPages);
             setPage(pageNumber);
         } catch (error) {
-            console.error("Erro ao buscar eventos:", error);
+            console.error(error);
         } finally {
             setLoading(false);
             setRefreshing(false);
         }
     }, [empresaId, activeSearch]);
 
-    
     useFocusEffect(
         useCallback(() => {
+            setIsFocused(true);
             if (empresaId) {
                 fetchEventos(1);
             }
+            return () => {
+                setIsFocused(false);
+            };
         }, [empresaId, fetchEventos])
     );
 
-    // --- HANDLERS DA TELA ---
     const handleRefresh = () => fetchEventos(1, true);
     const handleNextPage = () => { if (page < totalPages) fetchEventos(page + 1); };
     const handlePrevPage = () => { if (page > 1) fetchEventos(page - 1); };
@@ -102,7 +109,6 @@ export default function FiscalIndexScreen() {
         router.push(`/(fiscal)/evento/${eventoId}`);
     };
 
-    // --- HANDLERS DE EXPORTAÇÃO (API) ---
     const abrirDialogExportacao = (evento: any) => {
         setEventoParaExportar(evento);
         setExportDialogVisible(true);
@@ -118,7 +124,6 @@ export default function FiscalIndexScreen() {
         
         setExporting(formato);
         try {
-            // Chamada à API com responseType 'blob' (crucial para arquivos)
             const response = await api.get(`api/Eventos/${eventoParaExportar.id}/exportar-${formato}`, {
                 responseType: 'blob'
             });
@@ -126,7 +131,6 @@ export default function FiscalIndexScreen() {
             const nomeArquivo = `Lista_Presencas_${eventoParaExportar.nomeAplicacao.replace(/\s+/g, '_')}.${formato === 'excel' ? 'xlsx' : 'pdf'}`;
 
             if (Platform.OS === 'web') {
-                // Estratégia de download para Navegadores
                 const url = window.URL.createObjectURL(new Blob([response.data]));
                 const link = document.createElement('a');
                 link.href = url;
@@ -135,22 +139,52 @@ export default function FiscalIndexScreen() {
                 link.click();
                 link.remove();
             } else {
-                // Para mobile (iOS/Android), futuramente será necessário:
-                // await FileSystem.writeAsStringAsync(...) e Sharing.shareAsync(...)
                 showNotification("Download nativo ainda requer configuração do FileSystem.", "info");
             }
             
-            showNotification(`Relatório em ${formato.toUpperCase()} gerado com sucesso!`, 'success');
+            showNotification(`Relatório gerado com sucesso!`, 'success');
             fecharDialogExportacao();
         } catch (error) {
-            console.error(`Erro ao exportar ${formato}:`, error);
-            showNotification(`Erro ao gerar relatório em ${formato.toUpperCase()}. Verifique a conexão.`, 'error');
+            console.error(error);
+            showNotification(`Erro ao gerar relatório. Verifique a conexão.`, 'error');
         } finally {
             setExporting(null);
         }
     };
 
-    // --- RENDER DOS CARDS ---
+    const abrirDialogCriacao = () => setCreateDialogVisible(true);
+    
+    const fecharDialogCriacao = () => {
+        setCreateDialogVisible(false);
+        setNomeNovoEvento('');
+        setPeriodoNovoEvento('');
+    };
+
+    const handleCriarEvento = async () => {
+        if (!nomeNovoEvento.trim() || !periodoNovoEvento.trim()) {
+            showNotification("Preencha o nome e o período do evento.", "error");
+            return;
+        }
+
+        setCreatingEvento(true);
+        try {
+            await api.post('api/Eventos/vazio', {
+                nomeAplicacao: nomeNovoEvento.trim(),
+                periodoAplicacao: periodoNovoEvento.trim(),
+                empresaId: empresaId
+            });
+
+            showNotification("Evento criado com sucesso!", "success");
+            fecharDialogCriacao();
+            fetchEventos(1, true);
+        } catch (error) {
+            console.error(error);
+            showNotification("Erro ao criar evento.", "error");
+        } finally {
+            setCreatingEvento(false);
+        }
+    };
+
     const renderItem = ({ item }: any) => {
         return (
             <Card style={styles.card} onPress={() => navigateToSala(item.id)}>
@@ -180,7 +214,6 @@ export default function FiscalIndexScreen() {
                          </View>
                     </View>
                 </Card.Content>
-                {/* Nova área de ações na parte inferior do Card */}
                 <Card.Actions style={styles.cardActions}>
                      <Button 
                          icon="cloud-download-outline" 
@@ -237,7 +270,17 @@ export default function FiscalIndexScreen() {
                 />
             </ScreenContainer>
 
-            {/* RODAPÉ DE PAGINAÇÃO */}
+            {isFocused && (
+                <Portal>
+                    <FAB
+                        icon="plus"
+                        style={[styles.fab, isDesktop && styles.fabDesktop]}
+                        onPress={abrirDialogCriacao}
+                        color="white"
+                    />
+                </Portal>
+            )}
+
             <Surface style={[styles.paginationFooter, { backgroundColor: theme.colors.elevation.level2 }]} elevation={4}>
                 <View style={styles.paginationContent}>
                     <IconButton 
@@ -266,7 +309,6 @@ export default function FiscalIndexScreen() {
                 </View>
             </Surface>
 
-            {/* --- DIALOG DE EXPORTAÇÃO --- */}
             <Portal>
                 <Dialog 
                     visible={exportDialogVisible} 
@@ -314,6 +356,35 @@ export default function FiscalIndexScreen() {
                         </Button>
                     </Dialog.Actions>
                 </Dialog>
+
+                <Dialog 
+                    visible={createDialogVisible} 
+                    onDismiss={fecharDialogCriacao} 
+                    style={styles.dialog}
+                >
+                    <Dialog.Title>Novo Evento Avulso</Dialog.Title>
+                    <Dialog.Content>
+                        <TextInput
+                            label="Nome do Evento / Prova"
+                            value={nomeNovoEvento}
+                            onChangeText={setNomeNovoEvento}
+                            mode="outlined"
+                            style={{ marginBottom: 16 }}
+                        />
+                        <TextInput
+                            label="Período (Ex: Matutino, 20/05)"
+                            value={periodoNovoEvento}
+                            onChangeText={setPeriodoNovoEvento}
+                            mode="outlined"
+                        />
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={fecharDialogCriacao} disabled={creatingEvento}>Cancelar</Button>
+                        <Button mode="contained" onPress={handleCriarEvento} loading={creatingEvento}>
+                            Criar Evento
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
             </Portal>
 
         </View>
@@ -330,6 +401,17 @@ const styles = StyleSheet.create({
     cardActions: { paddingHorizontal: 16, paddingBottom: 16, paddingTop: 0, justifyContent: 'flex-end' },
     emptyText: { textAlign: 'center', marginTop: 50, color: '#888' },
     
+    fab: {
+        position: 'absolute',
+        margin: 16,
+        right: 0,
+        bottom: 80, 
+        backgroundColor: '#0056b3' 
+    },
+    fabDesktop: {
+        right: '12%', 
+    },
+
     paginationFooter: { 
         position: 'absolute', 
         bottom: 0, 

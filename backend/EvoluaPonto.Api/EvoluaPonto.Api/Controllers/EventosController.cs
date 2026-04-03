@@ -1,11 +1,7 @@
 using EvoluaPonto.Api.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using QuestPDF.Fluent;
-using QuestPDF.Helpers;
-using QuestPDF.Infrastructure;
+using EvoluaPonto.Api.Dtos;
 
 namespace EvoluaPonto.Api.Controllers
 {
@@ -138,8 +134,40 @@ namespace EvoluaPonto.Api.Controllers
       }
       catch (Exception ex)
       {
-        Console.WriteLine($"\n ❌ ERRO FATAL AO GERAR PDF: {ex.Message}\n{ex.StackTrace}\n");
         return BadRequest(new { erro = "Erro ao gerar arquivo PDF: " + ex.Message });
+      }
+    }
+
+    [HttpPost("vazio")]
+    [Authorize]
+    public async Task<IActionResult> CriarEventoVazio([FromBody] CriarEventoVazioDto dto)
+    {
+      try
+      {
+        var eventoId = await _eventosService.CriarEventoVazioAsync(dto);
+        return CreatedAtAction(nameof(CriarEventoVazio), new { id = eventoId }, new { mensagem = "Evento criado com sucesso.", id = eventoId });
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(new { erro = ex.Message });
+      }
+    }
+
+    [HttpPost("adicionar-aluno-avulso")]
+    [Authorize]
+    public async Task<IActionResult> AdicionarAlunoAvulso([FromBody] AdicionarAlunoAvulsoDto dto)
+    {
+      try
+      {
+        if (string.IsNullOrWhiteSpace(dto.NomeAluno))
+          return BadRequest(new { erro = "O nome do aluno é obrigatório." });
+
+        var inscricaoId = await _eventosService.AdicionarAlunoAvulsoAsync(dto);
+        return Ok(new { mensagem = "Aluno avulso adicionado e presença registrada.", id = inscricaoId });
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(new { erro = ex.Message });
       }
     }
   }

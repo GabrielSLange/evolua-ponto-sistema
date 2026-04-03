@@ -2,6 +2,7 @@ using ClosedXML.Excel;
 using EvoluaPonto.Api.Data;
 using EvoluaPonto.Api.Dtos;
 using EvoluaPonto.Api.DTOs;
+using EvoluaPonto.Api.Models;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -334,6 +335,45 @@ namespace EvoluaPonto.Api.Services
             });
 
             return document.GeneratePdf();
+        }
+        public async Task<Guid> CriarEventoVazioAsync(CriarEventoVazioDto dto)
+        {
+            var novoEvento = new ModelEventoProva
+            {
+                Id = Guid.NewGuid(),
+                NomeAplicacao = dto.NomeAplicacao,
+                PeriodoAplicacao = dto.PeriodoAplicacao,
+                EmpresaId = dto.EmpresaId
+            };
+
+            _context.EventosProva.Add(novoEvento);
+            await _context.SaveChangesAsync();
+
+            return novoEvento.Id;
+        }
+
+        public async Task<Guid> AdicionarAlunoAvulsoAsync(AdicionarAlunoAvulsoDto dto)
+        {
+            var eventoExiste = await _context.EventosProva.AnyAsync(e => e.Id == dto.EventoProvaId);
+            if (!eventoExiste) throw new KeyNotFoundException("Evento não encontrado.");
+
+            var salaExiste = await _context.SalasProva.AnyAsync(s => s.Id == dto.SalaProvaId);
+            if (!salaExiste) throw new KeyNotFoundException("Sala não encontrada.");
+
+            var novaInscricao = new ModelInscricaoAluno
+            {
+                Id = Guid.NewGuid(),
+                EventoProvaId = dto.EventoProvaId,
+                SalaProvaId = dto.SalaProvaId,
+                NomeAluno = dto.NomeAluno.Trim().ToUpper(),
+                Presente = true,
+                DataHoraCheckin = DateTime.UtcNow
+            };
+
+            _context.InscricoesAlunos.Add(novaInscricao);
+            await _context.SaveChangesAsync();
+
+            return novaInscricao.Id;
         }
     }
 }
