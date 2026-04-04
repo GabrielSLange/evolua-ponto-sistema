@@ -54,6 +54,7 @@ namespace EvoluaPonto.Api.Services
             estabelecimentoBanco.Bairro = estabelecimentoAtualizado.Bairro;
             estabelecimentoBanco.Cidade = estabelecimentoAtualizado.Cidade;
             estabelecimentoBanco.Estado = estabelecimentoAtualizado.Estado;
+            estabelecimentoBanco.Numero = estabelecimentoAtualizado.Numero;
             estabelecimentoBanco.Cep = estabelecimentoAtualizado.Cep;
             estabelecimentoBanco.Latitude = estabelecimentoAtualizado.Latitude;
             estabelecimentoBanco.Longitude = estabelecimentoAtualizado.Longitude;

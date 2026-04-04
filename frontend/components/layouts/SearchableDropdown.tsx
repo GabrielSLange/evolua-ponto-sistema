@@ -56,9 +56,8 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
             <TextInput
                label={label}
                value={value ?? ''}
-               pointerEvents="none"
                editable={false}
-               right={<TextInput.Icon icon="menu-down" />}
+               right={<TextInput.Icon icon="menu-down" onPress={() => setOpen(true)} forceTextInputFocus={false} />}
             />
          </TouchableOpacity>
 

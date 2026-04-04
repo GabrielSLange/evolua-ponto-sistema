@@ -101,7 +101,7 @@ export const MultiSelectDropdown = ({
           value={displayText}
           placeholder={placeholder}
           editable={false}
-          right={<TextInput.Icon icon="chevron-down" />}
+          right={<TextInput.Icon icon="chevron-down" onPress={showModal} forceTextInputFocus={false} />}
           mode="outlined"
           style={{ backgroundColor: theme.colors.surface }}
         />

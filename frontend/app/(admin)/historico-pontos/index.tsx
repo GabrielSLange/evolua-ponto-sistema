@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ModelFuncionario } from '@/models/ModelFuncionario';
 import DetalhesPontoModal from '@/components/modals/DetalhesPontoModal';
 import { ModelEstabelecimento } from '@/models/ModelEstabelecimento';
+import haversine from 'haversine-distance';
 
 const toISODateString = (date: Date) => {
     return date.toISOString().split('T')[0];
@@ -162,6 +163,19 @@ export default function HistoricoPontosScreen() {
     const renderItem = ({ item }: any) => {
         const isEntrada = item.tipo === 'ENTRADA';
         const dateObj = new Date(item.timestampMarcacao);
+
+        const hasLocation = !!(item.latitude && item.longitude);
+        let foraDoRaio = false;
+
+        if (hasLocation && item.latitudeEstabelecimento != null && item.longitudeEstabelecimento != null && item.raioEstabelecimento != null) {
+            const userCoords = { latitude: item.latitude, longitude: item.longitude };
+            const estCoords = { latitude: item.latitudeEstabelecimento, longitude: item.longitudeEstabelecimento };
+            const dist = haversine(userCoords, estCoords);
+            if (dist > item.raioEstabelecimento) {
+                foraDoRaio = true;
+            }
+        }
+
         return (
             <Card style={styles.card} onPress={() => handleOpenDetalhes(item)}>
                 <Card.Content style={styles.cardContent}>
@@ -170,12 +184,33 @@ export default function HistoricoPontosScreen() {
                         <View style={{ marginLeft: 12 }}>
                             <Text variant="titleSmall" style={{ fontWeight: 'bold' }}>{item.funcionarioNome}</Text>
                             <Text variant="bodySmall" style={{ color: theme.colors.outline }}>{item.funcionarioCargo}</Text>
+                            
+                            {/* Indicadores de Localização */}
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+                                {hasLocation ? (
+                                    foraDoRaio ? (
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                            <Avatar.Icon size={16} icon="alert" style={{ backgroundColor: 'transparent' }} color={theme.colors.error} />
+                                            <Text variant="bodySmall" style={{ color: theme.colors.error, fontWeight: 'bold' }}>Fora do raio permitido</Text>
+                                        </View>
+                                    ) : (
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                            <Avatar.Icon size={16} icon="map-marker-check" style={{ backgroundColor: 'transparent' }} color={theme.colors.primary} />
+                                            <Text variant="bodySmall" style={{ color: theme.colors.primary }}>Localização Ativa</Text>
+                                        </View>
+                                    )
+                                ) : (
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                        <Avatar.Icon size={16} icon="map-marker-off" style={{ backgroundColor: 'transparent' }} color={theme.colors.outline} />
+                                        <Text variant="bodySmall" style={{ color: theme.colors.outline }}>Localização Desativada</Text>
+                                    </View>
+                                )}
+                            </View>
                         </View>
                     </View>
                     <View style={styles.rightContent}>
                          <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>{format(dateObj, "HH:mm")}</Text>
                          <Text variant="bodySmall" style={{ color: theme.colors.outline }}>{format(dateObj, "dd/MM/yy", { locale: ptBR })}</Text>
-                        {item.latitude && item.longitude && <Avatar.Icon size={16} icon="map-marker" style={{ backgroundColor: 'transparent', alignSelf: 'flex-end', marginTop: 4 }} color="green" />}
                     </View>
                 </Card.Content>
             </Card>

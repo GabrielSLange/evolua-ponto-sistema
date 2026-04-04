@@ -125,7 +125,7 @@ export default function FeriadoForm({ estabelecimentosOpcoes, onSubmit, loading,
                                 value={estabelecimentosOpcoes.find(e => e.id === (selectedEstabelecimento ? selectedEstabelecimento.id : ''))?.name || 'Toda a Empresa (Global)'}
                                 style={{ marginBottom: 16 }}
                                 editable={false}
-                                right={<TextInput.Icon icon="menu-down" />}
+                                right={<TextInput.Icon icon="menu-down" onPress={openEstabelecimentoMenu} forceTextInputFocus={false} />}
                             />
                         </TouchableOpacity>
                     }

@@ -261,7 +261,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                             }
                             style={styles.input}
                             editable={false}
-                            right={<TextInput.Icon icon="menu-down" />}
+                            right={<TextInput.Icon icon="menu-down" onPress={isReadOnly ? undefined : openMenu} forceTextInputFocus={false} />}
                             error={!!errors.role}
                         />
                     </TouchableOpacity>
@@ -296,7 +296,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                             }
                             style={styles.input}
                             editable={false}
-                            right={<TextInput.Icon icon="menu-down" />}
+                            right={<TextInput.Icon icon="menu-down" onPress={isReadOnly ? undefined : openEscalaMenu} forceTextInputFocus={false} />}
                             error={!!errors.escalaId}
                         />
                     </TouchableOpacity>
@@ -325,7 +325,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                                 value={estabelecimentos.find(e => e.id === formData.estabelecimentoId)?.nomeFantasia || ''}
                                 style={styles.input}
                                 editable={false}
-                                right={<TextInput.Icon icon="menu-down" />}
+                                right={<TextInput.Icon icon="menu-down" onPress={isReadOnly ? undefined : openEstabelecimentoMenu} forceTextInputFocus={false} />}
                             />
                         </TouchableOpacity>
                     }>
