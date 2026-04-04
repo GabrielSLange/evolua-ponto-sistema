@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { View, FlatList, StyleSheet, Pressable, useWindowDimensions, Platform } from 'react-native';
-import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme, Icon, Portal } from 'react-native-paper';
+import { Card, Title, Paragraph, Text, Switch, IconButton, FAB, Tooltip, useTheme, Icon, Portal, Searchbar } from 'react-native-paper';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { ModelFuncionario } from '../../models/ModelFuncionario';
 
@@ -9,6 +9,7 @@ interface ListFuncionariosProps {
     permissao: string;
     userId: string | null;
     estabelecimentoId?: string;
+    empresaId?: string;
     toggleFuncionarioAtivo: (id: string) => void;
 }
 
@@ -17,6 +18,7 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
     permissao,
     userId,
     estabelecimentoId,
+    empresaId,
     toggleFuncionarioAtivo,
 }) => {
     const router = useRouter();
@@ -36,10 +38,27 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
       }, [])
     );
     
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredFuncionarios = funcionarios.filter(f => {
+        const query = searchQuery.toLowerCase();
+        const nomeMatch = f.nome?.toLowerCase().includes(query);
+        const cpfMatch = f.cpf?.includes(query);
+        return nomeMatch || cpfMatch;
+    });
+
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <View style={styles.searchContainer}>
+                <Searchbar
+                    placeholder="Buscar por nome ou CPF"
+                    onChangeText={setSearchQuery}
+                    value={searchQuery}
+                    style={styles.searchBar}
+                />
+            </View>
             <FlatList
-                data={funcionarios}
+                data={filteredFuncionarios}
                 keyExtractor={(item) => item.id as string}
                 contentContainerStyle={styles.listContentContainer}
                 renderItem={({ item }: { item: ModelFuncionario }) => (
@@ -78,6 +97,11 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                                 <Paragraph>
                                     <Icon source="briefcase-outline" size={18} color=""></Icon> Cargo: {item.cargo}
                                 </Paragraph>
+                                {!estabelecimentoId && item.estabelecimento?.nomeFantasia && (
+                                    <Paragraph>
+                                        <Icon source="store" size={18} color=""></Icon> Estabelecimento: {item.estabelecimento.nomeFantasia}
+                                    </Paragraph>
+                                )}
                             </Card.Content>
                         </Pressable>
 
@@ -107,7 +131,7 @@ const ListFuncionarios: React.FC<ListFuncionariosProps> = ({
                         onPress={() => {
                             router.push({
                                 pathname: `/(${permissao})/funcionarios/add-funcionario`,
-                                params: { estabelecimentoId: estabelecimentoId }
+                                params: { estabelecimentoId: estabelecimentoId, empresaId: empresaId }
                             });
                         }}
                     />
@@ -155,6 +179,14 @@ const styles = StyleSheet.create({
     },
     listContentContainer: {
         paddingBottom: 80,
+    },
+    searchContainer: {
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        paddingBottom: 8,
+    },
+    searchBar: {
+        elevation: 2,
     }
 });
 

@@ -17,33 +17,26 @@ const EditFuncionarioAdminScreen = () => {
 
     const { loading, funcionario, estabelecimentos, escalas, updateFuncionario } = useEditFuncionario(funcionarioId as string, estabelecimentoId as string);
 
-    const handleUpdate = async (funcionario: ModelFuncionario) => {
-        try {
-            await updateFuncionario(funcionario);
-            showNotification('Funcionário atualizado com sucesso!', 'success');
-
-            router.replace({
-                pathname: '/(admin)/funcionarios', // Caminho para o admin
-                params: { estabelecimentoId: estabelecimentoId }
-            });
-        } catch (error) {
-            showNotification('Erro ao atualizar funcionário.', 'error');
-        }
-    };
 
     return (
         <View style={{ flex: 1 }}>
             <Appbar.Header>
-                <Appbar.BackAction onPress={() => router.push({
-                    pathname: '/(admin)/funcionarios', // Caminho para o admin
-                    params: { estabelecimentoId: estabelecimentoId }
-                })} />                        
+                <Appbar.BackAction onPress={() => {
+                    if (estabelecimentoId) {
+                        router.push({
+                            pathname: '/(admin)/funcionarios',
+                            params: { estabelecimentoId: estabelecimentoId }
+                        });
+                    } else {
+                        router.push('/(admin)/todos-funcionarios');
+                    }
+                }} />                        
             </Appbar.Header>
             <ScreenContainer>
                 <View style={{ flex: 1 }}>
                     
                     <FuncionarioForm
-                        onSubmit={isReadOnly ? () => { } : handleUpdate}
+                        onSubmit={isReadOnly ? () => { } : updateFuncionario}
                         funcionario={funcionario}
                         submitButtonLabel={isReadOnly ? "" : "Salvar Alterações"}
                         estabelecimentos={funcionario ? estabelecimentos : []}

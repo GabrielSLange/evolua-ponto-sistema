@@ -17,6 +17,7 @@ const CustomDrawerContent = (props: any) => {
    const currentRouteName = props.state?.routes[props.state.index]?.name;
 
    const isEstabelecimentos = currentRouteName === 'estabelecimentos/index';
+   const isTodosFuncionarios = currentRouteName === 'todos-funcionarios/index';
    const isEscalas = currentRouteName === 'escalas/index';
    const isSolicitacoes = currentRouteName === 'solicitacoes/index';
    const isFeriados = currentRouteName === 'feriados/index';
@@ -80,6 +81,8 @@ const CustomDrawerContent = (props: any) => {
                >
                   {/* Olha como o código ficou muito mais limpo chamando a nossa função: */}
                   {renderNestedItem('Estabelecimentos', `/(admin)/estabelecimentos?userId=${userId}`, isEstabelecimentos, 'store')}
+                  
+                  {renderNestedItem('Funcionários', '/(admin)/todos-funcionarios', isTodosFuncionarios, 'account-group')}
                   
                   {renderNestedItem('Escalas', '/(admin)/escalas', isEscalas, 'calendar-range')}
                   
