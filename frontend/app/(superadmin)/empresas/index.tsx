@@ -114,7 +114,8 @@ const SuperAdminScreen = () => {
                ListEmptyComponent={<View style={styles.emptyContainer}><Text>Nenhuma empresa cadastrada.</Text></View>}
             />
             <FAB
-               style={styles.fab}
+               style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+               color={theme.colors.onPrimary}
                icon="plus"
                onPress={() => {
                   router.push('/(superadmin)/empresas/add-empresa');

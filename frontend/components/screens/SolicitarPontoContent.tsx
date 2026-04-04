@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, Platform, Alert, ScrollView, KeyboardAvoidingView, TouchableOpacity, RefreshControl, Modal} from 'react-native';
-import { Text, TextInput, Button, SegmentedButtons, useTheme, HelperText, Card, Chip, Avatar, Divider } from 'react-native-paper';
+import { View, StyleSheet, Platform, ScrollView, KeyboardAvoidingView, TouchableOpacity, RefreshControl, Modal, useWindowDimensions } from 'react-native';
+import { Text, TextInput, Button, SegmentedButtons, useTheme, HelperText, Card, Chip, Avatar, Divider, FAB, Portal, Modal as PaperModal } from 'react-native-paper';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
@@ -12,15 +12,21 @@ import CustomLoader from '../CustomLoader';
 
 export default function SolicitarPontoContent() {
   const router = useRouter();
-  const { userId } = useAuth();
   const theme = useTheme();
+  const { userId } = useAuth();
+  
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === 'web' && width > 768;
   const { showNotification } = useNotification();
 
   // --- Estados do Formulário ---
   const [tipo, setTipo] = useState('ENTRADA');
   const [dataSelecionada, setDataSelecionada] = useState(new Date());
   const [justificativa, setJustificativa] = useState('');
-  
+
+  // Controle do Modal do Formulário
+  const [modalVisible, setModalVisible] = useState(false);
+
   // Controle de Erros e Loading
   const [erroJustificativa, setErroJustificativa] = useState(false); // <--- NOVO: Controla o erro visual
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +48,7 @@ export default function SolicitarPontoContent() {
   const fetchHistorico = async () => {
     const funcionarioId = userId;
     if (!funcionarioId) {
-      Alert.alert('Erro', 'Não foi possível identificar o funcionário.');
+      showNotification('Não foi possível identificar o funcionário.', 'error');
       return;
     }
     setRefreshing(true);
@@ -57,7 +63,7 @@ export default function SolicitarPontoContent() {
     } catch (error) {
       console.error("Erro ao buscar histórico", error);
     }
-    finally{
+    finally {
       setIsLoading(false);
       setRefreshing(false);
     }
@@ -104,7 +110,7 @@ export default function SolicitarPontoContent() {
   };
 
   // --- Envio do Formulário ---
-const handleSubmit = async () => {
+  const handleSubmit = async () => {
     // 1. Validação Visual
     if (!justificativa.trim()) {
       setErroJustificativa(true);
@@ -112,15 +118,15 @@ const handleSubmit = async () => {
       // showNotification('A justificativa é obrigatória.', 'error');
       return;
     }
-    
+
     setErroJustificativa(false);
     setIsLoading(true);
 
     try {
       const payload = {
         funcionarioId: userId,
-        tipo: tipo, 
-        horario: getIsoDateForApi(), 
+        tipo: tipo,
+        horario: getIsoDateForApi(),
         justificativa: justificativa
       };
 
@@ -130,10 +136,11 @@ const handleSubmit = async () => {
         // --- SUCESSO ---
         // Mostra o Toast Verde
         showNotification('Solicitação enviada com sucesso!', 'success');
-        
-        // Limpa formulário e atualiza lista em vez de sair da tela
+
+        // Fechar modal, Limpar formulário e atualiza lista
         setJustificativa('');
         setErroJustificativa(false);
+        setModalVisible(false);
         fetchHistorico(); // Atualiza a lista lá embaixo 
 
       } else {
@@ -154,216 +161,247 @@ const handleSubmit = async () => {
   // Renderiza cada item do histórico
   const renderHistoricoItem = (item: SolicitacaoPontoDto) => {
     const dataItem = new Date(item.timestampMarcacao);
+
+    // Status
+    const isPendente = item.status === 0;
+    const isAprovado = item.status === 1;
     const isRejeitado = item.status === 2;
-    console.log('Renderizando item do histórico:', item.justificativaAdminSolicitacao);
+
+    let chipBg = theme.colors.secondaryContainer;
+    let chipText = theme.colors.onSecondaryContainer;
+    let chipIcon = "clock-outline";
+    let statusText = "Pendente";
+    let borderColor = theme.colors.outline;
+
+    if (isAprovado) {
+      chipBg = 'rgba(40, 167, 69, 0.2)'; // Fundo verde claro
+      chipText = '#155724'; // Verde escuro
+      chipIcon = "check-circle";
+      statusText = "Aceita";
+      borderColor = '#28a745';
+    } else if (isRejeitado) {
+      chipBg = theme.colors.errorContainer;
+      chipText = theme.colors.error;
+      chipIcon = "alert-circle";
+      statusText = "Rejeitada";
+      borderColor = theme.colors.error;
+    }
 
     return (
-      <Card key={item.id} style={[styles.card, { borderColor: isRejeitado ? theme.colors.error : theme.colors.outline }]}>
+      <Card key={item.id} style={[styles.card, { borderColor: borderColor }]}>
         <Card.Content>
           <View style={styles.cardHeader}>
-            <Text variant="titleMedium" style={{fontWeight: 'bold'}}>
-              {dataItem.toLocaleDateString('pt-BR')} - {dataItem.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}
+            <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
+              {dataItem.toLocaleDateString('pt-BR')} - {dataItem.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
             </Text>
-            <Chip 
-              icon={isRejeitado ? "alert-circle" : "clock-outline"} 
-              style={{ backgroundColor: isRejeitado ? theme.colors.errorContainer : theme.colors.secondaryContainer }}
-              textStyle={{ color: isRejeitado ? theme.colors.error : theme.colors.onSecondaryContainer }}
+            <Chip
+              icon={chipIcon}
+              style={{ backgroundColor: chipBg }}
+              textStyle={{ color: chipText }}
             >
-              {item.status === 0 ? 'Pendente' : item.status === 1 ? 'Aprovado' : 'Rejeitado'}
+              {statusText}
             </Chip>
           </View>
-          
-          <Text style={{marginTop: 8}}>
-            <Text style={{fontWeight: 'bold'}}>Tipo: </Text> {item.tipo}
+
+          <Text style={{ marginTop: 8 }}>
+            <Text style={{ fontWeight: 'bold' }}>Tipo: </Text> {item.tipo}
           </Text>
-          <Text style={{marginBottom: 8}}>
-            <Text style={{fontWeight: 'bold'}}>Sua Justificativa: </Text> {item.justificativaFuncionarioSolicitacao}
+          <Text style={{ marginBottom: 8 }}>
+            <Text style={{ fontWeight: 'bold' }}>Sua Justificativa: </Text> {item.justificativaFuncionarioSolicitacao}
           </Text>
 
           {isRejeitado && item.justificativaAdminSolicitacao && (
             <View style={[styles.rejectionBox, { backgroundColor: theme.colors.errorContainer }]}>
-              <Text style={{color: theme.colors.onErrorContainer, fontWeight: 'bold'}}>Motivo da Rejeição:</Text>
-              <Text style={{color: theme.colors.onErrorContainer}}>{item.justificativaAdminSolicitacao}</Text>
+              <Text style={{ color: theme.colors.onErrorContainer, fontWeight: 'bold' }}>Motivo da Rejeição:</Text>
+              <Text style={{ color: theme.colors.onErrorContainer }}>{item.justificativaAdminSolicitacao}</Text>
             </View>
           )}
         </Card.Content>
       </Card>
     );
   };
-  
+
   return (
-    <ScreenContainer>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
-        <ScrollView 
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <ScreenContainer>
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
         >
-          
-          <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>Solicitar Ajuste</Text>
-
-          <Divider style={{ marginVertical: 16 }} />
-
-          {/* 1. Seleção de Tipo */}
-          <View style={styles.inputGroup}>
-            <Text variant="titleMedium" style={styles.label}>Tipo de Registro</Text>
-            <SegmentedButtons
-              value={tipo}
-              onValueChange={setTipo}
-              buttons={[
-                {
-                  value: 'ENTRADA',
-                  label: 'Entrada',
-                  icon: 'login',
-                  style: { backgroundColor: tipo === 'ENTRADA' 
-                    ? theme.colors.secondaryContainer 
-                    : undefined },
-                },
-                {
-                  value: 'SAIDA',
-                  label: 'Saída',
-                  icon: 'logout',
-                  style: { backgroundColor: tipo === 'SAIDA'
-                    ? theme.colors.errorContainer 
-                    : undefined }
-                },
-              ]}
-            />
-          </View>
-
-          {/* 2. Seleção de Data e Hora */}
-          <View style={styles.inputGroup}>
-            <Text variant="titleMedium" style={styles.label}>Data e Hora</Text>
-            
-            {Platform.OS === 'web' ? (
-              <input
-                type="datetime-local"
-                value={new Date(dataSelecionada.getTime() - (dataSelecionada.getTimezoneOffset() * 60000)).toISOString().slice(0, 16)}
-                onChange={onChangeWebDateTime}
-                style={{
-                  padding: 12,
-                  fontSize: 16,
-                  borderRadius: 4,
-                  border: `1px solid ${theme.colors.outline}`,
-                  backgroundColor: theme.colors.surface,
-                  color: theme.colors.onSurface,
-                  colorScheme: theme.dark ? 'dark' : 'light'
-                }}
-              />
-            ) : (
-              <View style={styles.row}>
-                <Button 
-                  mode="outlined" 
-                  onPress={() => setShowDatePicker(true)} 
-                  icon="calendar"
-                  style={{ flex: 1, marginRight: 8 }}
-                >
-                  <Text style={{ fontFamily: 'Nunito_400Regular' }}>{dataSelecionada.toLocaleDateString('pt-BR')}</Text>
-                </Button>
-                
-                <Button 
-                  mode="outlined" 
-                  onPress={() => setShowTimePicker(true)} 
-                  icon="clock-outline"
-                  style={{ flex: 1 }}
-                >
-                  {dataSelecionada.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                </Button>
-
-                {showDatePicker && (
-                  <DateTimePicker
-                    value={dataSelecionada}
-                    mode="date"
-                    display="default"
-                    onChange={onChangeDate}
-                  />
-                )}
-                
-                {showTimePicker && (
-                  <DateTimePicker
-                    value={dataSelecionada}
-                    mode="time"
-                    display="default"
-                    onChange={onChangeTime}
-                  />
-                )}
-              </View>
-            )}
-          </View>
-
-          {/* 3. Justificativa (COM VALIDAÇÃO VISUAL) */}
-          <View style={styles.inputGroup}>
-            <Text variant="titleMedium" style={styles.label}>Justificativa</Text>
-            <TextInput
-              mode="outlined"
-              placeholder="Ex: Esqueci o celular, estava sem bateria..."
-              value={justificativa}
-              onChangeText={(text) => {
-                setJustificativa(text);
-                if (text.trim()) setErroJustificativa(false); // Limpa o erro enquanto digita
-              }}
-              multiline
-              numberOfLines={4}
-              error={erroJustificativa} // <--- Fica vermelho se houver erro
-              style={{ backgroundColor: theme.colors.surface }}
-            />
-            
-            {/* O HelperText muda de cor e mensagem dependendo do erro */}
-            <HelperText type={erroJustificativa ? 'error' : 'info'} visible={true}>
-              {erroJustificativa 
-                ? 'A justificativa é obrigatória.' 
-                : 'Descreva brevemente o motivo da solicitação.'}
-            </HelperText>
-          </View>
-
-          {/* 4. Botão de Enviar */}
-          <TouchableOpacity
-            style={[
-              styles.button,
-              { backgroundColor: theme.colors.primary}
-            ]}
-            onPress={handleSubmit}
-            disabled={isLoading}
-        >
-            <Text style={[
-                styles.buttonText, 
-                { color:theme.colors.onPrimary}
-            ]}>
-                Enviar Solicitação
-            </Text>
-        </TouchableOpacity>
-
-          {/* --- NOVO: Seção de Histórico Abaixo do Botão --- */}
-
-          <Divider style={styles.divider} />
-          <Text variant="titleLarge" style={styles.sectionTitle}>Minhas Solicitações</Text>
-          <Text variant="bodySmall" style={{marginBottom: 16, color: '#666'}}>
+          <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary, marginBottom: 8 }}>Solicitações de Ponto</Text>
+          <Text variant="bodySmall" style={{ marginBottom: 24, color: '#666' }}>
             Acompanhe o status das suas solicitações manuais.
           </Text>
-          
+
           {historico.length === 0 ? (
             <View style={styles.emptyState}>
-              <Avatar.Icon icon="history" size={48} style={{backgroundColor: theme.colors.surfaceVariant}} />
-              <Text style={{color: '#888', marginTop: 8}}>Nenhuma solicitação recente.</Text>
+              <Avatar.Icon icon="history" size={48} style={{ backgroundColor: theme.colors.surfaceVariant }} />
+              <Text style={{ color: '#888', marginTop: 8 }}>Nenhuma solicitação enviada.</Text>
             </View>
           ) : (
-            historico.map(renderHistoricoItem)
+            // Exibe as solicitações ordenando pela mais recente (maior ID = última a ser criada)
+            [...historico]
+              .sort((a, b) => b.id - a.id)
+              .map(renderHistoricoItem)
           )}
 
+          <View style={{ height: 80 }} /> {/* Espaço extra para o FAB não cobrir itens */}
         </ScrollView>
-      </KeyboardAvoidingView>
+      </ScreenContainer>
+
+      <FAB
+        icon="plus"
+        style={[styles.fab, isDesktop && styles.fabDesktop, { backgroundColor: theme.colors.primary }]}
+        color={theme.colors.onPrimary}
+        onPress={() => setModalVisible(true)}
+      />
+
+      <Portal>
+        <PaperModal
+          visible={modalVisible}
+          onDismiss={() => setModalVisible(false)}
+          contentContainerStyle={[
+            { backgroundColor: theme.colors.background },
+            styles.paperModalWrapper
+          ]}
+        >
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <Text variant="titleLarge" style={{ fontWeight: 'bold', color: theme.colors.primary }}>Nova Solicitação</Text>
+              </View>
+
+              {/* 1. Seleção de Tipo */}
+              <View style={styles.inputGroup}>
+                <Text variant="titleMedium" style={styles.label}>Tipo de Registro</Text>
+                <SegmentedButtons
+                  value={tipo}
+                  onValueChange={setTipo}
+                  buttons={[
+                    {
+                      value: 'ENTRADA',
+                      label: 'Entrada',
+                      icon: 'login',
+                      style: { backgroundColor: tipo === 'ENTRADA' ? theme.colors.secondaryContainer : undefined },
+                    },
+                    {
+                      value: 'SAIDA',
+                      label: 'Saída',
+                      icon: 'logout',
+                      style: { backgroundColor: tipo === 'SAIDA' ? theme.colors.errorContainer : undefined }
+                    },
+                  ]}
+                />
+              </View>
+
+              {/* 2. Seleção de Data e Hora */}
+              <View style={styles.inputGroup}>
+                <Text variant="titleMedium" style={styles.label}>Data e Hora</Text>
+
+                {Platform.OS === 'web' ? (
+                  <input
+                    type="datetime-local"
+                    value={new Date(dataSelecionada.getTime() - (dataSelecionada.getTimezoneOffset() * 60000)).toISOString().slice(0, 16)}
+                    onChange={onChangeWebDateTime}
+                    style={{
+                      padding: 12,
+                      fontSize: 16,
+                      borderRadius: 4,
+                      border: `1px solid ${theme.colors.outline}`,
+                      backgroundColor: theme.colors.surface,
+                      color: theme.colors.onSurface,
+                      colorScheme: theme.dark ? 'dark' : 'light'
+                    }}
+                  />
+                ) : (
+                  <View style={styles.row}>
+                    <Button
+                      mode="outlined"
+                      onPress={() => setShowDatePicker(true)}
+                      icon="calendar"
+                      style={{ flex: 1, marginRight: 8 }}
+                    >
+                      <Text style={{ fontFamily: 'Nunito_400Regular' }}>{dataSelecionada.toLocaleDateString('pt-BR')}</Text>
+                    </Button>
+
+                    <Button
+                      mode="outlined"
+                      onPress={() => setShowTimePicker(true)}
+                      icon="clock-outline"
+                      style={{ flex: 1 }}
+                    >
+                      {dataSelecionada.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                    </Button>
+
+                    {showDatePicker && (
+                      <DateTimePicker
+                        value={dataSelecionada}
+                        mode="date"
+                        display="default"
+                        onChange={onChangeDate}
+                      />
+                    )}
+
+                    {showTimePicker && (
+                      <DateTimePicker
+                        value={dataSelecionada}
+                        mode="time"
+                        display="default"
+                        onChange={onChangeTime}
+                      />
+                    )}
+                  </View>
+                )}
+              </View>
+
+              {/* 3. Justificativa (COM VALIDAÇÃO VISUAL) */}
+              <View style={styles.inputGroup}>
+                <Text variant="titleMedium" style={styles.label}>Justificativa</Text>
+                <TextInput
+                  mode="outlined"
+                  placeholder="Ex: Esqueci o celular, estava sem bateria..."
+                  value={justificativa}
+                  onChangeText={(text) => {
+                    setJustificativa(text);
+                    if (text.trim()) setErroJustificativa(false); // Limpa o erro enquanto digita
+                  }}
+                  multiline
+                  numberOfLines={4}
+                  error={erroJustificativa} // <--- Fica vermelho se houver erro
+                  style={{ backgroundColor: theme.colors.surface }}
+                />
+
+                {/* O HelperText muda de cor e mensagem dependendo do erro */}
+                <HelperText type={erroJustificativa ? 'error' : 'info'} visible={true}>
+                  {erroJustificativa
+                    ? 'A justificativa é obrigatória.'
+                    : 'Descreva brevemente o motivo da solicitação.'}
+                </HelperText>
+              </View>
+
+              {/* 4. Botões do Footer */}
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 10 }}>
+                <Button mode="outlined" onPress={() => setModalVisible(false)} disabled={isLoading} style={{ flex: 1, paddingVertical: 6 }}>
+                  Cancelar
+                </Button>
+                <Button mode="contained" onPress={handleSubmit} disabled={isLoading} loading={isLoading} style={{ flex: 1, paddingVertical: 6 }}>
+                  Enviar
+                </Button>
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </PaperModal>
+      </Portal>
       <Modal
         transparent={true}
         animationType="fade"
         visible={isLoading}
       >
         <View style={styles.loaderOverlay}>
-            <CustomLoader />
+          <CustomLoader />
         </View>
       </Modal>
-    </ScreenContainer>
+    </View>
   );
 }
 
@@ -394,47 +432,66 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   button: {
-      width: "100%",
-      padding: 16,
-      borderRadius: 10,
-      alignItems: "center"
-   },
+    width: "100%",
+    padding: 16,
+    borderRadius: 10,
+    alignItems: "center"
+  },
   buttonText: {
-      fontSize: 18,
-      fontWeight: "bold"
-   },
-   divider: {
-     marginVertical: 32,
-     height: 1,
-   },
-   sectionTitle: {
-     fontWeight: 'bold',
-     marginBottom: 4,
-   },
-   card: {
-     marginBottom: 16,
-     borderLeftWidth: 4, // Tarja colorida na esquerda
-   },
-   cardHeader: {
-     flexDirection: 'row',
-     justifyContent: 'space-between',
-     alignItems: 'center',
-     marginBottom: 8,
-   },
-   rejectionBox: {
-     marginTop: 10,
-     padding: 8,
-     borderRadius: 4,
-   },
-   emptyState: {
-     alignItems: 'center',
-     padding: 20,
-     opacity: 0.7
-   },
-   loaderOverlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      alignItems: 'center',
-      justifyContent: 'center',
-   },
+    fontSize: 18,
+    fontWeight: "bold"
+  },
+  divider: {
+    marginVertical: 32,
+    height: 1,
+  },
+  sectionTitle: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  card: {
+    marginBottom: 16,
+    borderLeftWidth: 4, // Tarja colorida na esquerda
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  rejectionBox: {
+    marginTop: 10,
+    padding: 8,
+    borderRadius: 4,
+  },
+  emptyState: {
+    alignItems: 'center',
+    padding: 20,
+    opacity: 0.7
+  },
+  // Novos estilos do FAB e Modal
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+  },
+  fabDesktop: {
+    right: '12%',
+  },
+  paperModalWrapper: {
+    padding: 20,
+    marginHorizontal: 16,
+    borderRadius: 12,
+    maxHeight: '90%',
+    width: '95%',
+    maxWidth: 500,
+    alignSelf: 'center',
+  },
+  loaderOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

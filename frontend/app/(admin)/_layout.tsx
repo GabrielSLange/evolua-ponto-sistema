@@ -58,8 +58,8 @@ export default function AdminLayout() {
          <Drawer.Screen
             name="meu-ponto/solicitar-ponto"
             options={{
-               drawerLabel: 'Inserir batida',
-               title: 'Solicitar ponto',
+               drawerLabel: 'Solicitar Ajuste',
+               title: 'Solicitar Ajuste',
                drawerIcon: ({ color, size }) => <Icon source="pencil-outline" color={color} size={size} />
             }}
          />

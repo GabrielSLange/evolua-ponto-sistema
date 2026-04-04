@@ -78,7 +78,8 @@ export default function ListEscalas({ escalas, permissao, empresaId }: Props) {
             {isFocused && (
                 <Portal>
                     <FAB
-                        style={[styles.fab, isDesktop && styles.fabDesktop]}
+                        style={[styles.fab, isDesktop && styles.fabDesktop, { backgroundColor: theme.colors.primary }]}
+                        color={theme.colors.onPrimary}
                         icon="plus"
                         onPress={() => {
                             router.push({

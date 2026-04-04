@@ -109,7 +109,8 @@ export default function ListFeriados({ feriados, permissao, toggleFeriadoAtivo }
             {isFocused && (
                 <Portal>
                     <FAB
-                        style={[styles.fab, isDesktop && styles.fabDesktop]}
+                        style={[styles.fab, isDesktop && styles.fabDesktop, { backgroundColor: theme.colors.primary }]}
+                        color={theme.colors.onPrimary}
                         icon="plus"
                         onPress={() => {
                             router.push({

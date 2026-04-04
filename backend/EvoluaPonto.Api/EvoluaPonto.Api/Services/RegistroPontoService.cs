@@ -1,4 +1,4 @@
-﻿using EvoluaPonto.Api.Data;
+using EvoluaPonto.Api.Data;
 using EvoluaPonto.Api.Dtos;
 using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Enums;
@@ -203,8 +203,7 @@ namespace EvoluaPonto.Api.Services
                 var registros = await _context.RegistrosPonto
                     .Where(r =>
                         r.FuncionarioId == funcionarioId &&
-                        r.RegistroManual == true && // Apenas solicitações manuais
-                        (r.Status == StatusSolicitacao.Pendente || r.Status == StatusSolicitacao.Rejeitado)
+                        r.RegistroManual == true // Apenas solicitações manuais, independente de status (Aprovado, Pendente, Rejeitado)
                     )
                     .OrderByDescending(r => r.CreatedAt) // Mais recentes primeiro
                     .ToListAsync();

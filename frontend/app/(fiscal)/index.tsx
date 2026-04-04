@@ -274,9 +274,9 @@ export default function FiscalIndexScreen() {
                 <Portal>
                     <FAB
                         icon="plus"
-                        style={[styles.fab, isDesktop && styles.fabDesktop]}
+                        style={[styles.fab, isDesktop && styles.fabDesktop, { backgroundColor: theme.colors.primary }]}
                         onPress={abrirDialogCriacao}
-                        color="white"
+                        color={theme.colors.onPrimary}
                     />
                 </Portal>
             )}
@@ -405,8 +405,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         margin: 16,
         right: 0,
-        bottom: 80, 
-        backgroundColor: '#0056b3' 
+        bottom: 80,
     },
     fabDesktop: {
         right: '12%', 
