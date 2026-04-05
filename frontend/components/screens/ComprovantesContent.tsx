@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, SectionList, StyleSheet, Alert, ActivityIndicator, Platform, Modal } from 'react-native';
-import { Button, useTheme, Text as PaperText, Text, List, Avatar, Divider } from 'react-native-paper';
+import { Button, useTheme, Text as PaperText, Text, List, Avatar, Divider, IconButton, Chip, Portal } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext'; // Ajuste o caminho se necessário
 import api from "@/services/api"; // Sua instância do Axios
 import { ComprovanteDto } from '../../models/Dtos/ComprovanteDto'; // Nosso novo tipo
@@ -9,10 +9,12 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import { ComprovanteModal } from '@/components/ComprovanteModal';
 import CustomLoader from '../CustomLoader';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 // Função helper para formatar a data YYYY-MM-DD
-const toISODateString = (date: Date) => {
+const toISODateString = (date?: Date) => {
+  if (!date) return '';
   return date.toISOString().split('T')[0];
 };
 
@@ -36,23 +38,24 @@ const EmptyState = ({ message }: { message: string }) => (
 
 export default function ComprovantesContent() {
   const { userId } = useAuth(); // Pegamos o ID do funcionário logado e o tema
-  const paperTheme = useTheme();
+  const theme = useTheme();
 
   // Cria os estilos dinamicamente com base no tema
-  const styles = getStyles(paperTheme);
+  const styles = getStyles(theme);
 
   // Estado para as datas - Inicializando em UTC para evitar problemas de fuso horário
   const hoje = new Date();
   const inicioDoMes = new Date(Date.UTC(hoje.getFullYear(), hoje.getMonth(), 1));
   const hojeUtc = new Date(Date.UTC(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()));
 
-  const [dataInicio, setDataInicio] = useState(inicioDoMes); // Padrão: dia 1 do mês atual em UTC
-  const [dataFim, setDataFim] = useState(hojeUtc); // Padrão: hoje em UTC
+  const [dataInicio, setDataInicio] = useState<Date | undefined>(inicioDoMes); // Padrão: dia 1 do mês atual em UTC
+  const [dataFim, setDataFim] = useState<Date | undefined>(hojeUtc); // Padrão: hoje em UTC
 
   // Estado para os seletores de data
   const [showPickerInicio, setShowPickerInicio] = useState(false);
   const [showPickerFim, setShowPickerFim] = useState(false);
 
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
 
@@ -77,8 +80,8 @@ export default function ComprovantesContent() {
       const response = await api.get('/Comprovante', {
         params: {
           funcionarioId: funcionarioId,
-          dataInicio: toISODateString(dataInicio),
-          dataFim: toISODateString(dataFim),
+          dataInicio: dataInicio ? toISODateString(dataInicio) : null,
+          dataFim: dataFim ? toISODateString(dataFim) : null,
         }
       });
 
@@ -179,77 +182,30 @@ export default function ComprovantesContent() {
   };
 
   return (
-    <ScreenContainer>
-      <View style={styles.container}>
-        <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: paperTheme.colors.primary }}>Filtrar Período</Text>
-
-        <Divider style={{ marginVertical: 16 }}/>
-
-        <List.Accordion
-          title="Filtros"
-          left={props => <List.Icon {...props} icon="filter-variant" />}
-          style={styles.accordion}
-        >
-          <View style={styles.pickerContainer}>
-            <View style={styles.pickerWrapper}>
-              <PaperText style={styles.label}>Data Início:</PaperText>
-              {Platform.OS === 'web' ? (
-                <input
-                  type="date"
-                  value={toISODateString(dataInicio)}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    const [year, month, day] = e.target.value.split('-').map(Number);
-                    setDataInicio(new Date(Date.UTC(year, month - 1, day)));
-                  }}
-                  style={{ ...styles.webDatePicker, backgroundColor: paperTheme.colors.surface, color: paperTheme.colors.onSurface, colorScheme: paperTheme.dark ? 'dark' : 'light' }}
-                />
-              ) : (
-                <>
-                  <Button mode="outlined" onPress={() => setShowPickerInicio(true)}>{dataInicio.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</Button>
-                  {showPickerInicio && (
-                    <DateTimePicker
-                      value={dataInicio}
-                      mode="date"
-                      display="default"
-                      onChange={onChangeDataInicio}
-                    />
-                  )}
-                </>
-              )}
+    <View style={{ flex: 1 }}>
+      <ScreenContainer>
+        <ScrollView contentContainerStyle={{ backgroundColor: theme.colors.background }}>
+          <View style={{ paddingHorizontal: 16, paddingVertical: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View>
+              <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>Meus Comprovantes</Text>
+              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                Visualize seus comprovantes de ponto.
+              </Text>
             </View>
-            <View style={styles.pickerWrapper}>
-              <PaperText style={styles.label}>Data Fim:</PaperText>
-              {Platform.OS === 'web' ? (
-                <input
-                  type="date"
-                  value={toISODateString(dataFim)}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    const [year, month, day] = e.target.value.split('-').map(Number);
-                    setDataFim(new Date(Date.UTC(year, month - 1, day)));
-                  }}
-                  style={{ ...styles.webDatePicker, backgroundColor: paperTheme.colors.surface, color: paperTheme.colors.onSurface, colorScheme: paperTheme.dark ? 'dark' : 'light' }}
-                />
-              ) : (
-                <>
-                  <Button mode="outlined" onPress={() => setShowPickerFim(true)}>{dataFim.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</Button>
-                  {showPickerFim && (
-                    <DateTimePicker
-                      value={dataFim}
-                      mode="date"
-                      display="default"
-                      onChange={onChangeDataFim}
-                    />
-                  )}
-                </>
-              )}
-            </View>
+            <IconButton icon="filter-variant" mode="contained" onPress={() => setFilterModalVisible(true)} />
           </View>
-        </List.Accordion>
 
-        {/* O botão de busca foi removido pois a busca é automática ao mudar as datas */}
+          <Divider style={{ marginHorizontal: 16, marginBottom: 16, marginTop: 8 }} />
 
-        {/* Feedback de Carregamento */}
-        {!isLoading ? (
+          <View style={styles.activeFilters}>
+            {dataInicio && <Chip icon="calendar-start" onClose={() => { setDataInicio(undefined); }}>Início: {dataInicio.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</Chip>}
+            {dataFim && <Chip icon="calendar-end" onClose={() => { setDataFim(undefined); }}>Fim: {dataFim.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</Chip>}
+          </View>
+
+          {/* O botão de busca foi removido pois a busca é automática ao mudar as datas */}
+
+          {/* Feedback de Carregamento */}
+          {!isLoading ? (
             <SectionList
               sections={groupedComprovantes}
               renderItem={renderItem}
@@ -259,71 +215,89 @@ export default function ComprovantesContent() {
               renderSectionHeader={({ section: { title } }) => <PaperText style={styles.sectionHeader}>{title}</PaperText>}
               stickySectionHeadersEnabled={false}
             />
-        ) : null}
+          ) : null}
 
-        <ComprovanteModal
-          visible={modalVisible}
-          onDismiss={() => setModalVisible(false)}
-          pdfUrl={selectedUrl}
-        />
-      </View>
-      <Modal
-        transparent={true}
-        animationType="fade"
-        visible={isLoading}
-      >
-        <View style={styles.loaderOverlay}>
-            <CustomLoader />
-        </View>
-      </Modal>
-    </ScreenContainer>
+          <ComprovanteModal
+            visible={modalVisible}
+            onDismiss={() => setModalVisible(false)}
+            pdfUrl={selectedUrl}
+          />
+
+          <Portal>
+            <Modal visible={filterModalVisible} onDismiss={() => setFilterModalVisible(false)} transparent={true} animationType="fade">
+              <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{
+                  backgroundColor: theme.colors.background,
+                  padding: 20,
+                  margin: 20,
+                  borderRadius: 12,
+                  width: '90%',
+                  maxWidth: 500
+                }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}><Text variant="titleLarge">Filtrar Comprovantes</Text><IconButton icon="close" onPress={() => setFilterModalVisible(false)} /></View>
+                  <Text variant="labelLarge" style={styles.label}>Período:</Text>
+                  <View style={styles.dateContainer}>
+                    <View style={styles.dateWrapper}><Text variant="bodySmall" style={{ marginBottom: 4 }}>De:</Text>{Platform.OS === 'web' ? <input type="date" value={dataInicio ? toISODateString(dataInicio) : ''} onChange={(e: any) => { if (!e.target.value) { setDataInicio(undefined); return; } const [year, month, day] = e.target.value.split('-').map(Number); setDataInicio(new Date(Date.UTC(year, month - 1, day))); }} style={{ ...styles.webDatePicker, backgroundColor: theme.colors.surface, color: theme.colors.onSurface, colorScheme: theme.dark ? 'dark' : 'light' }} /> : <><Button mode="outlined" onPress={() => setShowPickerInicio(true)}>{dataInicio ? dataInicio.toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'dd/mm/aaaa'}</Button>{showPickerInicio && (<DateTimePicker value={dataInicio || new Date()} mode="date" display="default" onChange={onChangeDataInicio} />)}</>}</View>
+                    <View style={styles.dateWrapper}><Text variant="bodySmall" style={{ marginBottom: 4 }}>Até:</Text>{Platform.OS === 'web' ? <input type="date" value={dataFim ? toISODateString(dataFim) : ''} onChange={(e: any) => { if (!e.target.value) { setDataFim(undefined); return; } const [year, month, day] = e.target.value.split('-').map(Number); setDataFim(new Date(Date.UTC(year, month - 1, day))); }} style={{ ...styles.webDatePicker, backgroundColor: theme.colors.surface, color: theme.colors.onSurface, colorScheme: theme.dark ? 'dark' : 'light' }} /> : <><Button mode="outlined" onPress={() => setShowPickerFim(true)}>{dataFim ? dataFim.toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'dd/mm/aaaa'}</Button>{showPickerFim && (<DateTimePicker value={dataFim || new Date()} mode="date" display="default" onChange={onChangeDataFim} />)}</>}</View>
+                  </View>
+                  <Divider style={{ marginVertical: 16 }} />
+                  <View style={styles.modalActions}>
+                    <Button onPress={() => { setDataInicio(undefined); setDataFim(undefined); setFilterModalVisible(false); }} textColor={theme.colors.error}>Limpar</Button>
+                    <Button mode="contained" onPress={() => setFilterModalVisible(false)} style={{ flex: 1, marginLeft: 10 }}>Aplicar Filtros</Button>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+          </Portal>
+
+          <Modal
+            transparent={true}
+            animationType="fade"
+            visible={isLoading}
+          >
+            <View style={styles.loaderOverlay}>
+              <CustomLoader />
+            </View>
+          </Modal>
+
+        </ScrollView>
+      </ScreenContainer>
+    </View>
   );
 }
 /* ---------- styles ---------- */
-const getStyles = (paperTheme: any) => StyleSheet.create({
-    container: {
-    flex: 1,
-    padding: 16,
-  },
+const getStyles = (theme: any) => StyleSheet.create({
   title: {
     marginBottom: 8,
     textAlign: 'center',
   },
-  accordion: {
-    backgroundColor: paperTheme.colors.surfaceVariant,
-    marginBottom: 16,
-  },
-  pickerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    marginBottom: 16,
-    marginLeft: -40,
-  },
-  pickerWrapper: {
-    alignItems: 'center',
-  },
+  activeFilters: { flexDirection: 'row', paddingHorizontal: 16, gap: 8, flexWrap: 'wrap' },
+  dateContainer: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 },
+  dateWrapper: { flex: 1 },
+  modalActions: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' },
   label: {
+
     marginBottom: 8,
   },
   loader: {
     marginTop: 50,
   },
   list: {
-    marginTop: 16,
+    marginHorizontal: 16,
   },
   sectionHeader: {
     fontSize: 16,
     fontWeight: 'bold',
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: paperTheme.colors.surfaceVariant,
+    backgroundColor: theme.colors.surfaceVariant,
     marginTop: 12,
     borderRadius: 4,
   },
   itemContainer: {
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: paperTheme.colors.outlineVariant,
+    borderBottomColor: theme.colors.outlineVariant,
   },
   itemTipo: {
     textTransform: 'capitalize',

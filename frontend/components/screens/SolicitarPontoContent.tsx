@@ -203,8 +203,9 @@ const handleSubmit = async () => {
         >
           
           <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>Solicitar Ajuste</Text>
+          <Text variant='bodyMedium' style={{ color: theme.colors.onSurfaceVariant }}>Preencha os campos abaixo para solicitar um ajuste no seu ponto.</Text>
 
-          <Divider style={{ marginVertical: 16 }} />
+          <Divider style={{ marginTop: 24, marginBottom: 16 }} />
 
           {/* 1. Seleção de Tipo */}
           <View style={styles.inputGroup}>
