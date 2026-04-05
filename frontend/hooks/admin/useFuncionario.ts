@@ -66,6 +66,7 @@ export const useTodosFuncionarios = (userId: string | null) => {
    const [funcionarios, setFuncionarios] = useState<ModelFuncionario[]>([]);
    const [loading, setLoading] = useState(true);
    const [empresaId, setEmpresaId] = useState<string | undefined>(undefined);
+   const [nomeEmpresa, setNomeEmpresa] = useState<string>("");
 
    const fetchTodosFuncionarios = useCallback(async () => {
       if (!userId) {
@@ -84,6 +85,9 @@ export const useTodosFuncionarios = (userId: string | null) => {
             setFuncionarios([]);
             return;
          }
+
+         const responseEmpresa = await api.get(`/Empresas/${idEmpresa}`);
+         setNomeEmpresa(responseEmpresa.data?.razaoSocial || "");
 
          // 2. Busca todos os funcionários da empresa
          const response = await api.get(`/Funcionarios?empresaId=${idEmpresa}`);
@@ -120,7 +124,7 @@ export const useTodosFuncionarios = (userId: string | null) => {
       }, [fetchTodosFuncionarios])
    );
 
-   return { funcionarios, loading, empresaId, fetchTodosFuncionarios, toggleFuncionarioAtivo };
+   return { funcionarios, loading, empresaId, nomeEmpresa, fetchTodosFuncionarios, toggleFuncionarioAtivo };
 };
 
 // Hook para adicionar um novo funcionário

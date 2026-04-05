@@ -1,38 +1,33 @@
 import React, { useState } from 'react';
 import { Modal, StyleSheet, View } from "react-native";
-import { Appbar } from 'react-native-paper';
-import { useRouter } from 'expo-router';
+import { Text, useTheme, Divider } from 'react-native-paper';
 import CustomLoader from '@/components/CustomLoader';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import { useTodosFuncionarios } from '@/hooks/admin/useFuncionario';
 import ListFuncionarios from '@/components/lists/listFuncionarios';
 import { useAuth } from '@/contexts/AuthContext';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const TodosFuncionariosAdminScreen = () => {
-   const router = useRouter();
    const { userId } = useAuth();
-   const { funcionarios, loading, empresaId, toggleFuncionarioAtivo } = useTodosFuncionarios(userId || null);
-
-   const handleBack = () => {
-      if (empresaId) {
-         router.push({
-            pathname: '/(admin)/estabelecimentos', // Volta para os estabelecimentos por padrão ou outra tela?
-            params: { userId: userId }
-         });
-      } else {
-         router.back();
-      }
-   };
+   const theme = useTheme();
+   const { funcionarios, loading, empresaId, nomeEmpresa, toggleFuncionarioAtivo } = useTodosFuncionarios(userId || null);
 
    return (
       <View style={{ flex: 1 }}>
-         <Appbar.Header>
-            <Appbar.BackAction onPress={handleBack} />
-            <Appbar.Content title="Todos os Funcionários" />
-         </Appbar.Header>
          <ScreenContainer>
-            <View style={{ flex: 1 }}>
-               
+            <ScrollView contentContainerStyle={{ padding: 16, backgroundColor: theme.colors.background }}>
+               <View style={{ marginBottom: 8 }}>
+                  <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>
+                     {nomeEmpresa || "Carregando..."}
+                  </Text>
+                  <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                     Visualize todos os funcionários da sua empresa e gerencie-os.
+                  </Text>
+               </View>
+
+               <Divider style={{ marginVertical: 16 }} />
+
                <ListFuncionarios
                   funcionarios={funcionarios}
                   permissao="admin"
@@ -50,7 +45,7 @@ const TodosFuncionariosAdminScreen = () => {
                      <CustomLoader />
                   </View>
                </Modal>
-            </View>
+            </ScrollView>
          </ScreenContainer>
       </View>
    );

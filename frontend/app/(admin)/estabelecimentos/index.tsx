@@ -5,41 +5,50 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEstabelecimentos } from '@/hooks/admin/useEstabelecimento';
 import React from 'react';
 import { Modal, View, StyleSheet } from 'react-native';
-import { Appbar, useTheme, Divider} from 'react-native-paper';
+import { ScrollView } from 'react-native-gesture-handler';
+import { Appbar, useTheme, Divider, Text } from 'react-native-paper';
 
 const AdminDashboardScreen = () => {
    const { userId } = useAuth();
-   const { colors } = useTheme();
+   const theme = useTheme();
 
    const { estabelecimentos, loading, nomeEmpresa, empresaId, toggleEstabelecimentoAtivo } = useEstabelecimentos(userId || null);
 
 
    return (
       <View style={{ flex: 1 }}>
-         <Appbar.Header>
-            <Appbar.Content title={`Estabelecimentos de ${nomeEmpresa}`} />
-         </Appbar.Header>
-         <Divider />
          <ScreenContainer>
-            <View style={{ flex: 1, backgroundColor: colors.background }}>
-               
-               <ListEstabelcimentos
-                  estabelecimentos={estabelecimentos}
-                  permissao="admin"
-                  userId={userId}
-                  empresaId={empresaId}
-                  toggleEstabelecimentoAtivo={toggleEstabelecimentoAtivo}
-               />
-            </View>
-            <Modal
-               transparent={true}
-               animationType="fade"
-               visible={loading}
-            >
-               <View style={styles.loaderOverlay}>
-                  <CustomLoader />
+            <ScrollView contentContainerStyle={{ padding: 16, backgroundColor: theme.colors.background }}>
+               <View style={{ marginBottom: 8 }}>
+                  <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>
+                     {nomeEmpresa}
+                  </Text>
+                  <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                     Visualize os estabelecimentos da sua empresa e gerencie-os.
+                  </Text>
                </View>
-            </Modal>
+               <Divider style={{ marginVertical: 16 }} />
+
+               <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+
+                  <ListEstabelcimentos
+                     estabelecimentos={estabelecimentos}
+                     permissao="admin"
+                     userId={userId}
+                     empresaId={empresaId}
+                     toggleEstabelecimentoAtivo={toggleEstabelecimentoAtivo}
+                  />
+               </View>
+               <Modal
+                  transparent={true}
+                  animationType="fade"
+                  visible={loading}
+               >
+                  <View style={styles.loaderOverlay}>
+                     <CustomLoader />
+                  </View>
+               </Modal>
+            </ScrollView>
          </ScreenContainer>
       </View>
    );

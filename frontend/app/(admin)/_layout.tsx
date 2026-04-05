@@ -103,7 +103,7 @@ export default function AdminLayout() {
             name='funcionarios/index'
             options={{
                drawerItemStyle: { display: 'none' },
-               title: 'Funcionários do Estabelecimento',
+               title: 'Funcionários',
             }}
          />
          <Drawer.Screen
