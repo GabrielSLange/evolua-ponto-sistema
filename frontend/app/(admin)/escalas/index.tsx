@@ -17,7 +17,7 @@ export default function EscalasIndex() {
             <ScreenContainer>
                 <View style={styles.header}>
                     <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>Escalas de Trabalho</Text>
-                    <Text variant="bodyMedium" style={{ color: '#666' }}>
+                    <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
                         Gerencie as escalas de trabalho cadastradas.
                     </Text>
                 </View>

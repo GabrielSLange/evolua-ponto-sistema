@@ -9,26 +9,34 @@ import CustomLoader from "@/components/CustomLoader";
 
 const AddFuncionarioScreen = () => {
     const router = useRouter();
-    const { estabelecimentoId } = useLocalSearchParams<{ estabelecimentoId: string }>();
+    const { estabelecimentoId, empresaId } = useLocalSearchParams<{ estabelecimentoId?: string; empresaId?: string }>();
 
-    const { loading, addFuncionario, escalas } = useAddFuncionario(estabelecimentoId as string);
-
+    const { loading, addFuncionario, escalas, estabelecimentos } = useAddFuncionario(estabelecimentoId, empresaId);
 
     return (
         <View style={{ flex: 1 }}>
             <Appbar.Header>
-                <Appbar.BackAction onPress={() => router.push({
-                    pathname: '/(admin)/funcionarios', // Caminho para o admin
-                    params: { estabelecimentoId: estabelecimentoId }
-                })} />
+                <Appbar.BackAction onPress={() => {
+                    if (estabelecimentoId) {
+                        router.push({
+                            pathname: '/(admin)/funcionarios',
+                            params: { estabelecimentoId: estabelecimentoId }
+                        });
+                    } else {
+                        router.push('/(admin)/todos-funcionarios');
+                    }
+                }} />
             </Appbar.Header>
             <ScreenContainer>
                 <View style={{ flex: 1 }}>
                     
                     <FuncionarioForm
+                        funcionario={{ estabelecimentoId: estabelecimentoId || '' } as any}
                         onSubmit={addFuncionario}
                         submitButtonLabel="Cadastrar"
                         escalas={escalas}
+                        estabelecimentos={estabelecimentos}
+                        fixedEstabelecimentoId={!!estabelecimentoId}
                     />
                     <Modal
                         transparent={true}

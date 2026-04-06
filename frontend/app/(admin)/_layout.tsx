@@ -107,6 +107,13 @@ export default function AdminLayout() {
             }}
          />
          <Drawer.Screen
+            name='todos-funcionarios/index'
+            options={{
+               drawerItemStyle: { display: 'none' },
+               title: 'Funcionários',
+            }}
+         />
+         <Drawer.Screen
             name='funcionarios/add-funcionario'
             options={{
                drawerItemStyle: { display: 'none' },
