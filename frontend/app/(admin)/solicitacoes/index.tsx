@@ -182,7 +182,7 @@ export default function SolicitacoesScreen() {
         <ScreenContainer>
             <View style={styles.header}>
                 <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary, fontFamily: 'Nunito_700Bold'}}>Solicitações Pendentes</Text>
-                <Text variant="bodyMedium" style={{ color: '#666', fontFamily: 'Nunito_700Bold' }}>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
                     {solicitacoes.length} solicitações aguardando análise
                 </Text>
             </View>

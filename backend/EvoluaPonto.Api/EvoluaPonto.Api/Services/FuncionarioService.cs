@@ -1,4 +1,4 @@
-﻿using EvoluaPonto.Api.Data;
+using EvoluaPonto.Api.Data;
 using EvoluaPonto.Api.Dtos;
 using EvoluaPonto.Api.Models;
 using EvoluaPonto.Api.Models.Shared;
@@ -21,6 +21,7 @@ namespace EvoluaPonto.Api.Services
             {
                 Data = await _context.Funcionarios
                 .AsNoTracking()
+                .Include(tb => tb.Estabelecimento)
                 .Where(tb => tb.Estabelecimento.EmpresaId == empresaId)
                 .ToListAsync()
             };
@@ -30,6 +31,7 @@ namespace EvoluaPonto.Api.Services
             {
                 Data = await _context.Funcionarios
                 .AsNoTracking()
+                .Include(tb => tb.Estabelecimento)
                 .Where(tb => tb.EstabelecimentoId == estabelecimentoId)
                 .ToListAsync()
             };

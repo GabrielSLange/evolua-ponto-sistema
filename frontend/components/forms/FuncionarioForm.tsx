@@ -16,6 +16,7 @@ interface FuncionarioFormProps {
     estabelecimentos?: ModelEstabelecimento[]; // Lista de estabelecimentos para o dropdown
     escalas?: DropdownItem[]; // Lista de escalas para o dropdown
     isReadOnly?: boolean;
+    fixedEstabelecimentoId?: boolean;
 }
 
 // Define a estrutura do objeto de erros
@@ -28,6 +29,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
     estabelecimentos = [],
     escalas = [],
     isReadOnly = false,
+    fixedEstabelecimentoId = false,
 }) => {
     const { role } = useAuth(); // Pega a role do usuário logado
 
@@ -88,7 +90,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         } else {
             // Reset para criação
             setFormData({
-                id: null, estabelecimentoId: '', nome: '', cpf: '',
+                id: null, estabelecimentoId: funcionario?.estabelecimentoId || '', nome: '', cpf: '',
                 email: '', password: '', cargo: '', role: '',
                 ativo: true, escalaId: '',
             });
@@ -132,6 +134,7 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
         if (role !== 'superadmin')
         {
             if (!formData.escalaId) newErrors.escalaId = "A escala é obrigatória.";
+            if (!formData.estabelecimentoId) newErrors.estabelecimentoId = "O estabelecimento é obrigatório." as any;
         }
 
         // Validação condicional da senha
@@ -313,33 +316,39 @@ const FuncionarioForm: React.FC<FuncionarioFormProps> = ({
                 ))}
             </Menu>
 
-            {/* Campo de Estabelecimento - Visível apenas na edição */}
-            {funcionario?.id && (
-                <Menu
-                    visible={estabelecimentoMenuVisible}
-                    onDismiss={closeEstabelecimentoMenu}
-                    anchor={
-                        <TouchableOpacity onPress={openEstabelecimentoMenu} disabled={isReadOnly}>
-                            <TextInput
-                                label="Estabelecimento"
-                                value={estabelecimentos.find(e => e.id === formData.estabelecimentoId)?.nomeFantasia || ''}
-                                style={styles.input}
-                                editable={false}
-                                right={<TextInput.Icon icon="menu-down" onPress={isReadOnly ? undefined : openEstabelecimentoMenu} forceTextInputFocus={false} />}
+            {/* Campo de Estabelecimento */}
+            {role !== 'superadmin' && (
+                <>
+                    <HelperText type="error" visible={!!(errors as any).estabelecimentoId}>
+                        {(errors as any).estabelecimentoId}
+                    </HelperText>
+                    <Menu
+                        visible={estabelecimentoMenuVisible}
+                        onDismiss={closeEstabelecimentoMenu}
+                        anchor={
+                            <TouchableOpacity onPress={openEstabelecimentoMenu} disabled={isReadOnly || fixedEstabelecimentoId}>
+                                <TextInput
+                                    label="Estabelecimento"
+                                    value={estabelecimentos.find(e => e.id === formData.estabelecimentoId)?.nomeFantasia || ''}
+                                    style={styles.input}
+                                    editable={false}
+                                    right={<TextInput.Icon icon="menu-down" onPress={isReadOnly ? undefined : openEstabelecimentoMenu} forceTextInputFocus={false} />}
+                                    error={!!(errors as any).estabelecimentoId}
+                                />
+                            </TouchableOpacity>
+                        }>
+                        {estabelecimentos.map((est) => (
+                            <Menu.Item
+                                key={est.id}
+                                onPress={() => {
+                                    handleChange('estabelecimentoId', est.id as string);
+                                    closeEstabelecimentoMenu();
+                                }}
+                                title={est.nomeFantasia}
                             />
-                        </TouchableOpacity>
-                    }>
-                    {estabelecimentos.map((est) => (
-                        <Menu.Item
-                            key={est.id}
-                            onPress={() => {
-                                handleChange('estabelecimentoId', est.id as string);
-                                closeEstabelecimentoMenu();
-                            }}
-                            title={est.nomeFantasia}
-                        />
-                    ))}
-                </Menu>
+                        ))}
+                    </Menu>
+                </>
             )}
 
             {!isReadOnly && (

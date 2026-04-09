@@ -1,19 +1,17 @@
+import React, { useState } from 'react';
+import { Modal, StyleSheet, View } from "react-native";
+import { Text, useTheme, Divider } from 'react-native-paper';
 import CustomLoader from '@/components/CustomLoader';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
-import ListEstabelcimentos from '@/components/lists/listEstabelecimentos';
+import { useTodosFuncionarios } from '@/hooks/admin/useFuncionario';
+import ListFuncionarios from '@/components/lists/listFuncionarios';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEstabelecimentos } from '@/hooks/admin/useEstabelecimento';
-import React from 'react';
-import { Modal, View, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Appbar, useTheme, Divider, Text } from 'react-native-paper';
 
-const AdminDashboardScreen = () => {
+const TodosFuncionariosAdminScreen = () => {
    const { userId } = useAuth();
    const theme = useTheme();
-
-   const { estabelecimentos, loading, nomeEmpresa, empresaId, toggleEstabelecimentoAtivo } = useEstabelecimentos(userId || null);
-
+   const { funcionarios, loading, empresaId, nomeEmpresa, toggleFuncionarioAtivo } = useTodosFuncionarios(userId || null);
 
    return (
       <View style={{ flex: 1 }}>
@@ -21,24 +19,23 @@ const AdminDashboardScreen = () => {
             <ScrollView contentContainerStyle={{ padding: 16, backgroundColor: theme.colors.background }}>
                <View style={{ marginBottom: 8 }}>
                   <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>
-                     {nomeEmpresa}
+                     {nomeEmpresa || "Carregando..."}
                   </Text>
                   <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                     Visualize os estabelecimentos da sua empresa e gerencie-os.
+                     Visualize todos os funcionários da sua empresa e gerencie-os.
                   </Text>
                </View>
+
                <Divider style={{ marginVertical: 16 }} />
 
-               <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-
-                  <ListEstabelcimentos
-                     estabelecimentos={estabelecimentos}
-                     permissao="admin"
-                     userId={userId}
-                     empresaId={empresaId}
-                     toggleEstabelecimentoAtivo={toggleEstabelecimentoAtivo}
-                  />
-               </View>
+               <ListFuncionarios
+                  funcionarios={funcionarios}
+                  permissao="admin"
+                  userId={userId}
+                  empresaId={empresaId}
+                  // Passamos estabelecimentoId undefined para indicar que é do "Todos"
+                  toggleFuncionarioAtivo={toggleFuncionarioAtivo}
+               />
                <Modal
                   transparent={true}
                   animationType="fade"
@@ -56,12 +53,11 @@ const AdminDashboardScreen = () => {
 
 const styles = StyleSheet.create({
    loaderOverlay: {
-      flex: 1, // O Modal precisa que o 'flex: 1' preencha a tela
+      flex: 1,
       backgroundColor: 'rgba(0, 0, 0, 0.3)',
       alignItems: 'center',
       justifyContent: 'center',
    },
 });
 
-
-export default AdminDashboardScreen;
+export default TodosFuncionariosAdminScreen;

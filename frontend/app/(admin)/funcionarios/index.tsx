@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, StyleSheet, View } from "react-native";
-import { Appbar } from 'react-native-paper';
+import { Text, useTheme, Divider, IconButton } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import CustomLoader from '@/components/CustomLoader';
 import ScreenContainer from '@/components/layouts/ScreenContainer';
 import { useFuncionarios } from '@/hooks/admin/useFuncionario';
 import ListFuncionarios from '@/components/lists/listFuncionarios';
 import api from '../../../services/api';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const FuncionariosAdminScreen = () => {
    const router = useRouter();
+   const theme = useTheme();
    const { estabelecimentoId } = useLocalSearchParams<{ estabelecimentoId: string }>();
 
    const [headerTitle, setHeaderTitle] = useState('Funcionários');
@@ -24,7 +26,7 @@ const FuncionariosAdminScreen = () => {
             .then(response => {
                if (response.data) {
                   const { nomeFantasia, empresaId: fetchedEmpresaId } = response.data;
-                  setHeaderTitle(`Funcionários de ${nomeFantasia}`);
+                  setHeaderTitle(`${nomeFantasia}`);
                   setEmpresaId(fetchedEmpresaId);
                }
             })
@@ -50,13 +52,28 @@ const FuncionariosAdminScreen = () => {
 
    return (
       <View style={{ flex: 1 }}>
-         <Appbar.Header>
-            <Appbar.BackAction onPress={handleBack} />
-            <Appbar.Content title={headerTitle} />
-         </Appbar.Header>
          <ScreenContainer>
-            <View style={{ flex: 1 }}>
-               
+            <ScrollView contentContainerStyle={{ padding: 16, backgroundColor: theme.colors.background }}>
+               <View style={{ marginBottom: 8, flexDirection: 'row', alignItems: 'center' }}>
+                  <IconButton
+                     icon="arrow-left"
+                     size={28}
+                     iconColor={theme.colors.primary}
+                     onPress={handleBack}
+                     style={{ marginLeft: -8, marginRight: 8 }}
+                  />
+                  <View style={{ flex: 1 }}>
+                     <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>
+                        {headerTitle}
+                     </Text>
+                     <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                        Visualize todos os funcionários do estabelecimento e gerencie-os.
+                     </Text>
+                  </View>
+               </View>
+
+               <Divider style={{ marginVertical: 16 }} />
+                  
                <ListFuncionarios
                   funcionarios={funcionarios}
                   permissao="admin"
@@ -73,7 +90,7 @@ const FuncionariosAdminScreen = () => {
                      <CustomLoader />
                   </View>
                </Modal>
-            </View>
+            </ScrollView>
          </ScreenContainer>
       </View>
    );

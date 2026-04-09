@@ -220,29 +220,36 @@ export default function HistoricoPontosScreen() {
     const footerStyle: any = { width: '100%', alignSelf: 'center' as const }
 
     return (
-        <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-            
-            <View style={styles.header}>
-                <Text variant="headlineSmall" style={{ fontWeight: 'bold', color: theme.colors.primary }}>Histórico de Pontos</Text>
-                <IconButton icon="filter-variant" mode="contained" onPress={() => setFilterModalVisible(true)} />
-            </View>
+        <View style={{ flex: 1 }}>
             <ScreenContainer>
-                
-                
-                <View style={styles.activeFilters}>
-                    {selectedFuncionario && <Chip icon="account" onClose={() => { setSelectedFuncionario(null); handleRefresh(); }}>{selectedFuncionario.nome.split(' ')[0]}</Chip>}
-                    {dataInicio && <Chip icon="calendar-start" onClose={() => { setDataInicio(undefined); handleRefresh(); }}>Início: {dataInicio.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</Chip>}
-                    {dataFim && <Chip icon="calendar-end" onClose={() => { setDataFim(undefined); handleRefresh(); }}>Fim: {dataFim.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</Chip>}
-                </View>
-                <FlatList
-                    data={pontos}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={renderItem}
-                    scrollEnabled={true} // OBRIGATÓRIO POIS TÁ DENTRO DE OUTRO SCROLL
-                    ListFooterComponent={loading && !refreshing ? <ActivityIndicator style={{ margin: 20 }} /> : null}
-                    ListEmptyComponent={!loading ? <Text style={{ textAlign: 'center', marginTop: 50, color: '#888' }}>Nenhum registro encontrado.</Text> : null}
-                />
-                <View style={{ height: 100 }} /> 
+                <ScrollView contentContainerStyle={{ backgroundColor: theme.colors.background }}>
+                    <View style={styles.header}>
+                        <View>
+                            <Text variant="headlineMedium" style={{ fontWeight: 'bold', color: theme.colors.primary }}>Histórico de Pontos</Text>
+                            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                                Visualize os registros de ponto dos funcionários.
+                            </Text>
+                        </View>
+                        <IconButton icon="filter-variant" mode="contained" onPress={() => setFilterModalVisible(true)} />
+                    </View>
+
+                    <Divider style={{ marginHorizontal: 16, marginBottom: 16, marginTop: 8 }} />
+                    
+                    <View style={styles.activeFilters}>
+                        {selectedFuncionario && <Chip icon="account" onClose={() => { setSelectedFuncionario(null); handleRefresh(); }}>{selectedFuncionario.nome.split(' ')[0]}</Chip>}
+                        {dataInicio && <Chip icon="calendar-start" onClose={() => { setDataInicio(undefined); handleRefresh(); }}>Início: {dataInicio.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</Chip>}
+                        {dataFim && <Chip icon="calendar-end" onClose={() => { setDataFim(undefined); handleRefresh(); }}>Fim: {dataFim.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</Chip>}
+                    </View>
+                    <FlatList
+                        data={pontos}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={renderItem}
+                        scrollEnabled={true} // OBRIGATÓRIO POIS TÁ DENTRO DE OUTRO SCROLL
+                        ListFooterComponent={loading && !refreshing ? <ActivityIndicator style={{ margin: 20 }} /> : null}
+                        ListEmptyComponent={!loading ? <Text style={{ textAlign: 'center', marginTop: 50, color: '#888' }}>Nenhum registro encontrado.</Text> : null}
+                    />
+                    <View style={{ height: 100 }} />
+                </ScrollView>
             </ScreenContainer>
 
             <Surface style={[styles.paginationFooter, footerStyle, { backgroundColor: theme.colors.elevation.level2 }]} elevation={4}>
@@ -349,9 +356,9 @@ export default function HistoricoPontosScreen() {
 }
 
 const styles = StyleSheet.create({
-    header: { padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    header: { paddingHorizontal: 16, paddingVertical: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     activeFilters: { flexDirection: 'row', paddingHorizontal: 16, gap: 8, flexWrap: 'wrap', marginBottom: 8 },
-    card: { marginBottom: 10, elevation: 1 },
+    card: { marginBottom: 10, elevation: 1, marginHorizontal: 16 },
     cardContent: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     leftContent: { flexDirection: 'row', alignItems: 'center' },
     rightContent: { alignItems: 'flex-end' },
