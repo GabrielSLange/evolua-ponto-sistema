@@ -13,7 +13,7 @@ env:
   IMAGE_NAME: ghcr.io/gabrielslange/evolua-ponto-frontend:latest
 
   # --- AQUI VOCÊ CONFIGURA A URL DA API ---
-  API_URL_PROD: http://thzau84khkkzbwfuulfr8x9d.76.13.231.169.sslip.io
+  API_URL_PROD: https://api.novacontabilidadedigital.com
 
 jobs:
   build-and-push:
