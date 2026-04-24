@@ -70,6 +70,7 @@ builder.Services.AddCors(options =>
                                              "https://evoluaponto-frontend.d63v0v.easypanel.host",
                                              "https://evolua-ponto-frontend.ukttjf.easypanel.host",
                                              "https://app.novacontabilidadedigital.com",
+                                             "http://t8akvo8as384fd3la9ftxokx.76.13.231.169.sslip.io",
                                              "https://evolua-ponto-sistema.vercel.app") // Para o Swagger local
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
