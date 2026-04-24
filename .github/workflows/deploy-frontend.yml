@@ -13,7 +13,7 @@ env:
   IMAGE_NAME: ghcr.io/gabrielslange/evolua-ponto-frontend:latest
 
   # --- AQUI VOCÊ CONFIGURA A URL DA API ---
-  API_URL_PROD: https://evolua-ponto-api.ukttjf.easypanel.host
+  API_URL_PROD: http://thzau84khkkzbwfuulfr8x9d.76.13.231.169.sslip.io
 
 jobs:
   build-and-push:
