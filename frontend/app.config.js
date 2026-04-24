@@ -2,18 +2,17 @@
 require('dotenv').config({ path: '.env.local' });
 
 module.exports = {
-   // Você provavelmente já tem configurações como 'name', 'slug', 'version', etc.
-   // Pode mantê-las. A parte mais importante é adicionar o objeto 'extra'.
-   name: 'Evolua Ponto', // Use o nome do seu app
+   name: 'Evolua Ponto',
    slug: 'evolua-ponto',
    version: '1.0.0',
 
-   // ... outras configurações do seu app ...
-
-   // Adicione esta seção "extra":
    extra: {
-      // Esta é a parte importante.
-      // Ele pega a variável de ambiente do processo de build...
       apiUrl: process.env.NEXT_PUBLIC_API_URL,
+   },
+
+   // Adiciona isso:
+   web: {
+      bundler: "metro",
+      output: "single",
    },
 };
